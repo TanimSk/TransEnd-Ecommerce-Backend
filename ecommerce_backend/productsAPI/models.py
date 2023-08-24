@@ -5,14 +5,17 @@ import uuid
 
 class Category(models.Model):
     name = models.CharField(max_length=200)
-    images = ArrayField(models.CharField(max_length=500), default=list, blank=True)
+    images = ArrayField(models.URLField(), default=list, blank=True)
+
+    def __str__(self) -> str:
+        return self.name
 
 
 class Product(models.Model):
     name = models.CharField(max_length=200, default="Not Given")
     details = models.TextField(blank=True)
     price = models.IntegerField()
-    images = ArrayField(models.CharField(max_length=500), default=list, blank=True)
+    images = ArrayField(models.URLField(), default=list, blank=True)
     quantity = models.IntegerField()
 
     rewards = models.IntegerField()

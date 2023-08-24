@@ -15,3 +15,6 @@ class User(models.Model):
     inside_dhaka = models.BooleanField(default=False)
     TYPES = (("user", "user"), ("admin", "admin"))
     user_type = models.CharField(max_length=20, choices=TYPES)
+
+    def __str__(self) -> str:
+        return self.name
