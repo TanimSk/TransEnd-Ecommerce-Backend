@@ -1,3 +1,6 @@
-from django.shortcuts import render
+from dj_rest_auth.registration.views import RegisterView
+from .serializers import AdminCustomRegistrationSerializer
 
-# Create your views here.
+
+class AdminRegistrationView(RegisterView):
+    serializer_class = AdminCustomRegistrationSerializer

@@ -185,7 +185,9 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+
 ACCOUNT_ADAPTER = "all_auth_extended.all_auth_extended.AccountAdapter"
+AUTH_USER_MODEL = "userAPI.User"
 
 SITE_ID = 1
 

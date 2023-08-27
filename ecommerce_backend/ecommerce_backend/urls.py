@@ -24,8 +24,13 @@ urlpatterns = [
     path("products/", include("productsAPI.urls")),
     # ---------- Auth ------------
     path("rest-auth/", include("dj_rest_auth.urls")),
-    path("rest-auth/registration/", include("dj_rest_auth.registration.urls")),
-    path('rest-auth/registration/account-confirm-email/', VerifyEmailView.as_view(), name='account_email_verification_sent'),
+    path(
+        "rest-auth/registration/account-confirm-email/",
+        VerifyEmailView.as_view(),
+        name="account_email_verification_sent",
+    ),
     path("get-access-token/", TokenRefreshView.as_view(), name="get-access-token"),
     
+    path("administrator/", include("adminAPI.urls")),
+    path("consumer/", include("userAPI.urls")),
 ]
