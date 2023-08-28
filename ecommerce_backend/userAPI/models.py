@@ -1,10 +1,12 @@
 from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
+from productsAPI.models import Product
 
 # Signals
 from django.db.models.signals import post_delete
 from django.dispatch import receiver
+import uuid
 
 
 class User(AbstractUser):
@@ -31,8 +33,45 @@ class Consumer(models.Model):
         return self.consumer.email
 
 
+# Order and wishlist
+class OrderedProduct(models.Model):
+    consumer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="order_consumer"
+    )
+    product = models.ForeignKey(
+        Product, on_delete=models.CASCADE, related_name="ordered_product"
+    )
+    ordered_quantity = models.IntegerField()
+    used_coupon = models.BooleanField(default=False)
+    ordered_date = models.DateTimeField(auto_now=True)
+    tracking_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+
+    STATUS = (
+        ("paid", "paid"),
+        ("unpaid", "unpaid"),
+        ("delivered", "delivered"),
+    )
+    status = models.CharField(max_length=30, choices=STATUS, default="unpaid")
+    dispatched = models.BooleanField(default=False)
+
+    def __str__(self) -> str:
+        return f"{self.product.name} | {self.consumer.email}"
+
+
+class Wishlist(models.Model):
+    consumer = models.ForeignKey(
+        User, on_delete=models.CASCADE, related_name="wishlist_consumer"
+    )
+    product = models.OneToOneField(
+        Product, on_delete=models.CASCADE, related_name="wishlist_product"
+    )
+    wishlisted_date = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return self.product.name
+
+
 @receiver(post_delete, sender=Consumer)
 def delete_consumer_user(sender, instance, **kwargs):
-    # User = get_user_model()
     user = instance.consumer
     user.delete()

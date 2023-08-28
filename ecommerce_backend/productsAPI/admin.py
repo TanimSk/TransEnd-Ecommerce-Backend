@@ -11,15 +11,9 @@ class CategoryAdmin(admin.ModelAdmin):
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
         "name",
-        # "details",
-        "price",
         "images",
         "quantity",
         "rewards",
-        # "grant",
-        # "coupon_code",
-        "discount",
-        # "tags",
         "product_added_date",
         "category",
     )

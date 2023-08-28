@@ -1,5 +1,5 @@
 from django.urls import path
-from .views import CategoryAPI
+from .views import CategoryAPI, SearchAPI
 
 urlpatterns = [
     path("categories/", CategoryAPI.as_view(), name="category"),
@@ -9,4 +9,5 @@ urlpatterns = [
         CategoryAPI.as_view(),
         name="category",
     ),
+    path("search/", SearchAPI.as_view(), name="search"),
 ]

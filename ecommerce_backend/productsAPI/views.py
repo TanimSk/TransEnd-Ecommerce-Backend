@@ -1,4 +1,5 @@
-from django.shortcuts import render
+from rest_framework import generics
+from rest_framework import filters
 
 from .serializers import ProductSerializer, CategorySerializer
 from .models import Category, Product
@@ -23,7 +24,7 @@ class CategoryAPI(APIView):
 
         # Return Category Specific Products
         elif product_id is None:
-            products = Product.objects.filter(category_id=category_id)
+            products = Product.objects.filter(category_id=category_id, quantity__gt=0)
             serialized_products = ProductSerializer(products, many=True)
             return Response(serialized_products.data)
 
@@ -35,3 +36,14 @@ class CategoryAPI(APIView):
                 product = None
             serialized_product = ProductSerializer(product)
             return Response(serialized_product.data)
+
+
+class SearchAPI(generics.ListCreateAPIView):
+    search_fields = [
+        "name",
+        "details",
+        "tags",
+    ]
+    filter_backends = (filters.SearchFilter,)
+    queryset = Product.objects.all()
+    serializer_class = ProductSerializer

@@ -1,10 +1,40 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
-# from rest_framework.authtoken.models import Token
-
-from .models import Consumer
+from .models import Consumer, OrderedProduct
 
 
+class WishlistSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField(required=True)
+
+
+class ProfileSerializer(serializers.ModelSerializer):
+    class Meta:
+        exclude = ("consumer",)
+        model = Consumer
+
+
+# Ordered Products
+class OrderedProductSerializer(serializers.ModelSerializer):
+    product_id = serializers.IntegerField(source="product.id")
+
+    # read only fields
+    name = serializers.CharField(source="product.name", read_only=True)
+    img_urls = serializers.ListField(source="product.images", read_only=True)
+    added_on = serializers.DateTimeField(source="ordered_date", read_only=True)
+
+    class Meta:
+        fields = (
+            "product_id",
+            "ordered_quantity",
+            "used_coupon",
+            "name",
+            "img_urls",
+            "added_on",
+        )
+        model = OrderedProduct
+
+
+# Custom Registration
 class ConsumerCustomRegistrationSerializer(RegisterSerializer):
     consumer = serializers.PrimaryKeyRelatedField(
         read_only=True,
