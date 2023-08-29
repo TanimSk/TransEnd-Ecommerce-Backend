@@ -22,6 +22,12 @@ class Notice(models.Model):
     expiry_date = models.DateTimeField()
 
 
+class CouponCode(models.Model):
+    code = models.CharField(max_length=50)
+    discount = models.IntegerField()
+    validity = models.IntegerField()
+
+
 class rewards(models.Model):
     points = models.IntegerField(default=0)
     amount = models.IntegerField(default=0)

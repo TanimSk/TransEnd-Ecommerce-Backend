@@ -27,8 +27,7 @@ class Product(models.Model):
     rewards = models.IntegerField()
     grant = models.IntegerField()
 
-    # Coupon
-    coupon_code = models.CharField(max_length=50)
+    # Discount
     discount_percent = models.IntegerField(default=0)
     discount_bdt = models.IntegerField(default=0)
 

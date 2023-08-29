@@ -35,4 +35,5 @@ urlpatterns = [
     
     path("administrator/", include("adminAPI.urls")),
     path("consumer/", include("userAPI.urls")),
+    path("vendor/", include("vendorAPI.urls")),
 ]
