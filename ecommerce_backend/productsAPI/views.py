@@ -1,11 +1,16 @@
 from rest_framework import generics
 from rest_framework import filters
 
-from .serializers import ProductSerializer, CategorySerializer
-from .models import Category, Product
+from .serializers import (
+    ProductSerializer,
+    CategorySerializer,
+    FeaturedProductSerializer,
+)
+from .models import Category, Product, FeaturedProduct
 
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework.pagination import PageNumberPagination
 
 
 class CategoryAPI(APIView):
@@ -38,6 +43,15 @@ class CategoryAPI(APIView):
             return Response(serialized_product.data)
 
 
+
+# Search API
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = 'page_size'
+    max_page_size = 10
+    page_query_param = 'p'
+
+
 class SearchAPI(generics.ListCreateAPIView):
     search_fields = [
         "name",
@@ -47,3 +61,18 @@ class SearchAPI(generics.ListCreateAPIView):
     filter_backends = (filters.SearchFilter,)
     queryset = Product.objects.all()
     serializer_class = ProductSerializer
+    pagination_class = StandardResultsSetPagination
+
+
+# Featured Products API
+class FeaturedProductAPI(APIView):
+    serializer_class = FeaturedProductSerializer
+
+    def get(self, request, section, format=None, *args, **kwargs):
+        if section == "home" or section == "category":
+            products_instance = FeaturedProduct.objects.filter(section=section)
+            serialized_products = self.serializer_class(products_instance, many=True)
+            return Response(serialized_products.data)
+
+        return Response({"status": "wrong routing!"}, status=404)
+

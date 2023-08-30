@@ -1,6 +1,6 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from .models import Moderator
+from .models import Moderator, Notice
 
 
 class AdminCustomRegistrationSerializer(RegisterSerializer):
@@ -30,3 +30,9 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
         )
         admin.save()
         return user
+
+
+class NoticeSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = Notice

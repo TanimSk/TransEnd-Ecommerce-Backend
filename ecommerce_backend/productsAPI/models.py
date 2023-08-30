@@ -16,10 +16,10 @@ class Product(models.Model):
     details = models.TextField(blank=True)
 
     price_bdt = models.IntegerField()
-    price_usd = models.IntegerField(default=0)
-    price_eur = models.IntegerField(default=0)
-    price_gbp = models.IntegerField(default=0)
-    price_cad = models.IntegerField(default=0)
+    price_usd = models.FloatField(default=0)
+    price_gbp = models.FloatField(default=0)
+    price_eur = models.FloatField(default=0)
+    price_cad = models.FloatField(default=0)
 
     images = ArrayField(models.URLField(), default=list, blank=True)
     quantity = models.IntegerField()
@@ -40,6 +40,9 @@ class Product(models.Model):
         Category, on_delete=models.CASCADE, related_name="category"
     )
 
+    def __str__(self) -> str:
+        return self.name
+
 
 class FeaturedProduct(models.Model):
     product = models.ForeignKey(
@@ -48,3 +51,6 @@ class FeaturedProduct(models.Model):
 
     SECTIONS = (("home", "home"), ("category", "category"))
     section = models.CharField(max_length=20, choices=SECTIONS)
+
+    def __str__(self) -> str:
+        return self.product.name

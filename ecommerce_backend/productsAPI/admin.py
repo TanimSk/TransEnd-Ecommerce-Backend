@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Product, Category
+from .models import Product, Category, FeaturedProduct
 
 
 @admin.register(Category)
@@ -17,3 +17,7 @@ class ProductAdmin(admin.ModelAdmin):
         "product_added_date",
         "category",
     )
+
+@admin.register(FeaturedProduct)
+class FeaturedProductAdmin(admin.ModelAdmin):
+    list_display = ("product", "section")
