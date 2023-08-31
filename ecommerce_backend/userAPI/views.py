@@ -5,6 +5,7 @@ from rest_framework.response import Response
 
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
+from django.utils import timezone
 
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (
@@ -81,7 +82,7 @@ class CartAPI(APIView):
         )
         serialized_products = OrderedProductSerializer(cart_product_instance, many=True)
         return Response(serialized_products.data)
-    
+
     def post(self, request, format=None, *args, **kwargs):
         serializer = OrderedProductSerializer(data=request.data)
 
@@ -97,30 +98,36 @@ class CartAPI(APIView):
                 consumer=request.user,
                 product=product_instance,
                 ordered_quantity=serializer.data.get("ordered_quantity"),
-                status="cart"
+                status="cart",
             ).save()
 
             return Response({"status": "Added to Ordered Products"}, status=200)
 
 
-
-# add / show Ordered Products, dispatched = True
+# add / show Ordered Products, status != "cart"
 class OrderProductAPI(APIView):
     # serializer_class = OrderedProductSerializer
     permission_classes = [IsAuthenticated]
 
-    def get(self, request, format=None, *args, **kwargs):
+    def get(self, request, method=None, format=None, *args, **kwargs):
         ordered_product_instance = OrderedProduct.objects.filter(
-            consumer=request.user, status__ne="cart"
-        )
+            consumer=request.user
+        ).exclude(status="cart")
         serialized_products = OrderedProductSerializer(
             ordered_product_instance, many=True
         )
         return Response(serialized_products.data)
 
     # set ordered products
-    def post(self, request, format=None, *args, **kwargs):
+    def post(self, request, method=None, format=None, *args, **kwargs):
+        if method == "cod":
+            orders_instance = OrderedProduct.objects.filter(
+                consumer=request.user, status="cart"
+            )
+            orders_instance.update(status=method)
+            return Response({"status": "Orders Placed!"})
 
-        # Get User Payment Method
-        consumer_instance = Consumer.objects.get(consumer=request.user)
-        
+        elif method == "mobile":
+            ...
+        else:
+            return Response({"status": "Invalid Payment Method!"})

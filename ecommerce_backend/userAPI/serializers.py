@@ -20,7 +20,7 @@ class OrderedProductSerializer(serializers.ModelSerializer):
     # read only fields
     name = serializers.CharField(source="product.name", read_only=True)
     img_urls = serializers.ListField(source="product.images", read_only=True)
-    added_on = serializers.DateTimeField(source="ordered_date", read_only=True)
+    added_on = serializers.DateTimeField(source="ordered_date", read_only=True, format="%Y-%m-%d %H:%M:%S")
 
     class Meta:
         fields = (

@@ -33,5 +33,10 @@ urlpatterns = [
         OrderProductAPI.as_view(),
         name="ordered_products",
     ),
+    path(
+        "ordered_product/<str:method>",
+        OrderProductAPI.as_view(),
+        name="ordered_products",
+    ),
 
 ]
