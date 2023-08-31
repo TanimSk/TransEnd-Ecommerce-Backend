@@ -10,6 +10,5 @@ urlpatterns = [
         name="category",
     ),
     path("search/", SearchAPI.as_view(), name="search"),
-    path("featured_products/<str:section>", FeaturedProductAPI.as_view(), name="search"),
-
+    path("featured_products/<str:section>", FeaturedProductAPI.as_view(), name="featured_products"),
 ]

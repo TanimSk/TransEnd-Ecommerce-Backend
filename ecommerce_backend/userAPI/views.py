@@ -4,8 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 
 from productsAPI.models import Product
-from userAPI.models import Consumer
-from .models import Wishlist, OrderedProduct
+from .models import Wishlist, OrderedProduct, Consumer
 
 from rest_framework.permissions import IsAuthenticated
 from .serializers import (
@@ -71,19 +70,18 @@ class ProfileAPI(APIView):
         return Response(serialized_profile.data)
 
 
-# add / show Ordered Products
-class OrderProductAPI(APIView):
+# Show / Add Products on Cart, status = "Cart"
+class CartAPI(APIView):
     serializer_class = OrderedProductSerializer
     permission_classes = [IsAuthenticated]
 
     def get(self, request, format=None, *args, **kwargs):
-        ordered_product_instance = OrderedProduct.objects.filter(consumer=request.user)
-        serialized_products = OrderedProductSerializer(
-            ordered_product_instance, many=True
+        cart_product_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
         )
+        serialized_products = OrderedProductSerializer(cart_product_instance, many=True)
         return Response(serialized_products.data)
-
-    # set ordered products
+    
     def post(self, request, format=None, *args, **kwargs):
         serializer = OrderedProductSerializer(data=request.data)
 
@@ -99,7 +97,30 @@ class OrderProductAPI(APIView):
                 consumer=request.user,
                 product=product_instance,
                 ordered_quantity=serializer.data.get("ordered_quantity"),
-                used_coupon=serializer.data.get("used_coupon"),
+                status="cart"
             ).save()
 
             return Response({"status": "Added to Ordered Products"}, status=200)
+
+
+
+# add / show Ordered Products, dispatched = True
+class OrderProductAPI(APIView):
+    # serializer_class = OrderedProductSerializer
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None, *args, **kwargs):
+        ordered_product_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status__ne="cart"
+        )
+        serialized_products = OrderedProductSerializer(
+            ordered_product_instance, many=True
+        )
+        return Response(serialized_products.data)
+
+    # set ordered products
+    def post(self, request, format=None, *args, **kwargs):
+
+        # Get User Payment Method
+        consumer_instance = Consumer.objects.get(consumer=request.user)
+        

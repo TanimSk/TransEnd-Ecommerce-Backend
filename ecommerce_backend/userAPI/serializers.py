@@ -15,7 +15,7 @@ class ProfileSerializer(serializers.ModelSerializer):
 
 # Ordered Products
 class OrderedProductSerializer(serializers.ModelSerializer):
-    product_id = serializers.IntegerField(source="product.id")
+    product_id = serializers.IntegerField(source="product.id", required=True)
 
     # read only fields
     name = serializers.CharField(source="product.name", read_only=True)
@@ -26,7 +26,6 @@ class OrderedProductSerializer(serializers.ModelSerializer):
         fields = (
             "product_id",
             "ordered_quantity",
-            "used_coupon",
             "name",
             "img_urls",
             "added_on",

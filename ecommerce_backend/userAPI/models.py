@@ -42,16 +42,16 @@ class OrderedProduct(models.Model):
         Product, on_delete=models.CASCADE, related_name="ordered_product"
     )
     ordered_quantity = models.IntegerField()
-    used_coupon = models.BooleanField(default=False)
     ordered_date = models.DateTimeField(auto_now=True)
     tracking_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     STATUS = (
+        ("cart", "cart"),
         ("paid", "paid"),
-        ("unpaid", "unpaid"),
+        ("cod", "cod"),
         ("delivered", "delivered"),
     )
-    status = models.CharField(max_length=30, choices=STATUS, default="unpaid")
+    status = models.CharField(max_length=30, choices=STATUS, default="cart")
     dispatched = models.BooleanField(default=False)
 
     def __str__(self) -> str:

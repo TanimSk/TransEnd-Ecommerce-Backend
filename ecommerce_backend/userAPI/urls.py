@@ -4,6 +4,7 @@ from .views import (
     WishlistSerializerAPI,
     ProfileAPI,
     OrderProductAPI,
+    CartAPI
 )
 
 urlpatterns = [
@@ -23,8 +24,14 @@ urlpatterns = [
         name="profile_info",
     ),
     path(
+        "cart/",
+        CartAPI.as_view(),
+        name="cart_products",
+    ),
+    path(
         "ordered_product/",
         OrderProductAPI.as_view(),
         name="ordered_products",
     ),
+
 ]
