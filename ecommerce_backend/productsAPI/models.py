@@ -1,6 +1,9 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
-import uuid
+
+# Signals
+from django.db.models.signals import post_delete
+from django.dispatch import receiver
 
 
 class Category(models.Model):
@@ -14,7 +17,9 @@ class Category(models.Model):
 class Product(models.Model):
     name = models.CharField(max_length=200, default="Not Given")
     details = models.TextField(blank=True)
+    tags = ArrayField(models.CharField(max_length=500), default=list)
 
+    # Price
     price_bdt = models.IntegerField()
     price_usd = models.FloatField(default=0)
     price_gbp = models.FloatField(default=0)
@@ -29,11 +34,11 @@ class Product(models.Model):
 
     # Discount
     discount_percent = models.IntegerField(default=0)
-    discount_bdt = models.IntegerField(default=0)
+    discount_max_bdt = models.IntegerField(default=0)
 
-    tags = ArrayField(models.CharField(max_length=500), default=list)
-
+    # Product Trace
     product_added_date = models.DateTimeField(auto_now=True)
+    quantity_sold = models.IntegerField(default=0)
 
     # Foreign Keys
     category = models.ForeignKey(

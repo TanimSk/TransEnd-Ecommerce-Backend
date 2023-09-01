@@ -4,12 +4,13 @@ from .models import Product, Category, FeaturedProduct
 
 @admin.register(Category)
 class CategoryAdmin(admin.ModelAdmin):
-    list_display = ("name", "images")
+    list_display = ("id", "name", "images")
 
 
 @admin.register(Product)
 class ProductAdmin(admin.ModelAdmin):
     list_display = (
+        "id",
         "name",
         "images",
         "quantity",

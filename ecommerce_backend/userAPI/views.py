@@ -2,6 +2,7 @@ from dj_rest_auth.registration.views import RegisterView
 from productsAPI.serializers import ProductSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from django.db import transaction
 
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
@@ -73,6 +74,11 @@ class ProfileAPI(APIView):
 
 # Show / Add Products on Cart, status = "Cart"
 class CartAPI(APIView):
+
+    """
+    POST for adding products in cart
+    """
+
     serializer_class = OrderedProductSerializer
     permission_classes = [IsAuthenticated]
 
@@ -87,8 +93,14 @@ class CartAPI(APIView):
         serializer = OrderedProductSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            product_instance = Product.objects.get(id=serializer.data.get("product_id"))
+            # Check For dublicate products
+            if OrderedProduct.objects.filter(
+                dispatched=False, product_id=serializer.data.get("product_id")
+            ).exists():
+                return Response({"status": "This Product Already exists in your cart!"})
 
+            # Add to Cart
+            product_instance = Product.objects.get(id=serializer.data.get("product_id"))
             if product_instance.quantity < serializer.data.get("ordered_quantity"):
                 return Response(
                     {"status": "Quantity cannot be greater than Stock!"}, status=200
@@ -98,6 +110,7 @@ class CartAPI(APIView):
                 consumer=request.user,
                 product=product_instance,
                 ordered_quantity=serializer.data.get("ordered_quantity"),
+                ordered_date=timezone.now(),
                 status="cart",
             ).save()
 
@@ -106,6 +119,11 @@ class CartAPI(APIView):
 
 # add / show Ordered Products, status != "cart"
 class OrderProductAPI(APIView):
+
+    """
+    POST for moving products from cart to ordered_products
+    """
+
     # serializer_class = OrderedProductSerializer
     permission_classes = [IsAuthenticated]
 
@@ -116,18 +134,33 @@ class OrderProductAPI(APIView):
         serialized_products = OrderedProductSerializer(
             ordered_product_instance, many=True
         )
+
         return Response(serialized_products.data)
 
     # set ordered products
     def post(self, request, method=None, format=None, *args, **kwargs):
+        orders_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+
+        if orders_instance.count() == 0:
+            return Response({"status": "No products in cart!"})
+
         if method == "cod":
-            orders_instance = OrderedProduct.objects.filter(
-                consumer=request.user, status="cart"
-            )
-            orders_instance.update(status=method)
+            orders_instance.update(status=method, ordered_date=timezone.now())
+
+            # Update Product Quantity & Quantity Sold
+            with transaction.atomic():
+                for order_instance in orders_instance:
+                    product_instance = Product.objects.get(ordered_product=order_instance)
+                    product_instance.quantity -= order_instance.ordered_quantity
+                    product_instance.quantity_sold += order_instance.ordered_quantity
+                    product_instance.save()
+
             return Response({"status": "Orders Placed!"})
 
         elif method == "mobile":
             ...
+
         else:
             return Response({"status": "Invalid Payment Method!"})

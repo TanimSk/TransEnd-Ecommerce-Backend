@@ -42,7 +42,7 @@ class OrderedProduct(models.Model):
         Product, on_delete=models.CASCADE, related_name="ordered_product"
     )
     ordered_quantity = models.IntegerField()
-    ordered_date = models.DateTimeField(auto_now=True)
+    ordered_date = models.DateTimeField(blank=True)
     tracking_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
 
     STATUS = (
