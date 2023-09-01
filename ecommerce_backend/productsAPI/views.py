@@ -13,6 +13,14 @@ from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
 
 
+# Pagination Config
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = "page_size"
+    max_page_size = 10
+    page_query_param = "p"
+
+
 class CategoryAPI(APIView):
     """
     Categories and Products
@@ -46,10 +54,12 @@ class CategoryAPI(APIView):
 class FilterAPI(APIView):
     """
     Filter Category Specific Products
+
+    params are: low_to_high, high_to_low, best_sold, new_arrival
+    For pagination:  ?p=1&page_size=3
     """
 
     def get(self, request, category_id, param, format=None, *args, **kwargs):
-
         product_instance = None
 
         if param == "low_to_high":
@@ -65,7 +75,7 @@ class FilterAPI(APIView):
         elif param == "best_sold":
             product_instance = Product.objects.filter(
                 category_id=category_id, quantity__gt=0
-            )
+            ).order_by("-quantity_sold")
 
         elif param == "new_arrival":
             product_instance = Product.objects.filter(
@@ -73,22 +83,17 @@ class FilterAPI(APIView):
             ).order_by("-product_added_date")
 
         if product_instance is not None:
-            serialized_products = ProductSerializer(product_instance, many=True)
-            return Response(serialized_products.data)
-
+            paginator = StandardResultsSetPagination()
+            result_page = paginator.paginate_queryset(product_instance, request)
+            serializer = ProductSerializer(result_page, many=True)
+            return paginator.get_paginated_response(serializer.data)
 
         return Response({"status": "Invalid Filtering Parameters!"})
 
 
 # Search API
-class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 5
-    page_size_query_param = "page_size"
-    max_page_size = 10
-    page_query_param = "p"
-
-
 class SearchAPI(generics.ListCreateAPIView):
+    http_method_names = ["get"]
     search_fields = [
         "name",
         "details",
