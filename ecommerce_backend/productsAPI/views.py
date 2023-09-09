@@ -38,8 +38,10 @@ class CategoryAPI(APIView):
         # Return Category Specific Products
         elif product_id is None:
             products = Product.objects.filter(category_id=category_id, quantity__gt=0)
-            serialized_products = ProductSerializer(products, many=True)
-            return Response(serialized_products.data)
+            paginator = StandardResultsSetPagination()
+            result_page = paginator.paginate_queryset(products, request)
+            serializer = ProductSerializer(result_page, many=True)
+            return paginator.get_paginated_response(serializer.data)
 
         # Return Specific Product
         else:
