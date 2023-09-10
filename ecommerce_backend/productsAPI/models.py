@@ -1,9 +1,10 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
+from vendorAPI.models import Vendor
 
 # Signals
-from django.db.models.signals import post_delete
-from django.dispatch import receiver
+# from django.db.models.signals import post_delete
+# from django.dispatch import receiver
 
 
 class Category(models.Model):
@@ -15,9 +16,9 @@ class Category(models.Model):
 
 
 class Product(models.Model):
-    name = models.CharField(max_length=200, default="Not Given")
+    name = models.CharField(max_length=200)
     details = models.TextField(blank=True)
-    tags = ArrayField(models.CharField(max_length=500), default=list)
+    tags = ArrayField(models.CharField(max_length=500), default=list, blank=True)
 
     # Price
     price_bdt = models.IntegerField()
@@ -29,8 +30,8 @@ class Product(models.Model):
     images = ArrayField(models.URLField(), default=list, blank=True)
     quantity = models.IntegerField()
 
-    rewards = models.IntegerField()
-    grant = models.IntegerField()
+    rewards = models.IntegerField(default=0)
+    grant = models.IntegerField(default=0)
 
     # Discount
     discount_percent = models.IntegerField(default=0)
@@ -44,6 +45,7 @@ class Product(models.Model):
     category = models.ForeignKey(
         Category, on_delete=models.CASCADE, related_name="category"
     )
+    vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="vendor")
 
     def __str__(self) -> str:
         return self.name

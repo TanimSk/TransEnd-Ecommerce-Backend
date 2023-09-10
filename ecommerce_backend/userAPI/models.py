@@ -28,6 +28,7 @@ class Consumer(models.Model):
     )
     payment_method = models.CharField(max_length=50, choices=METHODS)
     inside_dhaka = models.BooleanField(default=False)
+    rewards = models.IntegerField(default=0)
 
     def __str__(self) -> str:
         return self.consumer.email

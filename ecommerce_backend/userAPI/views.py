@@ -110,7 +110,7 @@ class CartAPI(APIView):
                 consumer=request.user,
                 product=product_instance,
                 ordered_quantity=serializer.data.get("ordered_quantity"),
-                ordered_date=timezone.now(),
+                # ordered_date=timezone.now(),
                 status="cart",
             ).save()
 
@@ -137,11 +137,12 @@ class OrderProductAPI(APIView):
 
         return Response(serialized_products.data)
 
-    # set ordered products
+    # Set ordered products
     def post(self, request, method=None, format=None, *args, **kwargs):
         orders_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
         )
+        consumer_instance = Consumer.objects.get(consumer=request.user)
 
         if orders_instance.count() == 0:
             return Response({"status": "No products in cart!"})
@@ -149,13 +150,21 @@ class OrderProductAPI(APIView):
         if method == "cod":
             orders_instance.update(status=method, ordered_date=timezone.now())
 
-            # Update Product Quantity & Quantity Sold
+            # Update Product Quantity & Quantity Sold, increase Rewards
             with transaction.atomic():
                 for order_instance in orders_instance:
-                    product_instance = Product.objects.get(ordered_product=order_instance)
+                    product_instance = Product.objects.get(
+                        ordered_product=order_instance
+                    )
                     product_instance.quantity -= order_instance.ordered_quantity
                     product_instance.quantity_sold += order_instance.ordered_quantity
+
+                    # Updating Rewards (Increment)
+                    consumer_instance.rewards += (
+                        product_instance.rewards * order_instance.ordered_quantity
+                    )
                     product_instance.save()
+                    consumer_instance.save()
 
             return Response({"status": "Orders Placed!"})
 
