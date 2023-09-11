@@ -3,6 +3,8 @@ from dj_rest_auth.registration.serializers import RegisterSerializer
 from .models import Moderator, Notice, CouponCode
 from productsAPI.models import Product, Category
 from vendorAPI.models import Vendor
+from userAPI.models import OrderedProduct
+
 
 class AdminCustomRegistrationSerializer(RegisterSerializer):
     moderator = serializers.PrimaryKeyRelatedField(
@@ -59,7 +61,6 @@ class ManageCategoriesSerializer(serializers.ModelSerializer):
         model = Category
 
 
-
 class ManageVendorsSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
@@ -70,3 +71,23 @@ class CouponSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = CouponCode
+
+
+class OrderedProductsSerializer(serializers.ModelSerializer):
+    product_name = serializers.CharField(source="product.name")
+    product_id = serializers.IntegerField(source="product.id")
+    category_id = serializers.IntegerField(source="product.category.id")
+
+    class Meta:
+        fields = (
+            "product_name",
+            "product_id",
+            "category_id",
+            "ordered_quantity",
+            "ordered_date",
+            "per_price",
+            "total_price",
+            "tracking_id",
+            "status",
+        )
+        model = OrderedProduct

@@ -8,7 +8,8 @@ from .serializers import (
     AddProductsSerializer,
     ManageCategoriesSerializer,
     ManageVendorsSerializer,
-    CouponSerializer
+    OrderedProductsSerializer,
+    CouponSerializer,
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.utils.timezone import now
@@ -16,7 +17,16 @@ from django.db.models import Sum
 from .models import Notice
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category
-from userAPI.models import OrderedProduct
+from userAPI.models import OrderedProduct, Consumer
+from rest_framework.pagination import PageNumberPagination
+
+
+# Pagination Config
+class StandardResultsSetPagination(PageNumberPagination):
+    page_size = 5
+    page_size_query_param = "page_size"
+    max_page_size = 10
+    page_query_param = "p"
 
 
 class AdminRegistrationView(RegisterView):
@@ -38,7 +48,6 @@ class NoticeAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             Notice.objects.create(**serializer.data)
             return Response({"status": "Successfully Added Product"})
-
 
 
 class AdminAnalyticsAPI(APIView):
@@ -154,6 +163,50 @@ class ManageCategoriesAPI(APIView):
             return Response({"status": "Successfully Added Product"})
 
 
+class ManageOrdersAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = OrderedProductsSerializer
+
+    def get(self, request, format=None, *args, **kwargs):
+        customers_instance = Consumer.objects.filter(
+            consumer__order_consumer__isnull=False
+        ).exclude(consumer__order_consumer__status="cart")
+
+        # Paginating Result
+        paginator = StandardResultsSetPagination()
+        customers_instance_paginated = paginator.paginate_queryset(
+            customers_instance, request
+        )
+
+        response_array = []
+
+        for customer_instance in customers_instance_paginated:
+            print(customer_instance)
+
+            # Product Details
+            products_instance = OrderedProduct.objects.filter(
+                consumer__consumer=customer_instance
+            )
+            serialized_products = OrderedProductsSerializer(
+                products_instance, many=True
+            )
+
+            response_array.append(
+                {
+                    "customer_details": {
+                        "name": customer_instance.name,
+                        "phone_number": customer_instance.phone_number,
+                        "address": customer_instance.address,
+                        "payment_method": customer_instance.payment_method,
+                        "inside_dhaka": customer_instance.inside_dhaka,
+                    },
+                    "products": serialized_products.data,
+                }
+            )
+
+        return Response(response_array)
+
+
 class ManageVendorsAPI(APIView):
     permission_classes = [IsAuthenticated]
     serializer_class = ManageVendorsSerializer
@@ -181,4 +234,3 @@ class CouponAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             CouponSerializer.objects.create(**serializer.data)
             return Response({"status": "Successfully Added Coupon Code"})
-

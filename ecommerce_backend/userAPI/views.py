@@ -167,7 +167,7 @@ class OrderProductAPI(APIView):
                         product_instance.rewards * order_instance.ordered_quantity
                     )
 
-                    # Update bought price in orders
+                    # Update bought_price & total_price in orders
                     discount = (
                         product_instance.discount_percent
                         * product_instance.price_bdt
@@ -175,7 +175,12 @@ class OrderProductAPI(APIView):
                     )
                     if discount > product_instance.discount_max_bdt:
                         discount = product_instance.discount_max_bdt
-                    order_instance.price_bought = product_instance.price_bdt - discount
+
+                    per_price = product_instance.price_bdt - discount
+                    order_instance.per_price = per_price
+                    order_instance.total_price = (
+                        per_price * order_instance.ordered_quantity
+                    )
 
                     product_instance.save()
                     order_instance.save()

@@ -42,9 +42,10 @@ class OrderedProduct(models.Model):
         Product, on_delete=models.CASCADE, related_name="ordered_product"
     )
     ordered_quantity = models.IntegerField()
-    ordered_date = models.DateTimeField(blank=True)
-    tracking_id = models.UUIDField(unique=True, editable=False, blank=True)
-    price_bought = models.IntegerField(blank=True, null=True)  # Per Product
+    ordered_date = models.DateTimeField(blank=True, null=True)
+    tracking_id = models.UUIDField(unique=True, editable=False, blank=True, null=True)
+    per_price = models.IntegerField(blank=True, null=True)  # Per Product
+    total_price = models.IntegerField(blank=True, null=True)
 
     STATUS = (
         ("cart", "cart"),
