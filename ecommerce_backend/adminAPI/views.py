@@ -168,9 +168,11 @@ class ManageOrdersAPI(APIView):
     serializer_class = OrderedProductsSerializer
 
     def get(self, request, format=None, *args, **kwargs):
-        customers_instance = Consumer.objects.filter(
-            consumer__order_consumer__isnull=False
-        ).exclude(consumer__order_consumer__status="cart")
+        customers_instance = (
+            Consumer.objects.filter(consumer__order_consumer__isnull=False)
+            .exclude(consumer__order_consumer__status="cart")
+            .distinct()
+        )
 
         # Paginating Result
         paginator = StandardResultsSetPagination()
@@ -179,7 +181,6 @@ class ManageOrdersAPI(APIView):
         )
 
         response_array = []
-
         for customer_instance in customers_instance_paginated:
             print(customer_instance)
 
@@ -190,6 +191,9 @@ class ManageOrdersAPI(APIView):
             serialized_products = OrderedProductsSerializer(
                 products_instance, many=True
             )
+            total_payment = OrderedProduct.objects.filter(
+                consumer__consumer=customer_instance
+            ).aggregate(total_payment=Sum("total_price"))
 
             response_array.append(
                 {
@@ -200,7 +204,10 @@ class ManageOrdersAPI(APIView):
                         "payment_method": customer_instance.payment_method,
                         "inside_dhaka": customer_instance.inside_dhaka,
                     },
+                    "tracking_id": serialized_products.data[0]["tracking_id"],
+                    "status": serialized_products.data[0]["status"],
                     "products": serialized_products.data,
+                    **total_payment,
                 }
             )
 
