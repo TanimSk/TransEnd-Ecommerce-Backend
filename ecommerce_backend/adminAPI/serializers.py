@@ -55,6 +55,18 @@ class AddProductsSerializer(serializers.ModelSerializer):
         model = Product
 
 
+class ManageProductViewSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = (
+            "id",
+            "name",
+            "price_bdt",
+            "quantity",
+            "product_added_date",
+        )
+        model = Product
+
+
 class ManageCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"

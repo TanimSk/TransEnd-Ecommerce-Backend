@@ -10,7 +10,9 @@ from .serializers import (
     ManageVendorsSerializer,
     OrderedProductsSerializer,
     CouponSerializer,
+    ManageProductViewSerializer,
 )
+from productsAPI.serializers import ProductSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.utils.timezone import now
 from django.db.models import Sum
@@ -23,7 +25,7 @@ from rest_framework.pagination import PageNumberPagination
 
 # Pagination Config
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 5
+    page_size = 1
     page_size_query_param = "page_size"
     max_page_size = 10
     page_query_param = "p"
@@ -163,7 +165,35 @@ class ManageCategoriesAPI(APIView):
             return Response({"status": "Successfully Added Product"})
 
 
+class ManageProductsAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ManageProductViewSerializer
+
+    def get(self, request, format=None, *args, **kwargs):
+        products_instance = Product.objects.all()
+        serialized_products = self.serializer_class(products_instance, many=True)
+        return Response(serialized_products.data)
+
+    def post(self, request, product_id=None, format=None, *args, **kwargs):
+        if product_id is None:
+            return Response({"status": "product_id missing"})
+
+        product_instance = Product.objects.get(id=product_id)
+        serialized_product = ProductSerializer(product_instance)
+        return Response(serialized_product.data)
+
+    def delete(self, request, product_id=None, format=None, *args, **kwargs):
+        product_instance = Product.objects.get(id=product_id)
+        product_instance.delete()
+        return Response({"status": "Product Removed Successfully"})
+
+
 class ManageOrdersAPI(APIView):
+
+    """
+    To set status to Delivered, post with customer_id
+    """
+
     permission_classes = [IsAuthenticated]
     serializer_class = OrderedProductsSerializer
 
@@ -182,8 +212,6 @@ class ManageOrdersAPI(APIView):
 
         response_array = []
         for customer_instance in customers_instance_paginated:
-            print(customer_instance)
-
             # Product Details
             products_instance = OrderedProduct.objects.filter(
                 consumer__consumer=customer_instance
@@ -198,6 +226,7 @@ class ManageOrdersAPI(APIView):
             response_array.append(
                 {
                     "customer_details": {
+                        "id": customer_instance.id,
                         "name": customer_instance.name,
                         "phone_number": customer_instance.phone_number,
                         "address": customer_instance.address,
@@ -211,7 +240,18 @@ class ManageOrdersAPI(APIView):
                 }
             )
 
-        return Response(response_array)
+        return paginator.get_paginated_response(response_array)
+
+    def post(self, request, consumer_id=None, format=None, *args, **kwargs):
+        consumer_instance = Consumer.objects.get(id=consumer_id)
+        ordered_product_instance = (
+            OrderedProduct.objects.filter(consumer__consumer=consumer_instance)
+            .exclude(status="cart")
+            .exclude(status="delivered")
+        )
+        ordered_product_instance.update(status="delivered")
+
+        return Response({"status": "Successfully Delivered"})
 
 
 class ManageVendorsAPI(APIView):
