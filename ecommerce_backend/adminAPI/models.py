@@ -26,6 +26,8 @@ class CouponCode(models.Model):
     code = models.CharField(max_length=50)
     discount = models.IntegerField()
     validity = models.IntegerField()
+    max_discount = models.IntegerField()
+    coupon_added = models.DateField(auto_now=True)
 
 
 class rewards(models.Model):

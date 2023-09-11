@@ -1,8 +1,8 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from .models import Moderator, Notice
+from .models import Moderator, Notice, CouponCode
 from productsAPI.models import Product, Category
-
+from vendorAPI.models import Vendor
 
 class AdminCustomRegistrationSerializer(RegisterSerializer):
     moderator = serializers.PrimaryKeyRelatedField(
@@ -57,3 +57,16 @@ class ManageCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = Category
+
+
+
+class ManageVendorsSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = Vendor
+
+
+class CouponSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = CouponCode

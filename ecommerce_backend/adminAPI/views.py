@@ -7,6 +7,8 @@ from .serializers import (
     AdminAnalyticsSerializer,
     AddProductsSerializer,
     ManageCategoriesSerializer,
+    ManageVendorsSerializer,
+    CouponSerializer
 )
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.utils.timezone import now
@@ -31,7 +33,12 @@ class NoticeAPI(APIView):
         return Response(serialized_notice.data)
 
     def post(self, request, format=None, *args, **kwargs):
-        ...
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            Notice.objects.create(**serializer.data)
+            return Response({"status": "Successfully Added Product"})
+
 
 
 class AdminAnalyticsAPI(APIView):
@@ -145,3 +152,33 @@ class ManageCategoriesAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             Category.objects.create(**serializer.data)
             return Response({"status": "Successfully Added Product"})
+
+
+class ManageVendorsAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = ManageVendorsSerializer
+
+    def get(self, request, format=None, *args, **kwargs):
+        vendor_instance = Vendor.objects.all()
+        serialized_category = ManageVendorsSerializer(vendor_instance, many=True)
+        return Response(serialized_category.data)
+
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            Vendor.objects.create(**serializer.data)
+            return Response({"status": "Successfully Added Vendor"})
+
+
+class CouponAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = CouponSerializer
+
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            CouponSerializer.objects.create(**serializer.data)
+            return Response({"status": "Successfully Added Coupon Code"})
+
