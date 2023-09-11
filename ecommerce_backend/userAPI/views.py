@@ -15,6 +15,7 @@ from .serializers import (
     ProfileSerializer,
     OrderedProductSerializer,
 )
+import uuid
 
 # TODO: Add only consumer authentication
 # TODO: Update Product Quanity when order is placed
@@ -148,7 +149,9 @@ class OrderProductAPI(APIView):
             return Response({"status": "No products in cart!"})
 
         if method == "cod":
-            orders_instance.update(status=method, ordered_date=timezone.now())
+            orders_instance.update(
+                status=method, ordered_date=timezone.now(), tracking_id=uuid.uuid4()
+            )
 
             # Update Product Quantity & Quantity Sold, increase Rewards
             with transaction.atomic():
@@ -163,7 +166,19 @@ class OrderProductAPI(APIView):
                     consumer_instance.rewards += (
                         product_instance.rewards * order_instance.ordered_quantity
                     )
+
+                    # Update bought price in orders
+                    discount = (
+                        product_instance.discount_percent
+                        * product_instance.price_bdt
+                        / 100
+                    )
+                    if discount > product_instance.discount_max_bdt:
+                        discount = product_instance.discount_max_bdt
+                    order_instance.price_bought = product_instance.price_bdt - discount
+
                     product_instance.save()
+                    order_instance.save()
                     consumer_instance.save()
 
             return Response({"status": "Orders Placed!"})

@@ -44,7 +44,8 @@ class OrderedProduct(models.Model):
     )
     ordered_quantity = models.IntegerField()
     ordered_date = models.DateTimeField(blank=True)
-    tracking_id = models.UUIDField(unique=True, default=uuid.uuid4, editable=False)
+    tracking_id = models.UUIDField(unique=True, editable=False, blank=True)
+    price_bought = models.IntegerField(blank=True, null=True)  # Per Product
 
     STATUS = (
         ("cart", "cart"),

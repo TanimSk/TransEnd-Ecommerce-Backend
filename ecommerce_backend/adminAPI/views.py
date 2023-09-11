@@ -140,4 +140,8 @@ class ManageCategoriesAPI(APIView):
         return Response(serialized_category.data)
 
     def post(self, request, format=None, *args, **kwargs):
-        ...
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            Category.objects.create(**serializer.data)
+            return Response({"status": "Successfully Added Product"})
