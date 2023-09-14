@@ -1,6 +1,7 @@
 from dj_rest_auth.registration.views import RegisterView
 from rest_framework.response import Response
 from rest_framework.views import APIView
+from productsAPI.serializers import FeaturedProductSerializer
 from .serializers import (
     AdminCustomRegistrationSerializer,
     NoticeSerializer,
@@ -14,14 +15,17 @@ from .serializers import (
     VendorAnalyticsSerializer,
     SpecificVendorAnalyticsSerializer,
     PayVendorSerializer,
+    FeaturedCDProductSerializer,
+    FeaturedProductQuerySerializer,
+    PermissionSerializer,
 )
 from productsAPI.serializers import ProductSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.utils.timezone import now
 from django.db.models import Sum
-from .models import Notice, CouponCode
+from .models import Notice, CouponCode, Moderator
 from vendorAPI.models import Vendor
-from productsAPI.models import Product, Category
+from productsAPI.models import Product, Category, FeaturedProduct
 from userAPI.models import OrderedProduct, Consumer
 from rest_framework.pagination import PageNumberPagination
 
@@ -382,6 +386,94 @@ class SpecificVendorAnalyticsAPI(APIView):
             return Response({"status": "Updated!"})
 
 
-
 class FeaturedProductAPI(APIView):
+
+    """
+    Shows available featured products on get request,
+    you can delete them by posting with id
+    """
+
     permission_classes = [IsAuthenticated]
+    serializer_class = FeaturedCDProductSerializer
+
+    def get(self, request, section=None, format=None, *args, **kwargs):
+        if section == "home" or section == "category":
+            products_instance = FeaturedProduct.objects.filter(section=section)
+            serialized_products = FeaturedProductSerializer(
+                products_instance, many=True
+            )
+            return Response(serialized_products.data)
+
+        return Response({"status": "Wrong Params!"})
+
+    def post(self, request, section=None, format=None, *args, **kwargs):
+        if section == "home" or section == "category":
+            serializer = self.serializer_class(data=request.data)
+
+            if serializer.is_valid(raise_exception=True):
+                product_instance = Product.objects.get(
+                    id=serializer.data.get("product_id")
+                )
+                FeaturedProduct.objects.create(
+                    product=product_instance, section=section
+                )
+                return Response({"status": "Added To Featured Products Successfully!"})
+
+        return Response({"status": "Wrong Params!"})
+
+    def delete(self, request, section=None, format=None, *args, **kwargs):
+        if section == "home" or section == "category":
+            serializer = self.serializer_class(data=request.data)
+
+            if serializer.is_valid(raise_exception=True):
+                product_instance = Product.objects.get(
+                    id=serializer.data.get("product_id")
+                )
+                FeaturedProduct.objects.filter(
+                    product=product_instance, section=section
+                ).first().delete()
+
+                return Response(
+                    {"status": "Removed From Featured Products Successfully!"}
+                )
+
+        return Response({"status": "Wrong Params!"})
+
+
+class FeaturedProductQueryAPI(APIView):
+
+    """
+    vendors and categories will be showed on get, (for dropdown) on get req
+    query result will be shown on post req
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = FeaturedProductQuerySerializer
+
+    def get(self, request, format=None, *args, **kwargs):
+        vendors_instance = Vendor.objects.all().values("name", "id")
+        categories_instance = Category.objects.all().values("name", "id")
+        return Response(
+            {"vendors": list(vendors_instance), "category": list(categories_instance)}
+        )
+
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            product_instance = Product.objects.filter(
+                name__icontains=serializer.data.get("product_name"),
+                category_id=serializer.data.get("category_id"),
+                vendor_id=serializer.data.get("vendor_id"),
+            )
+
+            return Response(FeaturedProductSerializer(product_instance, many=True).data)
+
+
+class PermissionsAPI(APIView):
+    permission_classes = [IsAuthenticated]
+
+    def get(self, request, format=None, *args, **kwargs):
+        admin_instance = Moderator.objects.get(moderator=request.user)
+        serializer = PermissionSerializer(admin_instance)
+        return Response(serializer.data)

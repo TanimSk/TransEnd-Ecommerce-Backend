@@ -11,6 +11,8 @@ from .views import (
     ManageProductsAPI,
     VendorAnalyticsAPI,
     SpecificVendorAnalyticsAPI,
+    FeaturedProductAPI,
+    FeaturedProductQueryAPI,
 )
 
 urlpatterns = [
@@ -38,9 +40,18 @@ urlpatterns = [
         SpecificVendorAnalyticsAPI.as_view(),
         name="vendor_specific_analytics",
     ),
-
     # Featured Product
-    path("featured_products/<str:section>", VendorAnalyticsAPI.as_view(), name="vendor_analytics"),
-
+    path(
+        "featured_products/<str:section>",
+        FeaturedProductAPI.as_view(),
+        name="featured_products",
+    ),
+    path(
+        "featured_products_query/",
+        FeaturedProductQueryAPI.as_view(),
+        name="featured_products_query",
+    ),
     path("add_coupon/", CouponAPI.as_view(), name="add_coupon"),
+    path("permissions/", CouponAPI.as_view(), name="permissions"),
+
 ]

@@ -127,6 +127,22 @@ class SpecificVendorAnalyticsSerializer(serializers.ModelSerializer):
         fields = "__all__"
         model = Vendor
 
+
 class PayVendorSerializer(serializers.Serializer):
     vendor_id = serializers.IntegerField(required=True)
     pay_amount = serializers.IntegerField(required=True)
+
+# CD: create delete 
+class FeaturedCDProductSerializer(serializers.Serializer):
+    product_id = serializers.IntegerField(required=True)
+
+
+class FeaturedProductQuerySerializer(serializers.Serializer):
+    vendor_id = serializers.IntegerField(required=True)
+    category_id = serializers.IntegerField(required=True)
+    product_name = serializers.CharField(required=True)
+
+class PermissionSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("admin_roles")
+        model = Moderator
