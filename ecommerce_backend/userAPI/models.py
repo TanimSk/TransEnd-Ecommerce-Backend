@@ -19,7 +19,7 @@ class Consumer(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="consumer"
     )
     name = models.CharField(max_length=200, blank=True)
-    phone_number = models.BigIntegerField()
+    phone_number = models.CharField(max_length=100)
     address = models.TextField()
     METHODS = (
         ("cod", "cod"),
@@ -44,8 +44,11 @@ class OrderedProduct(models.Model):
     ordered_quantity = models.IntegerField()
     ordered_date = models.DateTimeField(blank=True, null=True)
     tracking_id = models.UUIDField(unique=True, editable=False, blank=True, null=True)
+
     per_price = models.IntegerField(blank=True, null=True)  # Per Product
     total_price = models.IntegerField(blank=True, null=True)
+    total_grant = models.IntegerField(blank=True, null=True)
+    revenue = models.IntegerField(blank=True, null=True)
 
     STATUS = (
         ("cart", "cart"),
@@ -58,6 +61,8 @@ class OrderedProduct(models.Model):
 
     def __str__(self) -> str:
         return f"{self.product.name} | {self.consumer.email}"
+    
+
 
 
 class Wishlist(models.Model):

@@ -9,7 +9,7 @@ class Moderator(models.Model):
     moderator = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="moderator"
     )
-    phone_number = models.BigIntegerField(blank=True)
+    phone_number = models.CharField(max_length=100, blank=True)
     admin_roles = ArrayField(models.CharField(max_length=100), default=list)
 
     def __str__(self) -> str:

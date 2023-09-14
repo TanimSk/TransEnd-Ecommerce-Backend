@@ -153,7 +153,7 @@ class OrderProductAPI(APIView):
                 status=method, ordered_date=timezone.now(), tracking_id=uuid.uuid4()
             )
 
-            # Update Product Quantity & Quantity Sold, increase Rewards
+            # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
             with transaction.atomic():
                 for order_instance in orders_instance:
                     product_instance = Product.objects.get(
@@ -167,20 +167,32 @@ class OrderProductAPI(APIView):
                         product_instance.rewards * order_instance.ordered_quantity
                     )
 
-                    # Update bought_price & total_price in orders
+                    # Update bought_price, total_grant & total_price in orders
                     discount = (
                         product_instance.discount_percent
                         * product_instance.price_bdt
                         / 100
                     )
-                    if discount > product_instance.discount_max_bdt:
+
+                    if (
+                        product_instance.discount_max_bdt != 0
+                        and discount > product_instance.discount_max_bdt
+                    ):
                         discount = product_instance.discount_max_bdt
 
+                    # Calculations
                     per_price = product_instance.price_bdt - discount
-                    order_instance.per_price = per_price
-                    order_instance.total_price = (
-                        per_price * order_instance.ordered_quantity
+                    total_price = per_price * order_instance.ordered_quantity
+                    total_grant = (
+                        product_instance.grant * order_instance.ordered_quantity
                     )
+                    revenue = total_price - total_grant
+
+                    # Setting the Values
+                    order_instance.per_price = per_price
+                    order_instance.total_price = total_price
+                    order_instance.total_grant = total_grant
+                    order_instance.revenue = revenue
 
                     product_instance.save()
                     order_instance.save()

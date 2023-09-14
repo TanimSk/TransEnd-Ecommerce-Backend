@@ -17,7 +17,7 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
         data = super(AdminCustomRegistrationSerializer, self).get_cleaned_data()
         extra_data = {
             "phone_number": self.validated_data.get("phone_number", ""),
-            "admin_roles": self.validated_data.get("admin_roles", ""),
+            "admin_roles": self.validated_data.get("admin_roles", []),
         }
         data.update(extra_data)
         return data
@@ -29,7 +29,7 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
         admin = Moderator(
             moderator=user,
             phone_number=self.cleaned_data.get("phone_number"),
-            admin_roles=self.cleaned_data.get("admin_roles"),
+            admin_roles=self.cleaned_data.get("admin_roles", []),
         )
         admin.save()
         return user
@@ -103,3 +103,30 @@ class OrderedProductsSerializer(serializers.ModelSerializer):
             "status",
         )
         model = OrderedProduct
+
+
+class VendorAnalyticsSerializer(serializers.ModelSerializer):
+    vendor_name = serializers.CharField(source="product.vendor.name")
+    product_name = serializers.CharField(source="product.name")
+
+    class Meta:
+        fields = (
+            "vendor_name",
+            "ordered_date",
+            "product_name",
+            "ordered_quantity",
+            "total_price",
+            "total_grant",
+            "revenue",
+        )
+        model = OrderedProduct
+
+
+class SpecificVendorAnalyticsSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = "__all__"
+        model = Vendor
+
+class PayVendorSerializer(serializers.Serializer):
+    vendor_id = serializers.IntegerField(required=True)
+    pay_amount = serializers.IntegerField(required=True)

@@ -9,6 +9,8 @@ from .views import (
     CouponAPI,
     ManageOrdersAPI,
     ManageProductsAPI,
+    VendorAnalyticsAPI,
+    SpecificVendorAnalyticsAPI,
 )
 
 urlpatterns = [
@@ -17,15 +19,28 @@ urlpatterns = [
     path("analytics/", AdminAnalyticsAPI.as_view(), name="analytics"),
     path("add_product/", AddProductsAPI.as_view(), name="add_product"),
     path("manage_category/", ManageCategoriesAPI.as_view(), name="manage_category"),
-    
     # Manage Products
     path("manage_product/", ManageProductsAPI.as_view(), name="manage_product"),
-    path("manage_product/<int:product_id>", ManageProductsAPI.as_view(), name="manage_product"),
-
+    path(
+        "manage_product/<int:product_id>",
+        ManageProductsAPI.as_view(),
+        name="manage_product",
+    ),
     path("manage_order/", ManageOrdersAPI.as_view(), name="manage_order"),
     path(
         "manage_order/<int:consumer_id>", ManageOrdersAPI.as_view(), name="manage_order"
     ),
     path("manage_vendor/", ManageVendorsAPI.as_view(), name="manage_vendor"),
+    # Vendor Analytics
+    path("vendor_analytics/", VendorAnalyticsAPI.as_view(), name="vendor_analytics"),
+    path(
+        "vendor_analytics/specific/<str:phone_number>",
+        SpecificVendorAnalyticsAPI.as_view(),
+        name="vendor_specific_analytics",
+    ),
+
+    # Featured Product
+    path("featured_products/<str:section>", VendorAnalyticsAPI.as_view(), name="vendor_analytics"),
+
     path("add_coupon/", CouponAPI.as_view(), name="add_coupon"),
 ]

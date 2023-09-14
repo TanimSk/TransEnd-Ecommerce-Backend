@@ -11,12 +11,15 @@ from .serializers import (
     OrderedProductsSerializer,
     CouponSerializer,
     ManageProductViewSerializer,
+    VendorAnalyticsSerializer,
+    SpecificVendorAnalyticsSerializer,
+    PayVendorSerializer,
 )
 from productsAPI.serializers import ProductSerializer
 from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
 from django.utils.timezone import now
 from django.db.models import Sum
-from .models import Notice
+from .models import Notice, CouponCode
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category
 from userAPI.models import OrderedProduct, Consumer
@@ -49,7 +52,7 @@ class NoticeAPI(APIView):
 
         if serializer.is_valid(raise_exception=True):
             Notice.objects.create(**serializer.data)
-            return Response({"status": "Successfully Added Product"})
+            return Response({"status": "Successfully Updated Notice"})
 
 
 class AdminAnalyticsAPI(APIView):
@@ -162,27 +165,48 @@ class ManageCategoriesAPI(APIView):
 
         if serializer.is_valid(raise_exception=True):
             Category.objects.create(**serializer.data)
-            return Response({"status": "Successfully Added Product"})
+            return Response({"status": "Successfully Created A Category"})
 
 
 class ManageProductsAPI(APIView):
+
+    """
+    get request with no params, returns all products
+    get request with params (product_id), returns that products details
+    use post request to update that product
+    """
+
     permission_classes = [IsAuthenticated]
-    serializer_class = ManageProductViewSerializer
+    serializer_class = AddProductsSerializer
 
-    def get(self, request, format=None, *args, **kwargs):
-        products_instance = Product.objects.all()
-        serialized_products = self.serializer_class(products_instance, many=True)
-        return Response(serialized_products.data)
+    def get(self, request, product_id=None, format=None, *args, **kwargs):
+        if product_id is None:
+            products_instance = Product.objects.all()
+            serialized_products = ManageProductViewSerializer(
+                products_instance, many=True
+            )
+            return Response(serialized_products.data)
 
+        product_instance = Product.objects.get(id=product_id)
+        serialized_product = AddProductsSerializer(product_instance)
+        return Response(serialized_product.data)
+
+    # Update a Product
     def post(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
             return Response({"status": "product_id missing"})
 
         product_instance = Product.objects.get(id=product_id)
-        serialized_product = ProductSerializer(product_instance)
-        return Response(serialized_product.data)
+        serialized_product = AddProductsSerializer(request.data)
+        product_instance(**serialized_product.data).save()
 
+        return Response({"status": "Product Updated Successfully"})
+
+    # Delete a Product
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
+        if product_id is None:
+            return Response({"status": "product_id missing"})
+
         product_instance = Product.objects.get(id=product_id)
         product_instance.delete()
         return Response({"status": "Product Removed Successfully"})
@@ -195,7 +219,7 @@ class ManageOrdersAPI(APIView):
     """
 
     permission_classes = [IsAuthenticated]
-    serializer_class = OrderedProductsSerializer
+    # serializer_class = OrderedProductsSerializer
 
     def get(self, request, format=None, *args, **kwargs):
         customers_instance = (
@@ -242,7 +266,11 @@ class ManageOrdersAPI(APIView):
 
         return paginator.get_paginated_response(response_array)
 
+    # Set Order To Delivered
     def post(self, request, consumer_id=None, format=None, *args, **kwargs):
+        if consumer_id is None:
+            return Response({"status": "Customer id param is missing"})
+
         consumer_instance = Consumer.objects.get(id=consumer_id)
         ordered_product_instance = (
             OrderedProduct.objects.filter(consumer__consumer=consumer_instance)
@@ -279,5 +307,81 @@ class CouponAPI(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            CouponSerializer.objects.create(**serializer.data)
+            CouponCode.objects.create(**serializer.data)
             return Response({"status": "Successfully Added Coupon Code"})
+
+
+class VendorAnalyticsAPI(APIView):
+    permission_classes = [IsAuthenticated]
+    serializer_class = AdminAnalyticsSerializer
+
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            orders_instance = OrderedProduct.objects.filter(
+                ordered_date__range=[
+                    serializer.data.get("from_date"),
+                    serializer.data.get("to_date"),
+                ]
+            )
+            serialized_analytics = VendorAnalyticsSerializer(orders_instance)
+            return Response(serialized_analytics.data)
+
+
+class SpecificVendorAnalyticsAPI(APIView):
+
+    """
+    You will get vendor info on get request
+    use vendor id and amount to pay on post request
+    """
+
+    permission_classes = [IsAuthenticated]
+    serializer_class = PayVendorSerializer
+
+    def get(self, request, phone_number=None, format=None, *args, **kwargs):
+        if phone_number is None:
+            return Response({"status": "phone_number param is missing!"})
+
+        vendor_instance = Vendor.objects.filter(phone_number=phone_number).first()
+        if vendor_instance is None:
+            return Response({"status": "No Vendors Found!"})
+
+        serialized_vendor = SpecificVendorAnalyticsSerializer(vendor_instance)
+
+        # Calculations
+        product_instance = Product.objects.filter(vendor=vendor_instance)
+        sold_products = product_instance.aggregate(sold_products=Sum("quantity_sold"))[
+            "sold_products"
+        ]
+        available_products = product_instance.aggregate(
+            available_products=Sum("quantity")
+        )["available_products"]
+        amount_be_paid = (
+            product_instance.aggregate(amount=Sum("grant"))["amount"]
+            - vendor_instance.total_received_money
+        )
+
+        return Response(
+            {
+                **serialized_vendor.data,
+                "sold_products": sold_products,
+                "unsold_products": available_products,
+                "amount_to_be_paid": amount_be_paid,
+            }
+        )
+
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            vendor_instance = Vendor.objects.get(id=serializer.data.get("vendor_id"))
+            vendor_instance.total_received_money += serializer.data.get("pay_amount")
+            vendor_instance.save()
+
+            return Response({"status": "Updated!"})
+
+
+
+class FeaturedProductAPI(APIView):
+    permission_classes = [IsAuthenticated]
