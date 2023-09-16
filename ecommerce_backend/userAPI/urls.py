@@ -4,7 +4,8 @@ from .views import (
     WishlistSerializerAPI,
     ProfileAPI,
     OrderProductAPI,
-    CartAPI
+    CartAPI,
+    PaymentLinkAPI
 )
 
 urlpatterns = [
@@ -43,5 +44,9 @@ urlpatterns = [
         OrderProductAPI.as_view(),
         name="ordered_products",
     ),
-
+    path(
+        "make_payment/",
+        PaymentLinkAPI.as_view(),
+        name="make_payment",
+    ),
 ]

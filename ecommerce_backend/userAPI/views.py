@@ -11,10 +11,11 @@ from django.utils import timezone
 from rest_framework.permissions import BasePermission
 from .serializers import (
     ConsumerCustomRegistrationSerializer,
-    WishlistSerializer,
+    # WishlistSerializer,
     ProfileSerializer,
     OrderedProductSerializer,
 )
+from .make_payment import make_payment, verify_payment
 import uuid
 
 
@@ -140,6 +141,53 @@ class CartAPI(APIView):
             return Response({"status": "Added to Cart"}, status=200)
 
 
+# ------------------------------------------------------------------------------------
+# Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
+# ------------------------------------------------------------------------------------
+def update_order(method, orders_instance, consumer_instance):
+    with transaction.atomic():
+        for order_instance in orders_instance:
+            product_instance = Product.objects.get(ordered_product=order_instance)
+            product_instance.quantity -= order_instance.ordered_quantity
+            product_instance.quantity_sold += order_instance.ordered_quantity
+
+            # Updating Rewards (Increment)
+            consumer_instance.rewards += (
+                product_instance.rewards * order_instance.ordered_quantity
+            )
+
+            # Update bought_price, total_grant & total_price in orders
+            discount = (
+                product_instance.discount_percent * product_instance.price_bdt / 100
+            )
+
+            if (
+                product_instance.discount_max_bdt != 0
+                and discount > product_instance.discount_max_bdt
+            ):
+                discount = product_instance.discount_max_bdt
+
+            # Calculations
+            per_price = product_instance.price_bdt - discount
+            total_price = per_price * order_instance.ordered_quantity
+            total_grant = product_instance.grant * order_instance.ordered_quantity
+            revenue = total_price - total_grant
+
+            # Setting the Values
+            order_instance.per_price = per_price
+            order_instance.total_price = total_price
+            order_instance.total_grant = total_grant
+            order_instance.revenue = revenue
+
+            product_instance.save()
+            order_instance.save()
+            consumer_instance.save()
+
+    orders_instance.update(
+        status=method, ordered_date=timezone.now(), tracking_id=uuid.uuid4()
+    )
+
+
 # add / show Ordered Products, status != "cart"
 class OrderProductAPI(APIView):
 
@@ -148,7 +196,6 @@ class OrderProductAPI(APIView):
     GET request, for order history
     """
 
-    # serializer_class = OrderedProductSerializer
     permission_classes = [AuthenticateOnlyConsumer]
 
     def get(self, request, method=None, format=None, *args, **kwargs):
@@ -173,61 +220,63 @@ class OrderProductAPI(APIView):
 
         if method == "cod":
             # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
-            with transaction.atomic():
-                for order_instance in orders_instance:
-                    print(";______--------________--------_______")
-                    product_instance = Product.objects.get(
-                        ordered_product=order_instance
-                    )
-                    product_instance.quantity -= order_instance.ordered_quantity
-                    product_instance.quantity_sold += order_instance.ordered_quantity
-
-                    # Updating Rewards (Increment)
-                    consumer_instance.rewards += (
-                        product_instance.rewards * order_instance.ordered_quantity
-                    )
-
-                    # Update bought_price, total_grant & total_price in orders
-                    discount = (
-                        product_instance.discount_percent
-                        * product_instance.price_bdt
-                        / 100
-                    )
-
-                    if (
-                        product_instance.discount_max_bdt != 0
-                        and discount > product_instance.discount_max_bdt
-                    ):
-                        discount = product_instance.discount_max_bdt
-
-                    # Calculations
-                    per_price = product_instance.price_bdt - discount
-                    total_price = per_price * order_instance.ordered_quantity
-                    total_grant = (
-                        product_instance.grant * order_instance.ordered_quantity
-                    )
-                    revenue = total_price - total_grant
-
-                    print(per_price, total_price, total_grant, revenue)
-
-                    # Setting the Values
-                    order_instance.per_price = per_price
-                    order_instance.total_price = total_price
-                    order_instance.total_grant = total_grant
-                    order_instance.revenue = revenue
-
-                    product_instance.save()
-                    order_instance.save()
-                    consumer_instance.save()
-
-            orders_instance.update(
-                status=method, ordered_date=timezone.now(), tracking_id=uuid.uuid4()
-            )
-
+            update_order(method, orders_instance, consumer_instance)
             return Response({"status": "Orders Placed!"})
 
         elif method == "mobile":
-            ...
+            if verify_payment(request.GET.get("uuid")):
+                update_order(method, orders_instance, consumer_instance)
+                return Response("HTML PAGE")
+            
 
         else:
             return Response({"status": "Invalid Payment Method!"})
+
+
+# Make Payment
+class PaymentLinkAPI(APIView):
+    """
+    Send post request for getting the gateway link
+    """
+
+    permission_classes = [AuthenticateOnlyConsumer]
+
+    def get(self, request, method=None, format=None, *args, **kwargs):
+        consumer_instance = Consumer.objects.get(consumer=request.user)
+
+        # ------- Calculating Total Price ---------
+        orders_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+        if orders_instance.count() == 0:
+            return Response({"status": "No products in cart!"})
+
+        to_be_paid = 0
+
+        for order_instance in orders_instance:
+            product_instance = Product.objects.get(ordered_product=order_instance)
+
+            # get bought_price, total_grant & total_price in orders
+            discount = (
+                product_instance.discount_percent * product_instance.price_bdt / 100
+            )
+
+            if (
+                product_instance.discount_max_bdt != 0
+                and discount > product_instance.discount_max_bdt
+            ):
+                discount = product_instance.discount_max_bdt
+
+            # Calculations
+            per_price = product_instance.price_bdt - discount
+            total_price = per_price * order_instance.ordered_quantity
+            to_be_paid += total_price
+
+        response = make_payment(
+            cus_name=consumer_instance.name,
+            cus_email=consumer_instance.consumer.email,
+            cus_phone=consumer_instance.phone_number,
+            amount=to_be_paid,
+        )
+
+        return Response(response)
