@@ -19,8 +19,11 @@ from .serializers import (
     FeaturedProductQuerySerializer,
     PermissionSerializer,
 )
-from productsAPI.serializers import ProductSerializer
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+# from productsAPI.serializers import ProductSerializer
+from rest_framework.permissions import (
+    IsAuthenticatedOrReadOnly,
+    BasePermission,
+)
 from django.utils.timezone import now
 from django.db.models import Sum
 from .models import Notice, CouponCode, Moderator
@@ -38,6 +41,17 @@ class StandardResultsSetPagination(PageNumberPagination):
     page_query_param = "p"
 
 
+# Authenticate Admin Only Class
+class AuthenticateOnlyAdmin(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.is_authenticated:
+            if request.user.is_admin:
+                return True
+            else:
+                return False
+        return False
+
+
 class AdminRegistrationView(RegisterView):
     serializer_class = AdminCustomRegistrationSerializer
 
@@ -52,6 +66,9 @@ class NoticeAPI(APIView):
         return Response(serialized_notice.data)
 
     def post(self, request, format=None, *args, **kwargs):
+        if not request.user.is_admin:
+            return Response({"status": "Logged in user is not admin!"})
+
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
@@ -60,7 +77,7 @@ class NoticeAPI(APIView):
 
 
 class AdminAnalyticsAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = AdminAnalyticsSerializer
 
     def post(self, request, format=None, *args, **kwargs):
@@ -115,14 +132,14 @@ class AddProductsAPI(APIView):
     use that category list to post products
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = AddProductsSerializer
 
     def post(self, request, format=None, *args, **kwargs):
         serializer = AddProductsSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            print(serializer.data)
+            # print(serializer.data)
             Product.objects.create(
                 name=serializer.data.get("name"),
                 details=serializer.data.get("details", ""),
@@ -156,7 +173,7 @@ class AddProductsAPI(APIView):
 
 
 class ManageCategoriesAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = ManageCategoriesSerializer
 
     def get(self, request, format=None, *args, **kwargs):
@@ -180,7 +197,7 @@ class ManageProductsAPI(APIView):
     use post request to update that product
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = AddProductsSerializer
 
     def get(self, request, product_id=None, format=None, *args, **kwargs):
@@ -201,10 +218,35 @@ class ManageProductsAPI(APIView):
             return Response({"status": "product_id missing"})
 
         product_instance = Product.objects.get(id=product_id)
-        serialized_product = AddProductsSerializer(request.data)
-        product_instance(**serialized_product.data).save()
+        serializer = AddProductsSerializer(data=request.data)
 
-        return Response({"status": "Product Updated Successfully"})
+        if serializer.is_valid(raise_exception=True):
+            print(serializer.data)
+
+            product_instance.name=serializer.data.get("name")
+            product_instance.details=serializer.data.get("details", "")
+            product_instance.tags=serializer.data.get("tags", [])
+            # Price
+            product_instance.price_bdt=serializer.data.get("price_bdt")
+            product_instance.price_usd=serializer.data.get("price_usd", 0)
+            product_instance.price_gbp=serializer.data.get("price_gbp", 0)
+            product_instance.price_eur=serializer.data.get("price_eur", 0)
+            product_instance.price_cad=serializer.data.get("price_cad", 0)
+            product_instance.images=serializer.data.get("images", [])
+            product_instance.quantity=serializer.data.get("quantity")
+            product_instance.rewards=serializer.data.get("rewards", 0)
+            product_instance.grant=serializer.data.get("grant", 0)
+            # Discount
+            product_instance.discount_percent=serializer.data.get("discount_percent", 0)
+            product_instance.discount_max_bdt=serializer.data.get("discount_max_bdt", 0)
+            # Foreign Keys
+            product_instance.category=Category.objects.get(id=serializer.data.get("category"))
+            product_instance.vendor=Vendor.objects.get(id=serializer.data.get("vendor"))
+            
+            # Update
+            product_instance.save()
+
+            return Response({"status": "Product Updated Successfully"})
 
     # Delete a Product
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
@@ -222,7 +264,7 @@ class ManageOrdersAPI(APIView):
     To set status to Delivered, post with customer_id
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     # serializer_class = OrderedProductsSerializer
 
     def get(self, request, format=None, *args, **kwargs):
@@ -287,7 +329,7 @@ class ManageOrdersAPI(APIView):
 
 
 class ManageVendorsAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = ManageVendorsSerializer
 
     def get(self, request, format=None, *args, **kwargs):
@@ -304,7 +346,7 @@ class ManageVendorsAPI(APIView):
 
 
 class CouponAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = CouponSerializer
 
     def post(self, request, format=None, *args, **kwargs):
@@ -316,7 +358,7 @@ class CouponAPI(APIView):
 
 
 class VendorAnalyticsAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = AdminAnalyticsSerializer
 
     def post(self, request, format=None, *args, **kwargs):
@@ -340,7 +382,7 @@ class SpecificVendorAnalyticsAPI(APIView):
     use vendor id and amount to pay on post request
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = PayVendorSerializer
 
     def get(self, request, phone_number=None, format=None, *args, **kwargs):
@@ -393,7 +435,7 @@ class FeaturedProductAPI(APIView):
     you can delete them by posting with id
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = FeaturedCDProductSerializer
 
     def get(self, request, section=None, format=None, *args, **kwargs):
@@ -447,7 +489,7 @@ class FeaturedProductQueryAPI(APIView):
     query result will be shown on post req
     """
 
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = FeaturedProductQuerySerializer
 
     def get(self, request, format=None, *args, **kwargs):
@@ -471,7 +513,7 @@ class FeaturedProductQueryAPI(APIView):
 
 
 class PermissionsAPI(APIView):
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyAdmin]
 
     def get(self, request, format=None, *args, **kwargs):
         admin_instance = Moderator.objects.get(moderator=request.user)

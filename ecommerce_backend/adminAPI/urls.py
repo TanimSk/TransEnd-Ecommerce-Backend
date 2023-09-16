@@ -13,6 +13,7 @@ from .views import (
     SpecificVendorAnalyticsAPI,
     FeaturedProductAPI,
     FeaturedProductQueryAPI,
+    PermissionsAPI
 )
 
 urlpatterns = [
@@ -52,6 +53,6 @@ urlpatterns = [
         name="featured_products_query",
     ),
     path("add_coupon/", CouponAPI.as_view(), name="add_coupon"),
-    path("permissions/", CouponAPI.as_view(), name="permissions"),
+    path("permissions/", PermissionsAPI.as_view(), name="permissions"),
 
 ]

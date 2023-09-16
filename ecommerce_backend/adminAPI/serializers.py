@@ -47,6 +47,11 @@ class AdminAnalyticsSerializer(serializers.Serializer):
 
 
 class AddProductsSerializer(serializers.ModelSerializer):
+    price_usd = serializers.FloatField(required=False)
+    price_gbp = serializers.FloatField(required=False)
+    price_eur = serializers.FloatField(required=False)
+    price_cad = serializers.FloatField(required=False)
+
     class Meta:
         exclude = (
             "product_added_date",
@@ -132,7 +137,8 @@ class PayVendorSerializer(serializers.Serializer):
     vendor_id = serializers.IntegerField(required=True)
     pay_amount = serializers.IntegerField(required=True)
 
-# CD: create delete 
+
+# CD: create delete
 class FeaturedCDProductSerializer(serializers.Serializer):
     product_id = serializers.IntegerField(required=True)
 
@@ -142,7 +148,8 @@ class FeaturedProductQuerySerializer(serializers.Serializer):
     category_id = serializers.IntegerField(required=True)
     product_name = serializers.CharField(required=True)
 
+
 class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
-        fields = ("admin_roles")
+        fields = ("admin_roles",)
         model = Moderator

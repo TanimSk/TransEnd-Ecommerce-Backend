@@ -8,7 +8,7 @@ from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
 from django.utils import timezone
 
-from rest_framework.permissions import IsAuthenticated
+from rest_framework.permissions import BasePermission
 from .serializers import (
     ConsumerCustomRegistrationSerializer,
     WishlistSerializer,
@@ -17,8 +17,16 @@ from .serializers import (
 )
 import uuid
 
-# TODO: Add only consumer authentication
-# TODO: Update Product Quanity when order is placed
+
+# Authenticate User Only Class
+class AuthenticateOnlyConsumer(BasePermission):
+    def has_permission(self, request, view):
+        if request.user and request.user.is_authenticated:
+            if request.user.is_consumer:
+                return True
+            else:
+                return False
+        return False
 
 
 class ConsumerRegistrationView(RegisterView):
@@ -27,17 +35,21 @@ class ConsumerRegistrationView(RegisterView):
 
 # Add / show Wishlist
 class WishlistSerializerAPI(APIView):
-    serializer_class = WishlistSerializer
-    permission_classes = [IsAuthenticated]
 
-    def post(self, request, format=None, *args, **kwargs):
-        serializer = self.serializer_class(data=request.data)
-        valid = serializer.is_valid(raise_exception=True)
+    """
+    Wishlisted Products can be viewed & removed.
+    Pass product_id as a param for removing and adding
+    """
 
-        if valid:
-            product_instance = Product.objects.get(id=serializer.data["product_id"])
-            Wishlist(consumer=request.user, product=product_instance).save()
-            return Response({"status": "Added to Wishlist"}, status=200)
+    permission_classes = [AuthenticateOnlyConsumer]
+
+    def post(self, request, product_id=None, format=None, *args, **kwargs):
+        if product_id is None:
+            return Response({"status": "param missing"})
+
+        product_instance = Product.objects.get(id=product_id)
+        Wishlist(consumer=request.user, product=product_instance).save()
+        return Response({"status": "Added To Wishlist"})
 
     def get(self, request, format=None, *args, **kwargs):
         wishlist_products_instance = Product.objects.filter(
@@ -46,11 +58,21 @@ class WishlistSerializerAPI(APIView):
         serialized_products = ProductSerializer(wishlist_products_instance, many=True)
         return Response(serialized_products.data)
 
+    def delete(self, request, product_id=None, format=None, *args, **kwargs):
+        if product_id is None:
+            return Response({"status": "param missing"})
+
+        product_instance = Product.objects.get(id=product_id)
+        Wishlist.objects.filter(
+            consumer=request.user, product=product_instance
+        ).first().delete()
+        return Response({"status": "Removed From Wishlist"})
+
 
 # Update / show Profile
 class ProfileAPI(APIView):
     serializer_class = ProfileSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyConsumer]
 
     def post(self, request, format=None, *args, **kwargs):
         # profile_instance = Consumer.objects.get(consumer=request.user)
@@ -81,7 +103,7 @@ class CartAPI(APIView):
     """
 
     serializer_class = OrderedProductSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyConsumer]
 
     def get(self, request, format=None, *args, **kwargs):
         cart_product_instance = OrderedProduct.objects.filter(
@@ -115,18 +137,19 @@ class CartAPI(APIView):
                 status="cart",
             ).save()
 
-            return Response({"status": "Added to Ordered Products"}, status=200)
+            return Response({"status": "Added to Cart"}, status=200)
 
 
 # add / show Ordered Products, status != "cart"
 class OrderProductAPI(APIView):
 
     """
-    POST for moving products from cart to ordered_products
+    For Ordering, POST with <method> param.
+    GET request, for order history
     """
 
     # serializer_class = OrderedProductSerializer
-    permission_classes = [IsAuthenticated]
+    permission_classes = [AuthenticateOnlyConsumer]
 
     def get(self, request, method=None, format=None, *args, **kwargs):
         ordered_product_instance = OrderedProduct.objects.filter(
@@ -149,13 +172,10 @@ class OrderProductAPI(APIView):
             return Response({"status": "No products in cart!"})
 
         if method == "cod":
-            orders_instance.update(
-                status=method, ordered_date=timezone.now(), tracking_id=uuid.uuid4()
-            )
-
             # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
             with transaction.atomic():
                 for order_instance in orders_instance:
+                    print(";______--------________--------_______")
                     product_instance = Product.objects.get(
                         ordered_product=order_instance
                     )
@@ -188,6 +208,8 @@ class OrderProductAPI(APIView):
                     )
                     revenue = total_price - total_grant
 
+                    print(per_price, total_price, total_grant, revenue)
+
                     # Setting the Values
                     order_instance.per_price = per_price
                     order_instance.total_price = total_price
@@ -197,6 +219,10 @@ class OrderProductAPI(APIView):
                     product_instance.save()
                     order_instance.save()
                     consumer_instance.save()
+
+            orders_instance.update(
+                status=method, ordered_date=timezone.now(), tracking_id=uuid.uuid4()
+            )
 
             return Response({"status": "Orders Placed!"})
 

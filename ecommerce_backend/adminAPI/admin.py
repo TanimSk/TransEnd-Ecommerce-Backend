@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Moderator, Notice
+from .models import Moderator, Notice, Reward, CouponCode
 
 
 @admin.register(Moderator)
@@ -17,4 +17,22 @@ class NoticeAdmin(admin.ModelAdmin):
         "notice",
         "notice_date",
         "expiry_date",
+    )
+
+
+@admin.register(Reward)
+class RewardAdmin(admin.ModelAdmin):
+    list_display = (
+        "points",
+        "amount",
+    )
+
+
+@admin.register(CouponCode)
+class CouponCodeAdmin(admin.ModelAdmin):
+    list_display = (
+        "code",
+        "discount",
+        "max_discount",
+        "validity",
     )

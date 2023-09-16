@@ -19,6 +19,11 @@ urlpatterns = [
         name="wishlist",
     ),
     path(
+        "wishlist/<int:product_id>",
+        WishlistSerializerAPI.as_view(),
+        name="wishlist",
+    ),
+    path(
         "profile/",
         ProfileAPI.as_view(),
         name="profile_info",

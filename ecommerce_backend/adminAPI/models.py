@@ -30,6 +30,6 @@ class CouponCode(models.Model):
     coupon_added = models.DateField(auto_now=True)
 
 
-class rewards(models.Model):
+class Reward(models.Model):
     points = models.IntegerField(default=0)
     amount = models.IntegerField(default=0)
