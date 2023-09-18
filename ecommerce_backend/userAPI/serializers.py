@@ -18,12 +18,15 @@ class ProfileSerializer(serializers.ModelSerializer):
 # Ordered Products
 class OrderedProductSerializer(serializers.ModelSerializer):
     product_id = serializers.IntegerField(source="product.id", required=True)
-
     # read only fields
     name = serializers.CharField(source="product.name", read_only=True)
     img_urls = serializers.ListField(source="product.images", read_only=True)
-    added_on = serializers.DateTimeField(
-        source="ordered_date", read_only=True, format="%Y-%m-%d %H:%M:%S"
+    price_bdt = serializers.IntegerField(source="product.price_bdt", read_only=True)
+    discount_percent = serializers.IntegerField(
+        source="product.discount_percent", read_only=True
+    )
+    discount_max_bdt = serializers.IntegerField(
+        source="product.discount_max_bdt", read_only=True
     )
 
     class Meta:
@@ -33,7 +36,9 @@ class OrderedProductSerializer(serializers.ModelSerializer):
             "ordered_quantity",
             "name",
             "img_urls",
-            "added_on",
+            "price_bdt",
+            "discount_percent",
+            "discount_max_bdt",
         )
         model = OrderedProduct
 
