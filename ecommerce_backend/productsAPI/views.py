@@ -52,7 +52,7 @@ class CategoryAPI(APIView):
                 print(request.user.is_authenticated)
 
                 if request.user.is_authenticated:
-                    wishlisted = Wishlist.objects.filter(consumer=request.user, product=product)
+                    wishlisted = Wishlist.objects.filter(consumer=request.user, product=product).exists()
                     return Response({**serialized_product.data, "wishlisted": wishlisted})
 
                 return Response(serialized_product.data)
