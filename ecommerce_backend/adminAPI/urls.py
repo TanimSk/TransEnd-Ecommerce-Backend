@@ -13,7 +13,8 @@ from .views import (
     SpecificVendorAnalyticsAPI,
     FeaturedProductAPI,
     FeaturedProductQueryAPI,
-    PermissionsAPI
+    PermissionsAPI,
+    ManageAdminAPI,
 )
 
 urlpatterns = [
@@ -54,5 +55,6 @@ urlpatterns = [
     ),
     path("add_coupon/", CouponAPI.as_view(), name="add_coupon"),
     path("permissions/", PermissionsAPI.as_view(), name="permissions"),
-
+    # Manage Admin
+    path("manage_admin/", ManageAdminAPI.as_view(), name="manage_admin"),
 ]

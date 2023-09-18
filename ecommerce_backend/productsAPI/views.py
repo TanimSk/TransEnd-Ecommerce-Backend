@@ -7,7 +7,7 @@ from .serializers import (
     FeaturedProductSerializer,
 )
 from .models import Category, Product, FeaturedProduct
-
+from userAPI.models import Wishlist
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from rest_framework.pagination import PageNumberPagination
@@ -47,10 +47,17 @@ class CategoryAPI(APIView):
         else:
             try:
                 product = Product.objects.get(id=product_id)
+                serialized_product = ProductSerializer(product)
+                if request.user.is_authenticated and request.user.is_consumer:
+                    wishlisted = Wishlist.objects.filter(consumer=request.user, product=product)
+                    return Response({**serialized_product.data, "wishlisted": wishlisted})
+
+                return Response(serialized_product.data)
+            
             except Product.DoesNotExist:
                 product = None
-            serialized_product = ProductSerializer(product)
-            return Response(serialized_product.data)
+
+            
 
 
 class FilterAPI(APIView):

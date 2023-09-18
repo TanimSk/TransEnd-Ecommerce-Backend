@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Moderator, Notice, Reward, CouponCode
+from .models import Moderator, Notice, Reward, CouponCode, ExtraPayment
 
 
 @admin.register(Moderator)
@@ -35,4 +35,13 @@ class CouponCodeAdmin(admin.ModelAdmin):
         "discount",
         "max_discount",
         "validity",
+    )
+
+
+@admin.register(ExtraPayment)
+class ExtraPaymentAdmin(admin.ModelAdmin):
+    list_display = (
+        "inside_dhaka",
+        "outside_dhaka",
+        "courier_fee",
     )

@@ -61,8 +61,6 @@ class OrderedProduct(models.Model):
 
     def __str__(self) -> str:
         return f"{self.product.name} | {self.consumer.email}"
-    
-
 
 
 class Wishlist(models.Model):

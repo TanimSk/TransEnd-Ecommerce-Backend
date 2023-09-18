@@ -33,3 +33,9 @@ class CouponCode(models.Model):
 class Reward(models.Model):
     points = models.IntegerField(default=0)
     amount = models.IntegerField(default=0)
+
+
+class ExtraPayment(models.Model):
+    inside_dhaka = models.IntegerField(default=0)
+    outside_dhaka = models.IntegerField(default=0)
+    courier_fee = models.IntegerField(default=0)

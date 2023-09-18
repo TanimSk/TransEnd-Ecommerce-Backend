@@ -153,3 +153,15 @@ class PermissionSerializer(serializers.ModelSerializer):
     class Meta:
         fields = ("admin_roles",)
         model = Moderator
+
+
+class ManageAdminSerializer(serializers.ModelSerializer):
+    email = serializers.EmailField(source="moderator.email")
+
+    class Meta:
+        fields = (
+            "email",
+            "phone_number",
+            "admin_roles",
+        )
+        model = Moderator

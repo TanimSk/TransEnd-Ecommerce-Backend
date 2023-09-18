@@ -18,7 +18,9 @@ from .serializers import (
     FeaturedCDProductSerializer,
     FeaturedProductQuerySerializer,
     PermissionSerializer,
+    ManageAdminSerializer,
 )
+
 # from productsAPI.serializers import ProductSerializer
 from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
@@ -223,26 +225,34 @@ class ManageProductsAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             print(serializer.data)
 
-            product_instance.name=serializer.data.get("name")
-            product_instance.details=serializer.data.get("details", "")
-            product_instance.tags=serializer.data.get("tags", [])
+            product_instance.name = serializer.data.get("name")
+            product_instance.details = serializer.data.get("details", "")
+            product_instance.tags = serializer.data.get("tags", [])
             # Price
-            product_instance.price_bdt=serializer.data.get("price_bdt")
-            product_instance.price_usd=serializer.data.get("price_usd", 0)
-            product_instance.price_gbp=serializer.data.get("price_gbp", 0)
-            product_instance.price_eur=serializer.data.get("price_eur", 0)
-            product_instance.price_cad=serializer.data.get("price_cad", 0)
-            product_instance.images=serializer.data.get("images", [])
-            product_instance.quantity=serializer.data.get("quantity")
-            product_instance.rewards=serializer.data.get("rewards", 0)
-            product_instance.grant=serializer.data.get("grant", 0)
+            product_instance.price_bdt = serializer.data.get("price_bdt")
+            product_instance.price_usd = serializer.data.get("price_usd", 0)
+            product_instance.price_gbp = serializer.data.get("price_gbp", 0)
+            product_instance.price_eur = serializer.data.get("price_eur", 0)
+            product_instance.price_cad = serializer.data.get("price_cad", 0)
+            product_instance.images = serializer.data.get("images", [])
+            product_instance.quantity = serializer.data.get("quantity")
+            product_instance.rewards = serializer.data.get("rewards", 0)
+            product_instance.grant = serializer.data.get("grant", 0)
             # Discount
-            product_instance.discount_percent=serializer.data.get("discount_percent", 0)
-            product_instance.discount_max_bdt=serializer.data.get("discount_max_bdt", 0)
+            product_instance.discount_percent = serializer.data.get(
+                "discount_percent", 0
+            )
+            product_instance.discount_max_bdt = serializer.data.get(
+                "discount_max_bdt", 0
+            )
             # Foreign Keys
-            product_instance.category=Category.objects.get(id=serializer.data.get("category"))
-            product_instance.vendor=Vendor.objects.get(id=serializer.data.get("vendor"))
-            
+            product_instance.category = Category.objects.get(
+                id=serializer.data.get("category")
+            )
+            product_instance.vendor = Vendor.objects.get(
+                id=serializer.data.get("vendor")
+            )
+
             # Update
             product_instance.save()
 
@@ -519,3 +529,12 @@ class PermissionsAPI(APIView):
         admin_instance = Moderator.objects.get(moderator=request.user)
         serializer = PermissionSerializer(admin_instance)
         return Response(serializer.data)
+
+
+class ManageAdminAPI(APIView):
+    permission_classes = [AuthenticateOnlyAdmin]
+
+    def get(self, request, format=None, *args, **kwargs):
+        moderator_instance = Moderator.objects.all()
+        serialized_moderators = ManageAdminSerializer(moderator_instance, many=True)
+        return Response(serialized_moderators.data)

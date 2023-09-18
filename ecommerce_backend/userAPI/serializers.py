@@ -29,6 +29,7 @@ class OrderedProductSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             "product_id",
+            "status",
             "ordered_quantity",
             "name",
             "img_urls",
