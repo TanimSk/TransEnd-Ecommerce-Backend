@@ -26,6 +26,14 @@ import uuid
 def update_order(method, orders_instance, consumer_instance):
     order_total_price = 0
 
+    context = {
+        "customer_name": consumer_instance.name,
+        "email": consumer_instance.consumer.email,
+        "address": consumer_instance.address,
+        "phone_number": consumer_instance.phone_number,
+        "orders_info": []
+    }
+
     with transaction.atomic():
         for order_instance in orders_instance:
             product_instance = Product.objects.get(ordered_product=order_instance)
@@ -245,7 +253,9 @@ class CartAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             # Check For dublicate products
             if OrderedProduct.objects.filter(
-                dispatched=False, product_id=serializer.data.get("product_id")
+                consumer=request.user,
+                status="cart",
+                product_id=serializer.data.get("product_id"),
             ).exists():
                 return Response({"status": "This Product Already exists in your cart!"})
 

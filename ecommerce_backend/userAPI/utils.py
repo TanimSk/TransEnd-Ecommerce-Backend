@@ -1,3 +1,6 @@
+from django.core.mail import EmailMultiAlternatives
+from django.template.loader import render_to_string
+from django.utils.html import strip_tags
 import requests
 import json
 import uuid
@@ -39,5 +42,17 @@ def verify_payment(request_id):
     return response.get("mer_txnid", "") == request_id
 
 
-def send_invoice():
-    ...
+def send_invoice(to_mail, ):
+    subject, from_email = "Invoice From TransEnd", "noreply.service.tanimsk@gmail.com"
+
+    html_content = render_to_string(
+        "invoice_email.html", {"varname": "value"}
+    )  # render with dynamic value
+    text_content = strip_tags(
+        html_content
+    )  # Strip the html tag. So people can see the pure text at least.
+
+    # create the email, and attach the HTML version as well.
+    msg = EmailMultiAlternatives(subject, text_content, from_email, [to_mail])
+    msg.attach_alternative(html_content, "text/html")
+    msg.send()
