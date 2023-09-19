@@ -4,6 +4,7 @@ from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
 from django.shortcuts import render
+from django.views.decorators.csrf import csrf_exempt
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
 from adminAPI.models import ExtraPayment
@@ -372,6 +373,7 @@ class OrderProductCODAPI(APIView):
 
 
 # Mobile Order
+@csrf_exempt
 def OrderProductMobileAPI(request):
     # Set ordered products
     if request.method == "POST":
