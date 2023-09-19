@@ -521,7 +521,7 @@ class FeaturedProductQueryAPI(APIView):
 
             print(product_instance)
 
-            return Response(FeaturedProductSerializer(product_instance, many=True).data)
+            return Response(FeaturedProductSerializer(data=product_instance, many=True).data)
 
 
 class PermissionsAPI(APIView):
