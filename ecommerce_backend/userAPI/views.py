@@ -3,7 +3,7 @@ from productsAPI.serializers import ProductSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
-from django.shortcuts import render_to_response
+from django.shortcuts import render
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
 from adminAPI.models import ExtraPayment
@@ -345,7 +345,7 @@ class OrderProductAPI(APIView):
             if verify_payment(request.GET.get("uuid")):
                 update_order(method, orders_instance, consumer_instance)
                 send_invoice(consumer_instance.consumer.email, context)
-                return render_to_response("payment_success.html")
+                return render(request, "payment_success.html")
 
         else:
             return Response({"status": "Invalid Payment Method!"})
