@@ -45,7 +45,7 @@ class ProductQuerySerializer(serializers.ModelSerializer):
     price = serializers.IntegerField(source="price_bdt", read_only=True)
 
     def get_image_url(self, obj):
-        first_image = obj.product.images[0]
+        first_image = obj.images[0]
         if first_image:
             return first_image
         return None
