@@ -4,6 +4,8 @@ from .views import (
     WishlistSerializerAPI,
     ProfileAPI,
     OrderProductAPI,
+    OrderProductCODAPI,
+    OrderProductMobileAPI,
     CartAPI,
     PaymentLinkAPI,
 )
@@ -39,14 +41,20 @@ urlpatterns = [
         CartAPI.as_view(),
         name="cart_products",
     ),
+    # Order Products
     path(
         "ordered_product/",
         OrderProductAPI.as_view(),
         name="ordered_products",
     ),
     path(
-        "ordered_product/<str:method>",
-        OrderProductAPI.as_view(),
+        "ordered_product/cod",
+        OrderProductCODAPI.as_view(),
+        name="ordered_products_cod",
+    ),
+    path(
+        "ordered_product/mobile",
+        OrderProductMobileAPI.as_view(),
         name="ordered_products",
     ),
     path(

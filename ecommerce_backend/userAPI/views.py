@@ -351,6 +351,44 @@ class OrderProductAPI(APIView):
             return Response({"status": "Invalid Payment Method!"})
 
 
+# COD Order
+class OrderProductCODAPI(APIView):
+    permission_classes = [AuthenticateOnlyConsumer]
+
+    # Set ordered products
+    def post(self, request, method=None, format=None, *args, **kwargs):
+        orders_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+        consumer_instance = Consumer.objects.get(consumer=request.user)
+
+        if orders_instance.count() == 0:
+            return Response({"status": "No products in cart!"})
+
+        # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
+        context = update_order(method, orders_instance, consumer_instance)
+        send_invoice(consumer_instance.consumer.email, context)
+        return Response({"status": "Orders Placed!"})
+
+
+# Mobile Order
+class OrderProductMobileAPI(APIView):
+    # Set ordered products
+    def post(self, request, method=None, format=None, *args, **kwargs):
+        orders_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+        consumer_instance = Consumer.objects.get(consumer=request.user)
+
+        if orders_instance.count() == 0:
+            return Response({"status": "No products in cart!"})
+
+        if verify_payment(request.GET.get("uuid")):
+            context = update_order(method, orders_instance, consumer_instance)
+            send_invoice(consumer_instance.consumer.email, context)
+            return render(request, "payment_success.html")
+
+
 # Make Payment
 class PaymentLinkAPI(APIView):
     """
