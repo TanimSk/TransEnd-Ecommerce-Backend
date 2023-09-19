@@ -42,11 +42,11 @@ def verify_payment(request_id):
     return response.get("mer_txnid", "") == request_id
 
 
-def send_invoice(to_mail, ):
+def send_invoice(to_mail, context):
     subject, from_email = "Invoice From TransEnd", "noreply.service.tanimsk@gmail.com"
 
     html_content = render_to_string(
-        "invoice_email.html", {"varname": "value"}
+        "invoice_email.html", context
     )  # render with dynamic value
     text_content = strip_tags(
         html_content

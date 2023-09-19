@@ -3,7 +3,7 @@ from productsAPI.serializers import ProductSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
-
+from django.shortcuts import render_to_response
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
 from adminAPI.models import ExtraPayment
@@ -16,7 +16,7 @@ from .serializers import (
     ProfileSerializer,
     OrderedProductSerializer,
 )
-from .utils import make_payment, verify_payment
+from .utils import make_payment, verify_payment, send_invoice
 import uuid
 
 
@@ -25,13 +25,14 @@ import uuid
 # ------------------------------------------------------------------------------------
 def update_order(method, orders_instance, consumer_instance):
     order_total_price = 0
+    courier_fee = 0
 
     context = {
         "customer_name": consumer_instance.name,
         "email": consumer_instance.consumer.email,
         "address": consumer_instance.address,
         "phone_number": consumer_instance.phone_number,
-        "orders_info": []
+        "orders_info": [],
     }
 
     with transaction.atomic():
@@ -73,21 +74,40 @@ def update_order(method, orders_instance, consumer_instance):
             extra_payment_instance = ExtraPayment.objects.first()
             if consumer_instance.inside_dhaka:
                 order_instance.courier_fee = extra_payment_instance.inside_dhaka
-                order_total_price += extra_payment_instance.inside_dhaka
+                courier_fee = extra_payment_instance.inside_dhaka
             else:
                 order_instance.courier_fee = extra_payment_instance.outside_dhaka
-                order_total_price += extra_payment_instance.outside_dhaka
+                courier_fee = extra_payment_instance.outside_dhaka
+
+            # Adding Order Info
+            context["orders_info"].append(
+                {
+                    "product_name": product_instance.name,
+                    "quantity": order_instance.ordered_quantity,
+                    "price": total_price,
+                }
+            )
 
             product_instance.save()
             order_instance.save()
             consumer_instance.save()
 
+    order_total_price += courier_fee
+    order_id = uuid.uuid4()
+
+    # Adding order Info
+    context["order_id"] = order_id
+    context["courier_fee"] = courier_fee
+    context["total_price"] = order_total_price
+
     orders_instance.update(
         status=method,
         ordered_date=timezone.now(),
-        tracking_id=uuid.uuid4(),
+        tracking_id=order_id,
         order_total_price=order_total_price,
     )
+
+    return context
 
 
 # ----------------
@@ -317,14 +337,15 @@ class OrderProductAPI(APIView):
 
         if method == "cod":
             # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
-            update_order(method, orders_instance, consumer_instance)
-
+            context = update_order(method, orders_instance, consumer_instance)
+            send_invoice(consumer_instance.consumer.email, context)
             return Response({"status": "Orders Placed!"})
 
         elif method == "mobile":
             if verify_payment(request.GET.get("uuid")):
                 update_order(method, orders_instance, consumer_instance)
-                return Response("HTML PAGE")
+                send_invoice(consumer_instance.consumer.email, context)
+                return render_to_response("payment_success.html")
 
         else:
             return Response({"status": "Invalid Payment Method!"})

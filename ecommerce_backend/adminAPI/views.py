@@ -381,7 +381,7 @@ class VendorAnalyticsAPI(APIView):
                     serializer.data.get("to_date"),
                 ]
             )
-            serialized_analytics = VendorAnalyticsSerializer(orders_instance)
+            serialized_analytics = VendorAnalyticsSerializer(orders_instance, many=True)
             return Response(serialized_analytics.data)
 
 
