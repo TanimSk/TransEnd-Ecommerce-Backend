@@ -519,6 +519,8 @@ class FeaturedProductQueryAPI(APIView):
                 vendor_id=serializer.data.get("vendor_id"),
             )
 
+            print(product_instance)
+
             return Response(FeaturedProductSerializer(product_instance, many=True).data)
 
 
