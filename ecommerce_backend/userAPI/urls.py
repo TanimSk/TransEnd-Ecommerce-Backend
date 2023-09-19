@@ -54,8 +54,8 @@ urlpatterns = [
     ),
     path(
         "ordered_product/mobile",
-        OrderProductMobileAPI.as_view(),
-        name="ordered_products",
+        OrderProductMobileAPI,
+        name="ordered_products_mobile",
     ),
     path(
         "make_payment/",
