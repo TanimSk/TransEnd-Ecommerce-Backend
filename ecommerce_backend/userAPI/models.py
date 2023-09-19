@@ -45,10 +45,15 @@ class OrderedProduct(models.Model):
     ordered_date = models.DateTimeField(blank=True, null=True)
     tracking_id = models.UUIDField(editable=False, blank=True, null=True)
 
+    # Product Specific
     per_price = models.IntegerField(blank=True, null=True)  # Per Product
     total_price = models.IntegerField(blank=True, null=True)
     total_grant = models.IntegerField(blank=True, null=True)
     revenue = models.IntegerField(blank=True, null=True)
+
+    # Global Info
+    courier_fee = models.IntegerField(blank=True, null=True)
+    order_total_price = models.IntegerField(blank=True, null=True)
 
     STATUS = (
         ("cart", "cart"),

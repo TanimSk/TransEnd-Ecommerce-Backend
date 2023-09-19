@@ -5,7 +5,7 @@ from .views import (
     ProfileAPI,
     OrderProductAPI,
     CartAPI,
-    PaymentLinkAPI
+    PaymentLinkAPI,
 )
 
 urlpatterns = [
@@ -31,6 +31,11 @@ urlpatterns = [
     ),
     path(
         "cart/",
+        CartAPI.as_view(),
+        name="cart_products",
+    ),
+    path(
+        "cart/<int:product_id>",
         CartAPI.as_view(),
         name="cart_products",
     ),

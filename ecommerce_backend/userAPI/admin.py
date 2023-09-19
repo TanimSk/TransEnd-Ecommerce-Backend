@@ -22,4 +22,8 @@ class WishlistAdmin(admin.ModelAdmin):
 
 @admin.register(OrderedProduct)
 class OrderedProductAdmin(admin.ModelAdmin):
-    pass
+    list_display = (
+        "consumer",
+        "product",
+        "total_price",
+    )

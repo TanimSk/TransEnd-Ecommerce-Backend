@@ -24,6 +24,8 @@ import uuid
 # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
 # ------------------------------------------------------------------------------------
 def update_order(method, orders_instance, consumer_instance):
+    order_total_price = 0
+
     with transaction.atomic():
         for order_instance in orders_instance:
             product_instance = Product.objects.get(ordered_product=order_instance)
@@ -57,13 +59,26 @@ def update_order(method, orders_instance, consumer_instance):
             order_instance.total_price = total_price
             order_instance.total_grant = total_grant
             order_instance.revenue = revenue
+            order_total_price += total_price
+
+            # Adding Courier Charges
+            extra_payment_instance = ExtraPayment.objects.first()
+            if consumer_instance.inside_dhaka:
+                order_instance.courier_fee = extra_payment_instance.inside_dhaka
+                order_total_price += extra_payment_instance.inside_dhaka
+            else:
+                order_instance.courier_fee = extra_payment_instance.outside_dhaka
+                order_total_price += extra_payment_instance.outside_dhaka
 
             product_instance.save()
             order_instance.save()
             consumer_instance.save()
 
     orders_instance.update(
-        status=method, ordered_date=timezone.now(), tracking_id=uuid.uuid4()
+        status=method,
+        ordered_date=timezone.now(),
+        tracking_id=uuid.uuid4(),
+        order_total_price=order_total_price,
     )
 
 
@@ -100,7 +115,6 @@ def get_price(orders_instance, user):
         to_be_paid += extra_payment_instance.inside_dhaka
     else:
         to_be_paid += extra_payment_instance.outside_dhaka
-    to_be_paid += extra_payment_instance.courier_fee
 
     return to_be_paid
 
@@ -192,7 +206,8 @@ class ProfileAPI(APIView):
 class CartAPI(APIView):
 
     """
-    POST for adding products in cart
+    POST for adding products in cart.
+    For deleting a product add a param <product_id>
     """
 
     serializer_class = OrderedProductSerializer
@@ -233,6 +248,15 @@ class CartAPI(APIView):
             ).save()
 
             return Response({"status": "Added to Cart"}, status=200)
+
+    def delete(self, request, product_id=None, format=None, *args, **kwargs):
+        if product_id is None:
+            return Response({"status": "Params Required!"})
+
+        OrderedProduct.objects.get(
+            consumer=request.user, product_id=product_id, status="cart"
+        ).delete()
+        return Response({"status": "Removed Product From Cart"})
 
 
 # add / show Ordered Products, status != "cart"

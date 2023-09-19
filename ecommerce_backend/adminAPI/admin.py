@@ -43,5 +43,4 @@ class ExtraPaymentAdmin(admin.ModelAdmin):
     list_display = (
         "inside_dhaka",
         "outside_dhaka",
-        "courier_fee",
     )

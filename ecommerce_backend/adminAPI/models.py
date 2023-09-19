@@ -38,4 +38,3 @@ class Reward(models.Model):
 class ExtraPayment(models.Model):
     inside_dhaka = models.IntegerField(default=0)
     outside_dhaka = models.IntegerField(default=0)
-    courier_fee = models.IntegerField(default=0)
