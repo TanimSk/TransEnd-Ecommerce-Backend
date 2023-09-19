@@ -15,7 +15,7 @@ def make_payment(cus_name, cus_email, cus_phone, amount) -> dict:
         {
             "store_id": "aamarpaytest",
             "tran_id": unique_id,
-            "success_url": f"http://127.0.0.1:8000/consumer/ordered_product/mobile?uuid={unique_id}",
+            "success_url": f"http://transend.ongshak.com/consumer/ordered_product/mobile?uuid={unique_id}",
             "fail_url": "http://google.com/",
             "cancel_url": "http://www.merchantdomain.com/can",
             "amount": amount,
