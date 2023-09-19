@@ -380,7 +380,7 @@ def OrderProductMobileAPI(request):
         orders_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
         )
-        consumer_instance = Consumer.objects.get(consumer=request.user)
+        consumer_instance = Consumer.objects.get(consumer__email=request.GET.get("email"))
 
         if orders_instance.count() == 0:
             return Response({"status": "No products in cart!"})
