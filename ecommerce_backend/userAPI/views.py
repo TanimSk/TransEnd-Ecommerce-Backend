@@ -372,13 +372,13 @@ class OrderProductCODAPI(APIView):
         return Response({"status": "Orders Placed!"})
 
 
-# Mobile Order
+# Mobile Order (will be redirecting via aamarPay)
 @csrf_exempt
 def OrderProductMobileAPI(request):
     # Set ordered products
     if request.method == "POST":
         orders_instance = OrderedProduct.objects.filter(
-            consumer=request.user, status="cart"
+            consumer__email=request.GET.get("email"), status="cart"
         )
         consumer_instance = Consumer.objects.get(consumer__email=request.GET.get("email"))
 
