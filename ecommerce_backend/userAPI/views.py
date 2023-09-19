@@ -227,6 +227,10 @@ class CartAPI(APIView):
         cart_product_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
         )
+
+        if not cart_product_instance.exists():
+            return Response({"status": "Cart is Empty!"})
+
         serialized_products = OrderedProductSerializer(cart_product_instance, many=True)
         return Response(
             {
