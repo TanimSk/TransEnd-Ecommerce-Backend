@@ -1,7 +1,7 @@
 from dj_rest_auth.registration.views import RegisterView
 from rest_framework.response import Response
 from rest_framework.views import APIView
-from productsAPI.serializers import FeaturedProductSerializer
+from productsAPI.serializers import FeaturedProductSerializer, ProductQuerySerializer
 from .serializers import (
     AdminCustomRegistrationSerializer,
     NoticeSerializer,
@@ -518,8 +518,8 @@ class FeaturedProductQueryAPI(APIView):
                 category_id=serializer.data.get("category_id"),
                 vendor_id=serializer.data.get("vendor_id"),
             )
-
-            serialized_products = FeaturedProductSerializer(product_instance, many=True)
+            
+            serialized_products = ProductQuerySerializer(product_instance, many=True)
             return Response(serialized_products.data)
 
 

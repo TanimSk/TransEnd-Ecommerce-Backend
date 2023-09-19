@@ -5,6 +5,7 @@ from .serializers import (
     ProductSerializer,
     CategorySerializer,
     FeaturedProductSerializer,
+    ProductQuerySerializer
 )
 from .models import Category, Product, FeaturedProduct
 from userAPI.models import Wishlist
