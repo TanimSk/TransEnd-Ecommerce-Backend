@@ -16,7 +16,7 @@ from .serializers import (
     ProfileSerializer,
     OrderedProductSerializer,
 )
-from .make_payment import make_payment, verify_payment
+from .utils import make_payment, verify_payment
 import uuid
 
 
@@ -308,6 +308,7 @@ class OrderProductAPI(APIView):
         if method == "cod":
             # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
             update_order(method, orders_instance, consumer_instance)
+
             return Response({"status": "Orders Placed!"})
 
         elif method == "mobile":

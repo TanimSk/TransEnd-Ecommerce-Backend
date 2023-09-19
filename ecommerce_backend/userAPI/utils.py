@@ -37,3 +37,7 @@ def verify_payment(request_id):
     headers = {}
     response = requests.request("GET", url, headers=headers, data=payload).json()
     return response.get("mer_txnid", "") == request_id
+
+
+def send_invoice():
+    ...
