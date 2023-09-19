@@ -90,7 +90,10 @@ def get_price(orders_instance, user):
         return Response({"status": "No products in cart!"})
 
     consumer_instance = Consumer.objects.get(consumer=user)
+
     to_be_paid = 0
+    total_grant = 0
+    courier_fee = 0
 
     for order_instance in orders_instance:
         product_instance = Product.objects.get(ordered_product=order_instance)
@@ -108,15 +111,22 @@ def get_price(orders_instance, user):
         per_price = product_instance.price_bdt - discount
         total_price = per_price * order_instance.ordered_quantity
         to_be_paid += total_price
+        total_grant += product_instance.grant * order_instance.ordered_quantity
 
     # Extra fees
     extra_payment_instance = ExtraPayment.objects.first()
     if consumer_instance.inside_dhaka:
         to_be_paid += extra_payment_instance.inside_dhaka
+        courier_fee = extra_payment_instance.inside_dhaka
     else:
         to_be_paid += extra_payment_instance.outside_dhaka
+        courier_fee = extra_payment_instance.outside_dhaka
 
-    return to_be_paid
+    return {
+        "total_price": to_be_paid,
+        "total_grant": total_grant,
+        "courier_fee": courier_fee,
+    }
 
 
 # Authenticate User Only Class
@@ -217,10 +227,12 @@ class CartAPI(APIView):
         cart_product_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
         )
-        total_price = get_price(cart_product_instance, request.user)
         serialized_products = OrderedProductSerializer(cart_product_instance, many=True)
         return Response(
-            {"products": serialized_products.data, "total_price": total_price}
+            {
+                "products": serialized_products.data,
+                **get_price(cart_product_instance, request.user),
+            }
         )
 
     def post(self, request, format=None, *args, **kwargs):
@@ -321,7 +333,7 @@ class PaymentLinkAPI(APIView):
         if orders_instance.count() == 0:
             return Response({"status": "No products in cart!"})
 
-        to_be_paid = get_price(orders_instance, request.user)
+        to_be_paid = get_price(orders_instance, request.user)["total_price"]
 
         response = make_payment(
             cus_name=consumer_instance.name,
