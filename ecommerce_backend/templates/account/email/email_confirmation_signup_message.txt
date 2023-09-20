@@ -7,8 +7,8 @@
 To confirm this is correct, go to 
 {% endblocktrans %}{% endautoescape %}
 {% if user.is_admin %}
-http://localhost:3000/admin_auth/{{ activate_url }}
+http://transend-store.ongshak.com/auth/{{ activate_url }}
 {% else %}
-http://localhost:3000/consumer_auth/{{ activate_url }}
+http://transend-store.ongshak.com/auth/{{ activate_url }}
 {% endif %}
 {% endblock %}
