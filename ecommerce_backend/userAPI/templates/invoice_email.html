@@ -27,11 +27,6 @@
             }
         }
 
-        /**
-   * Avoid browser level font resizing.
-   * 1. Windows Mobile
-   * 2. iOS / OSX
-   */
         body,
         table,
         td,
@@ -42,25 +37,16 @@
             /* 2 */
         }
 
-        /**
-   * Remove extra space added to tables and cells in Outlook.
-   */
         table,
         td {
             mso-table-rspace: 0pt;
             mso-table-lspace: 0pt;
         }
 
-        /**
-   * Better fluid images in Internet Explorer.
-   */
         img {
             -ms-interpolation-mode: bicubic;
         }
 
-        /**
-   * Remove blue links for iOS devices.
-   */
         a[x-apple-data-detectors] {
             font-family: inherit !important;
             font-size: inherit !important;
@@ -70,9 +56,6 @@
             text-decoration: none !important;
         }
 
-        /**
-   * Fix centering issues in Android 4.4.
-   */
         div[style*="margin: 16px 0;"] {
             margin: 0 !important;
         }
@@ -84,9 +67,6 @@
             margin: 0 !important;
         }
 
-        /**
-   * Collapse table borders to avoid space between cells.
-   */
         table {
             border-collapse: collapse !important;
         }
@@ -132,11 +112,6 @@
                         </td>
                     </tr>
                 </table>
-                <!--[if (gte mso 9)|(IE)]>
-        </td>
-        </tr>
-        </table>
-        <![endif]-->
             </td>
         </tr>
         <!-- end logo -->
@@ -180,7 +155,7 @@
                                 concerns about your order, please <a href="https://www.transendbd.org/">contact us</a>.
                             </p>
                             <h4>
-                                # Your Order ID:
+                                # Your Order ID: {{ order_id }}
                             </h4>
 
                         </td>
@@ -208,18 +183,19 @@
                                 </tr>
 
                                 <!-- iterate -->
-
+                                {% for order_info in orders_info %}
                                 <tr>
                                     <td align="left" width="33.33%"
                                         style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-                                        Item</td>
+                                        {{ order_info.product_name }}</td>
                                     <td align="left" width="33.33%"
                                         style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-                                        Item</td>
+                                        {{ order_info.quantity }}</td>
                                     <td align="left" width="33.33%"
                                         style="padding: 6px 12px;font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
-                                        $24.00</td>
+                                        ৳{{order_info.price}}</td>
                                 </tr>
+                                {% endfor %}
 
 
 
@@ -234,7 +210,7 @@
                                     </td>
                                     <td align="left" width="33.33%"
                                         style="padding: 12px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px; border-top: 2px dashed #55CDFC; border-bottom: 2px dashed #55CDFC;">
-                                        <strong>$54.00</strong>
+                                        <strong>{{total_price}}</strong>
                                     </td>
                                 </tr>
                             </table>
@@ -261,7 +237,7 @@
                                         <td align="left" valign="top"
                                             style="padding-bottom: 36px; padding-left: 36px; font-family: 'Source Sans Pro', Helvetica, Arial, sans-serif; font-size: 16px; line-height: 24px;">
                                             <p><strong>Delivery Address</strong></p>
-                                            <p>1234 S. Broadway Ave<br>Unit 2<br>Denver, CO 80211</p>
+                                            <p>{{customer_name}}<br>{{email}}<br>{{address}}<br>{{phone_number}}</p>
                                         </td>
                                     </tr>
                                 </table>
