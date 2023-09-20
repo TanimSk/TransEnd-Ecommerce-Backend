@@ -115,7 +115,7 @@ def update_order(method, orders_instance, consumer_instance):
 # ----------------
 def get_price(orders_instance, user):
     if orders_instance.count() == 0:
-        return Response({"status": "No products in cart!"})
+        return False
 
     consumer_instance = Consumer.objects.get(consumer=user)
 
@@ -462,8 +462,10 @@ class UseCouponAPI(APIView):
 
         total_price = get_price(ordered_product_instance, request.user)
 
-        print(total_price)
+        if not total_price:
+            return Response({"status": "No Products in Cart!"})
 
+        total_price = total_price["total_price"]
 
         discount = int(total_price * coupon_instance.discount / 100)
 
@@ -497,7 +499,13 @@ class UseCouponAPI(APIView):
             consumer=request.user, status="cart"
         )
 
-        total_price = get_price(ordered_product_instance, request.user)["total_price"]
+        total_price = get_price(ordered_product_instance, request.user)
+
+        if not total_price:
+            return Response({"status": "No Products in Cart!"})
+
+        total_price = total_price["total_price"]
+
         discount = int(total_price * coupon_instance.discount / 100)
 
         if discount > coupon_instance.max_discount:
