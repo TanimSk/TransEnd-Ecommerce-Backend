@@ -54,6 +54,7 @@ class OrderedProduct(models.Model):
     # Global Info
     courier_fee = models.IntegerField(blank=True, null=True)
     order_total_price = models.IntegerField(blank=True, null=True)
+    coupon_bdt = models.IntegerField(default=0)
 
     STATUS = (
         ("cart", "cart"),

@@ -8,6 +8,7 @@ from .views import (
     OrderProductMobileAPI,
     CartAPI,
     PaymentLinkAPI,
+    UseCouponAPI
 )
 
 urlpatterns = [
@@ -61,5 +62,11 @@ urlpatterns = [
         "make_payment/",
         PaymentLinkAPI.as_view(),
         name="make_payment",
+    ),
+    # use coupon
+    path(
+        "use_coupon/<str:coupon_code>",
+        UseCouponAPI.as_view(),
+        name="use_coupon",
     ),
 ]

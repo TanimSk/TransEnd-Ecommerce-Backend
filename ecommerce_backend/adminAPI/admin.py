@@ -35,6 +35,7 @@ class CouponCodeAdmin(admin.ModelAdmin):
         "discount",
         "max_discount",
         "validity",
+        "coupon_added",
     )
 
 

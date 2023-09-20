@@ -7,9 +7,8 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
-from adminAPI.models import ExtraPayment
+from adminAPI.models import ExtraPayment, CouponCode
 from django.utils import timezone
-
 from rest_framework.permissions import BasePermission
 from .serializers import (
     ConsumerCustomRegistrationSerializer,
@@ -123,12 +122,14 @@ def get_price(orders_instance, user):
     to_be_paid = 0
     total_grant = 0
     courier_fee = 0
+    coupon_discount = 0
 
     for order_instance in orders_instance:
         product_instance = Product.objects.get(ordered_product=order_instance)
 
         # get bought_price, total_grant & total_price in orders
         discount = product_instance.discount_percent * product_instance.price_bdt / 100
+        coupon_discount = order_instance.coupon_bdt
 
         if (
             product_instance.discount_max_bdt != 0
@@ -150,6 +151,9 @@ def get_price(orders_instance, user):
     else:
         to_be_paid += extra_payment_instance.outside_dhaka
         courier_fee = extra_payment_instance.outside_dhaka
+
+    # Reduce Price
+    to_be_paid -= coupon_discount
 
     return {
         "total_price": to_be_paid,
@@ -380,7 +384,9 @@ def OrderProductMobileAPI(request):
         orders_instance = OrderedProduct.objects.filter(
             consumer__email=request.GET.get("email"), status="cart"
         )
-        consumer_instance = Consumer.objects.get(consumer__email=request.GET.get("email"))
+        consumer_instance = Consumer.objects.get(
+            consumer__email=request.GET.get("email")
+        )
 
         if orders_instance.count() == 0:
             return Response({"status": "No products in cart!"})
@@ -419,3 +425,80 @@ class PaymentLinkAPI(APIView):
         )
 
         return Response(response)
+
+
+class UseCouponAPI(APIView):
+    """
+    Pass coupon code as param. GET - get Discount amount.
+    POST - update order model, then POST to Order Endpoint.
+    """
+
+    permission_classes = [AuthenticateOnlyConsumer]
+
+    def get(self, request, coupon_code=None, format=None, *args, **kwargs):
+        if coupon_code is None:
+            return Response({"status": "Coupon Code Missing!"})
+
+        # Verify Coupon
+        coupon_instance = (
+            CouponCode.objects.filter(code=coupon_code)
+            .order_by("-coupon_added")
+            .first()
+        )
+
+        if coupon_instance is None:
+            return Response({"status": "Invalid Coupon!"})
+
+        if (
+            coupon_instance.coupon_added
+            + timezone.timedelta(days=coupon_instance.validity)
+        ) < timezone.now().date():
+            return Response({"status": "Invalid Coupon!"})
+
+        # Calculation
+        ordered_product_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+
+        total_price = get_price(ordered_product_instance, request.user)["total_price"]
+        discount = int(total_price * coupon_instance.discount / 100)
+
+        if discount > coupon_instance.max_discount:
+            discount = coupon_instance.max_discount
+
+        return Response({"discount": discount})
+
+    def post(self, request, coupon_code=None, format=None, *args, **kwargs):
+        if coupon_code is None:
+            return Response({"status": "Coupon Code Missing!"})
+
+        # Verify Coupon
+        coupon_instance = (
+            CouponCode.objects.filter(code=coupon_code)
+            .order_by("-coupon_added")
+            .first()
+        )
+
+        if coupon_instance is None:
+            return Response({"status": "Invalid Coupon!"})
+
+        if (
+            coupon_instance.coupon_added
+            + timezone.timedelta(days=coupon_instance.validity)
+        ) < timezone.now().date():
+            return Response({"status": "Invalid Coupon!"})
+
+        # Calculation
+        ordered_product_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+
+        total_price = get_price(ordered_product_instance, request.user)["total_price"]
+        discount = int(total_price * coupon_instance.discount / 100)
+
+        if discount > coupon_instance.max_discount:
+            discount = coupon_instance.max_discount
+
+        ordered_product_instance.update(coupon_bdt=discount)
+
+        return Response({"status": "Coupon Code Used"})
