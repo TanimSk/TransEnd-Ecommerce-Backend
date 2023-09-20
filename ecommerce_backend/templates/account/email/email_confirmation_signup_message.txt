@@ -6,10 +6,12 @@
 
 To confirm this is correct, go to 
 
+{% endblocktrans %}{% endautoescape %}
+
 {% if user.is_admin %}
 http://localhost:3000/customer_auth/{{ activate_url }}
 {% else %}
 http://localhost:3000/admin_auth/{{ activate_url }}
 {% endif %}
 
-{% endblocktrans %}{% endautoescape %}{% endblock %}
+{% endblock %}
