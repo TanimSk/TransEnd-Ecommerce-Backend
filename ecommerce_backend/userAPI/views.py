@@ -460,7 +460,11 @@ class UseCouponAPI(APIView):
             consumer=request.user, status="cart"
         )
 
-        total_price = get_price(ordered_product_instance, request.user)["total_price"]
+        total_price = get_price(ordered_product_instance, request.user)
+
+        print(total_price)
+
+
         discount = int(total_price * coupon_instance.discount / 100)
 
         if discount > coupon_instance.max_discount:
