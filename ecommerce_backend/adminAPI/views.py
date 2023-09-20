@@ -27,7 +27,7 @@ from rest_framework.permissions import (
     BasePermission,
 )
 from django.utils.timezone import now
-from django.db.models import Sum
+from django.db.models import Sum, F
 from .models import Notice, CouponCode, Moderator
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category, FeaturedProduct
@@ -407,6 +407,12 @@ class SpecificVendorAnalyticsAPI(APIView):
 
         # Calculations
         product_instance = Product.objects.filter(vendor=vendor_instance)
+
+        if product_instance.count() == 0:
+            return Response(
+                {**serialized_vendor.data, "status": "This Vendor Has No Product!"}
+            )
+
         sold_products = product_instance.aggregate(sold_products=Sum("quantity_sold"))[
             "sold_products"
         ]
@@ -414,11 +420,10 @@ class SpecificVendorAnalyticsAPI(APIView):
             available_products=Sum("quantity")
         )["available_products"]
 
-        print(product_instance.aggregate(amount=Sum("grant"))["amount"])
-        print(vendor_instance.total_received_money)
-
         amount_be_paid = (
-            product_instance.aggregate(amount=Sum("grant"))["amount"]
+            product_instance.aggregate(amount=Sum(F("grant") * F("quantity_sold")))[
+                "amount"
+            ]
             - vendor_instance.total_received_money
         )
 
