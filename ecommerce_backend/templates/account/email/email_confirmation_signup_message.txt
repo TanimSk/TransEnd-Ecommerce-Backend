@@ -5,13 +5,10 @@
 {% block content %}{% autoescape off %}{% user_display user as user_display %}{% blocktrans with site_name=current_site.name site_domain=current_site.domain %}You're receiving this email because user {{ user_display }} has given your email address to register an account on {{ site_domain }}.
 
 To confirm this is correct, go to 
-
 {% endblocktrans %}{% endautoescape %}
-
 {% if user.is_admin %}
-http://localhost:3000/customer_auth/{{ activate_url }}
-{% else %}
 http://localhost:3000/admin_auth/{{ activate_url }}
+{% else %}
+http://localhost:3000/cusomer_auth/{{ activate_url }}
 {% endif %}
-
 {% endblock %}
