@@ -94,6 +94,7 @@ class OrderedProductsSerializer(serializers.ModelSerializer):
     product_name = serializers.CharField(source="product.name")
     product_id = serializers.IntegerField(source="product.id")
     category_id = serializers.IntegerField(source="product.category.id")
+    image_url = serializers.ListField(source="product.images")
 
     class Meta:
         fields = (
@@ -101,6 +102,7 @@ class OrderedProductsSerializer(serializers.ModelSerializer):
             "product_id",
             "category_id",
             "ordered_quantity",
+            "image_url",
             "ordered_date",
             "per_price",
             "total_price",
