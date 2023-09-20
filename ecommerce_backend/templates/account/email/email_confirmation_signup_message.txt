@@ -9,6 +9,6 @@ To confirm this is correct, go to
 {% if user.is_admin %}
 http://localhost:3000/admin_auth/{{ activate_url }}
 {% else %}
-http://localhost:3000/cusomer_auth/{{ activate_url }}
+http://localhost:3000/consumer_auth/{{ activate_url }}
 {% endif %}
 {% endblock %}
