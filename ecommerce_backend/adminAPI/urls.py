@@ -49,6 +49,12 @@ urlpatterns = [
         name="featured_products",
     ),
     path(
+        "featured_products/<str:section>/<int:product_id>",
+        FeaturedProductAPI.as_view(),
+        name="featured_products_delete",
+    ),
+
+    path(
         "featured_products_query/",
         FeaturedProductQueryAPI.as_view(),
         name="featured_products_query",

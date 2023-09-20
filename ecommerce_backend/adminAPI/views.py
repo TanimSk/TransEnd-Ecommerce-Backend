@@ -413,6 +413,10 @@ class SpecificVendorAnalyticsAPI(APIView):
         available_products = product_instance.aggregate(
             available_products=Sum("quantity")
         )["available_products"]
+
+        print(product_instance.aggregate(amount=Sum("grant"))["amount"])
+        print(vendor_instance.total_received_money)
+
         amount_be_paid = (
             product_instance.aggregate(amount=Sum("grant"))["amount"]
             - vendor_instance.total_received_money
@@ -442,7 +446,8 @@ class FeaturedProductAPI(APIView):
 
     """
     Shows available featured products on get request,
-    you can delete them by posting with id
+    you can delete them by passing param.
+    post with `product_id` for adding.
     """
 
     permission_classes = [AuthenticateOnlyAdmin]
@@ -473,21 +478,16 @@ class FeaturedProductAPI(APIView):
 
         return Response({"status": "Wrong Params!"})
 
-    def delete(self, request, section=None, format=None, *args, **kwargs):
-        if section == "home" or section == "category":
-            serializer = self.serializer_class(data=request.data)
+    def delete(
+        self, request, section=None, product_id=None, format=None, *args, **kwargs
+    ):
+        if (product_id is not None) and (section == "home" or section == "category"):
+            product_instance = Product.objects.get(id=product_id)
+            FeaturedProduct.objects.filter(
+                product=product_instance, section=section
+            ).first().delete()
 
-            if serializer.is_valid(raise_exception=True):
-                product_instance = Product.objects.get(
-                    id=serializer.data.get("product_id")
-                )
-                FeaturedProduct.objects.filter(
-                    product=product_instance, section=section
-                ).first().delete()
-
-                return Response(
-                    {"status": "Removed From Featured Products Successfully!"}
-                )
+            return Response({"status": "Removed From Featured Products Successfully!"})
 
         return Response({"status": "Wrong Params!"})
 
@@ -518,7 +518,7 @@ class FeaturedProductQueryAPI(APIView):
                 category_id=serializer.data.get("category_id"),
                 vendor_id=serializer.data.get("vendor_id"),
             )
-            
+
             serialized_products = ProductQuerySerializer(product_instance, many=True)
             return Response(serialized_products.data)
 
