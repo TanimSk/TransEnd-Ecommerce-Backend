@@ -8,6 +8,7 @@ class WishlistSerializer(serializers.Serializer):
 
 
 class ProfileSerializer(serializers.ModelSerializer):
+    email_address = serializers.EmailField(read_only=True, source="consumer.email")
     rewards = serializers.IntegerField(read_only=True)
 
     class Meta:
