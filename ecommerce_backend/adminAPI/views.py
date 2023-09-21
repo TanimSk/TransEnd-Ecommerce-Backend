@@ -94,6 +94,8 @@ class AdminAnalyticsAPI(APIView):
                 sold_products=Sum("quantity_sold")
             )["sold_products"]
 
+            print(serializer.data.get("to_date"))
+
             orders_instance = OrderedProduct.objects.filter(
                 ordered_date__range=[
                     serializer.data.get("from_date"),
