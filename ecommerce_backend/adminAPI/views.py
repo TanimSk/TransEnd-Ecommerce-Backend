@@ -94,12 +94,17 @@ class AdminAnalyticsAPI(APIView):
                 sold_products=Sum("quantity_sold")
             )["sold_products"]
 
-            print(serializer.data.get("to_date"))
+            # print(serializer.data.get("to_date"))
 
             orders_instance = OrderedProduct.objects.filter(
                 ordered_date__range=[
-                    serializer.data.get("from_date"),
-                    serializer.data.get("to_date") + timezone.timedelta(days=1),
+                    timezone.datetime.strptime(
+                        serializer.data.get("from_date"), "%Y-%m-%d"
+                    ).date(),
+                    timezone.datetime.strptime(
+                        serializer.data.get("to_date"), "%Y-%m-%d"
+                    ).date()
+                    + timezone.timedelta(days=1),
                 ]
             )
             orders_placed = (
