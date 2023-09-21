@@ -73,7 +73,7 @@ class Wishlist(models.Model):
     consumer = models.ForeignKey(
         User, on_delete=models.CASCADE, related_name="wishlist_consumer"
     )
-    product = models.OneToOneField(
+    product = models.ForeignKey(
         Product, on_delete=models.CASCADE, related_name="wishlist_product"
     )
     wishlisted_date = models.DateTimeField(auto_now=True)
