@@ -196,7 +196,7 @@ class WishlistSerializerAPI(APIView):
         if not Wishlist.objects.filter(
             consumer=request.user, product=product_instance
         ).exists():
-            Wishlist(consumer=request.user, product=product_instance).save()
+            Wishlist.objects.create(consumer=request.user, product=product_instance)
             return Response({"status": "Added To Wishlist"})
 
         return Response({"status": "Product Already Exits in Wishlist!"})
