@@ -365,6 +365,8 @@ class OrderProductCODAPI(APIView):
         # Save User Global Info to Ordered Object
         orders_instance.update(**serializer.data)
 
+        print(serializer.data)
+
         return Response({"status": "Orders Placed!"})
 
 
