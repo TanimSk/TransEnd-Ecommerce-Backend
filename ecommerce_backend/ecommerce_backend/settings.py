@@ -49,6 +49,7 @@ INSTALLED_APPS = [
     "allauth",
     "allauth.account",
     "allauth.socialaccount",
+    "allauth.socialaccount.providers.google",
     "dj_rest_auth.registration",
     "rest_framework_simplejwt.token_blacklist",
     "corsheaders",
@@ -204,6 +205,7 @@ AUTH_USER_MODEL = "userAPI.User"
 
 SITE_ID = 1
 
+SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
 ACCOUNT_EMAIL_REQUIRED = True
 ACCOUNT_UNIQUE_EMAIL = True
