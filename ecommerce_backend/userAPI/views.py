@@ -159,6 +159,7 @@ def get_price(orders_instance, inside_dhaka):
     to_be_paid -= coupon_discount
 
     return {
+        "coupon_discount": coupon_discount,
         "total_price": to_be_paid,
         "total_grant": total_grant,
         "courier_fee": courier_fee,
@@ -431,13 +432,12 @@ class PaymentLinkAPI(APIView):
 
 class UseCouponAPI(APIView):
     """
-    Pass coupon code as param. GET - get Discount amount.
-    POST - update order model, then POST to Order Endpoint.
+    POST - update order model.
     """
 
     permission_classes = [AuthenticateOnlyConsumer]
 
-    def get(self, request, coupon_code=None, format=None, *args, **kwargs):
+    def post(self, request, coupon_code=None, format=None, *args, **kwargs):
         if coupon_code is None:
             return Response({"error": "Coupon Code Missing!"})
 
@@ -455,7 +455,15 @@ class UseCouponAPI(APIView):
             coupon_instance.coupon_added
             + timezone.timedelta(days=coupon_instance.validity)
         ) < timezone.now().date():
-            return Response({"status": "Invalid Coupon!"})
+            return Response({"error": "Invalid Coupon!"})
+
+        # Check if coupon is used for this order
+        if OrderedProduct.objects.filter(
+            consumer=request.user, status="cart", coupon_bdt__gt=0
+        ).exists():
+            return Response(
+                {"error": "A Coupon Code Has Already Been Used For This Order"}
+            )
 
         # Calculation
         ordered_product_instance = OrderedProduct.objects.filter(
@@ -465,46 +473,7 @@ class UseCouponAPI(APIView):
         total_price = get_price(ordered_product_instance, request.user)
 
         if not total_price:
-            return Response({"status": "No Products in Cart!"})
-
-        total_price = total_price["total_price"]
-
-        discount = int(total_price * coupon_instance.discount / 100)
-
-        if discount > coupon_instance.max_discount:
-            discount = coupon_instance.max_discount
-
-        return Response({"discount": discount})
-
-    def post(self, request, coupon_code=None, format=None, *args, **kwargs):
-        if coupon_code is None:
-            return Response({"status": "Coupon Code Missing!"})
-
-        # Verify Coupon
-        coupon_instance = (
-            CouponCode.objects.filter(code=coupon_code)
-            .order_by("-coupon_added")
-            .first()
-        )
-
-        if coupon_instance is None:
-            return Response({"status": "Invalid Coupon!"})
-
-        if (
-            coupon_instance.coupon_added
-            + timezone.timedelta(days=coupon_instance.validity)
-        ) < timezone.now().date():
-            return Response({"status": "Invalid Coupon!"})
-
-        # Calculation
-        ordered_product_instance = OrderedProduct.objects.filter(
-            consumer=request.user, status="cart"
-        )
-
-        total_price = get_price(ordered_product_instance, request.user)
-
-        if not total_price:
-            return Response({"status": "No Products in Cart!"})
+            return Response({"error": "No Products in Cart!"})
 
         total_price = total_price["total_price"]
 
