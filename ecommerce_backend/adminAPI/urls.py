@@ -66,5 +66,5 @@ urlpatterns = [
     path("manage_admin/", ManageAdminAPI.as_view(), name="manage_admin"),
     
     # Booked Call
-    path("manage_admin/", CallBookingAPI.as_view(), name="book_call"),
+    path("book_call/", CallBookingAPI.as_view(), name="book_call"),
 ]
