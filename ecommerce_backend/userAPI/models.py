@@ -56,6 +56,19 @@ class OrderedProduct(models.Model):
     order_total_price = models.IntegerField(blank=True, null=True)
     coupon_bdt = models.IntegerField(default=0)
 
+    # Global Consumer Info
+    consumer_name = models.CharField(max_length=200, blank=True, null=True)
+    consumer_phone = models.CharField(max_length=50, blank=True, null=True)
+    consumer_email = models.EmailField(max_length=100, blank=True, null=True)
+    consumer_address = models.CharField(max_length=500, blank=True, null=True)
+    special_instructions = models.CharField(max_length=500, blank=True, null=True)
+    METHODS = (
+        ("cod", "cod"),
+        ("mobile", "mobile"),
+    )
+    payment_method = models.CharField(max_length=20, choices=METHODS)
+    inside_dhaka = models.BooleanField(default=False)
+
     STATUS = (
         ("cart", "cart"),
         ("paid", "paid"),

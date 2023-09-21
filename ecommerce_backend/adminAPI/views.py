@@ -565,7 +565,7 @@ class CallBookingAPI(APIView):
         if request.user.is_authenticated and request.user.is_admin:
             calls_instance = BookedCalls.objects.all()
             serialized_calls = BookedCallSerializer(calls_instance, many=True)
-            return Response(serialized_calls)
+            return Response(serialized_calls.data)
 
         return Response({"status": "You Do Not Have The Permission!"})
 
