@@ -19,6 +19,7 @@ from .serializers import (
     FeaturedProductQuerySerializer,
     PermissionSerializer,
     ManageAdminSerializer,
+    BookedCallSerializer,
 )
 
 # from productsAPI.serializers import ProductSerializer
@@ -26,9 +27,9 @@ from rest_framework.permissions import (
     IsAuthenticatedOrReadOnly,
     BasePermission,
 )
-from django.utils.timezone import now
+from django.utils import timezone
 from django.db.models import Sum, F
-from .models import Notice, CouponCode, Moderator
+from .models import Notice, CouponCode, Moderator, BookedCalls
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category, FeaturedProduct
 from userAPI.models import OrderedProduct, Consumer
@@ -63,7 +64,7 @@ class NoticeAPI(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, format=None, *args, **kwargs):
-        notice_instance = Notice.objects.filter(expiry_date__gt=now()).first()
+        notice_instance = Notice.objects.filter(expiry_date__gt=timezone.now()).first()
         serialized_notice = self.serializer_class(notice_instance, many=False)
         return Response(serialized_notice.data)
 
@@ -96,7 +97,7 @@ class AdminAnalyticsAPI(APIView):
             orders_instance = OrderedProduct.objects.filter(
                 ordered_date__range=[
                     serializer.data.get("from_date"),
-                    serializer.data.get("to_date"),
+                    serializer.data.get("to_date") + timezone.timedelta(days=1),
                 ]
             )
             orders_placed = (
@@ -378,7 +379,7 @@ class VendorAnalyticsAPI(APIView):
             orders_instance = OrderedProduct.objects.filter(
                 ordered_date__range=[
                     serializer.data.get("from_date"),
-                    serializer.data.get("to_date"),
+                    serializer.data.get("to_date") + timezone.timedelta(days=1),
                 ]
             )
             serialized_analytics = VendorAnalyticsSerializer(orders_instance, many=True)
@@ -544,3 +545,23 @@ class ManageAdminAPI(APIView):
         moderator_instance = Moderator.objects.all()
         serialized_moderators = ManageAdminSerializer(moderator_instance, many=True)
         return Response(serialized_moderators.data)
+
+
+# Booking Call
+class CallBookingAPI(APIView):
+    serializer_class = BookedCallSerializer
+
+    def get(self, request, format=None, *args, **kwargs):
+        if request.user.is_authenticated and request.user.is_admin:
+            calls_instance = BookedCalls.objects.all()
+            serialized_calls = BookedCallSerializer(calls_instance, many=True)
+            return Response(serialized_calls)
+
+        return Response({"status": "You Do Not Have The Permission!"})
+
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            BookedCalls.objects.create(**serializer.data)
+            return Response({"status": "Booked For A Call"})

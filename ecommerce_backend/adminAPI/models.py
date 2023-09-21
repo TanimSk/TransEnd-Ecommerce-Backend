@@ -16,6 +16,14 @@ class Moderator(models.Model):
         return self.admin.email
 
 
+class BookedCalls(models.Model):
+    phone_number = models.CharField(max_length=100)
+    book_on = models.DateTimeField(auto_now=True)
+
+    def __str__(self) -> str:
+        return self.phone_number
+
+
 class Notice(models.Model):
     notice = models.TextField()
     notice_date = models.DateTimeField(auto_now=True)

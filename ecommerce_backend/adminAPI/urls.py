@@ -15,6 +15,7 @@ from .views import (
     FeaturedProductQueryAPI,
     PermissionsAPI,
     ManageAdminAPI,
+    CallBookingAPI
 )
 
 urlpatterns = [
@@ -63,4 +64,7 @@ urlpatterns = [
     path("permissions/", PermissionsAPI.as_view(), name="permissions"),
     # Manage Admin
     path("manage_admin/", ManageAdminAPI.as_view(), name="manage_admin"),
+    
+    # Booked Call
+    path("manage_admin/", CallBookingAPI.as_view(), name="book_call"),
 ]
