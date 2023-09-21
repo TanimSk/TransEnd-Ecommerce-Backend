@@ -114,11 +114,11 @@ def update_order(method, orders_instance, consumer_instance):
 # ----------------
 # GET TOTAL PRICE
 # ----------------
-def get_price(orders_instance, user):
+def get_price(orders_instance, inside_dhaka):
     if orders_instance.count() == 0:
         return False
 
-    consumer_instance = Consumer.objects.get(consumer=user)
+    # consumer_instance = Consumer.objects.get(consumer=user)
 
     to_be_paid = 0
     total_grant = 0
@@ -146,7 +146,9 @@ def get_price(orders_instance, user):
 
     # Extra fees
     extra_payment_instance = ExtraPayment.objects.first()
-    if consumer_instance.inside_dhaka:
+    if inside_dhaka is None:
+        courier_fee = None
+    elif inside_dhaka:
         to_be_paid += extra_payment_instance.inside_dhaka
         courier_fee = extra_payment_instance.inside_dhaka
     else:
@@ -269,7 +271,7 @@ class CartAPI(APIView):
         return Response(
             {
                 "products": serialized_products.data,
-                **get_price(cart_product_instance, request.user),
+                **get_price(cart_product_instance,  None),
             }
         )
 
@@ -283,13 +285,13 @@ class CartAPI(APIView):
                 status="cart",
                 product_id=serializer.data.get("product_id"),
             ).exists():
-                return Response({"status": "This Product Already exists in your cart!"})
+                return Response({"error": "This Product Already exists in your cart!"})
 
             # Add to Cart
             product_instance = Product.objects.get(id=serializer.data.get("product_id"))
             if product_instance.quantity < serializer.data.get("ordered_quantity"):
                 return Response(
-                    {"status": "Quantity cannot be greater than Stock!"}, status=200
+                    {"error": "Quantity cannot be greater than Stock!"}, status=200
                 )
 
             OrderedProduct(
@@ -303,7 +305,7 @@ class CartAPI(APIView):
 
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
-            return Response({"status": "Params Required!"})
+            return Response({"error": "Params Required!"})
 
         OrderedProduct.objects.get(
             consumer=request.user, product_id=product_id, status="cart"
@@ -350,7 +352,7 @@ class OrderProductCODAPI(APIView):
         consumer_instance = Consumer.objects.get(consumer=request.user)
 
         if orders_instance.count() == 0:
-            return Response({"status": "No products in cart!"})
+            return Response({"error": "No products in cart!"})
 
         # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
         context = update_order("cod", orders_instance, consumer_instance)
@@ -407,7 +409,7 @@ class PaymentLinkAPI(APIView):
         if orders_instance.count() == 0:
             return Response({"error": "No products in cart!"})
 
-        to_be_paid = get_price(orders_instance, request.user)["total_price"]
+        to_be_paid = get_price(orders_instance, serializer.data.get("inside_dhaka"))["total_price"]
 
         response = make_payment(
             cus_name=consumer_instance.name,
@@ -442,7 +444,7 @@ class UseCouponAPI(APIView):
         )
 
         if coupon_instance is None:
-            return Response({"status": "Invalid Coupon!"})
+            return Response({"error": "Invalid Coupon!"})
 
         if (
             coupon_instance.coupon_added
