@@ -268,10 +268,13 @@ class CartAPI(APIView):
             return Response({"status": "Cart is Empty!"})
 
         serialized_products = OrderedProductSerializer(cart_product_instance, many=True)
+        extra_payment_instance = ExtraPayment.objects.first()
         return Response(
             {
                 "products": serialized_products.data,
-                **get_price(cart_product_instance,  None),
+                **get_price(cart_product_instance, None),
+                "inside_dhaka": extra_payment_instance.inside_dhaka,
+                "outside_dhaka": extra_payment_instance.outside_dhaka,
             }
         )
 
@@ -409,7 +412,9 @@ class PaymentLinkAPI(APIView):
         if orders_instance.count() == 0:
             return Response({"error": "No products in cart!"})
 
-        to_be_paid = get_price(orders_instance, serializer.data.get("inside_dhaka"))["total_price"]
+        to_be_paid = get_price(orders_instance, serializer.data.get("inside_dhaka"))[
+            "total_price"
+        ]
 
         response = make_payment(
             cus_name=consumer_instance.name,
