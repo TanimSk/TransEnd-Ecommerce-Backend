@@ -284,6 +284,7 @@ class ManageOrdersAPI(APIView):
     # serializer_class = OrderedProductsSerializer
 
     def get(self, request, format=None, *args, **kwargs):
+        # Getting Individual Customers with ordered product
         customers_instance = (
             Consumer.objects.filter(consumer__order_consumer__isnull=False)
             .exclude(consumer__order_consumer__status="cart")
@@ -305,24 +306,24 @@ class ManageOrdersAPI(APIView):
             serialized_products = OrderedProductsSerializer(
                 products_instance, many=True
             )
-            total_payment = OrderedProduct.objects.filter(
-                consumer__consumer=customer_instance
-            ).aggregate(total_payment=Sum("total_price"))
+            # total_payment = OrderedProduct.objects.filter(
+            #     consumer__consumer=customer_instance
+            # ).aggregate(total_payment=Sum("total_price"))
 
             response_array.append(
                 {
                     "customer_details": {
-                        "id": customer_instance.id,
-                        "name": customer_instance.name,
-                        "phone_number": customer_instance.phone_number,
-                        "address": customer_instance.address,
-                        "payment_method": customer_instance.payment_method,
-                        "inside_dhaka": customer_instance.inside_dhaka,
+                        "name": serialized_products.data[0]["consumer_name"],
+                        "phone_number": serialized_products.data[0]["consumer_phone"],
+                        "address": serialized_products.data[0]["consumer_address"],
+                        "payment_method": serialized_products.data[0]["payment_method"],
+                        "inside_dhaka": serialized_products.data[0]["consumer_name"],
                     },
                     "tracking_id": serialized_products.data[0]["tracking_id"],
                     "status": serialized_products.data[0]["status"],
                     "products": serialized_products.data,
-                    **total_payment,
+                    "total_payment": serialized_products.data[0]["inside_dhaka"],
+                    "instructions": serialized_products.data[0]["special_instructions"],
                 }
             )
 

@@ -109,6 +109,13 @@ class OrderedProductsSerializer(serializers.ModelSerializer):
             "total_price",
             "tracking_id",
             "status",
+            "consumer_name",
+            "consumer_phone",
+            "consumer_email",
+            "consumer_address",
+            "special_instructions",
+            "payment_method",
+            "inside_dhaka",
         )
         model = OrderedProduct
 

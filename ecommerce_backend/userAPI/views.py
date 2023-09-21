@@ -13,6 +13,7 @@ from rest_framework.permissions import BasePermission
 from .serializers import (
     ConsumerCustomRegistrationSerializer,
     # WishlistSerializer,
+    PlaceOrderSerializer,
     ProfileSerializer,
     OrderedProductSerializer,
 )
@@ -28,10 +29,10 @@ def update_order(method, orders_instance, consumer_instance):
     courier_fee = 0
 
     context = {
-        "customer_name": consumer_instance.name,
-        "email": consumer_instance.consumer.email,
-        "address": consumer_instance.address,
-        "phone_number": consumer_instance.phone_number,
+        "customer_name": orders_instance[0].consumer_name,
+        "email": orders_instance[0].consumer_email,
+        "address": orders_instance[0].consumer_address,
+        "phone_number": orders_instance[0].consumer_phone,
         "orders_info": [],
     }
 
@@ -70,15 +71,6 @@ def update_order(method, orders_instance, consumer_instance):
             order_instance.revenue = revenue
             order_total_price += total_price
 
-            # Adding Courier Charges
-            extra_payment_instance = ExtraPayment.objects.first()
-            if consumer_instance.inside_dhaka:
-                order_instance.courier_fee = extra_payment_instance.inside_dhaka
-                courier_fee = extra_payment_instance.inside_dhaka
-            else:
-                order_instance.courier_fee = extra_payment_instance.outside_dhaka
-                courier_fee = extra_payment_instance.outside_dhaka
-
             # Adding Order Info
             context["orders_info"].append(
                 {
@@ -91,6 +83,15 @@ def update_order(method, orders_instance, consumer_instance):
             product_instance.save()
             order_instance.save()
             consumer_instance.save()
+
+    # Adding Courier Charges
+    extra_payment_instance = ExtraPayment.objects.first()
+    if orders_instance[0].inside_dhaka:
+        order_instance.courier_fee = extra_payment_instance.inside_dhaka
+        courier_fee = extra_payment_instance.inside_dhaka
+    else:
+        order_instance.courier_fee = extra_payment_instance.outside_dhaka
+        courier_fee = extra_payment_instance.outside_dhaka
 
     order_total_price += courier_fee
     order_id = uuid.uuid4()
@@ -334,9 +335,15 @@ class OrderProductAPI(APIView):
 # COD Order
 class OrderProductCODAPI(APIView):
     permission_classes = [AuthenticateOnlyConsumer]
+    serializer_class = PlaceOrderSerializer
 
     # Set ordered products
     def post(self, request, format=None, *args, **kwargs):
+        serializer = PlaceOrderSerializer(data=request.data)
+
+        if not serializer.is_valid(raise_exception=True):
+            return Response({"error": "An Error Occured"})
+
         orders_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
         )
@@ -348,6 +355,10 @@ class OrderProductCODAPI(APIView):
         # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
         context = update_order("cod", orders_instance, consumer_instance)
         send_invoice(consumer_instance.consumer.email, context)
+
+        # Save User Global Info to Ordered Object
+        orders_instance.update(**serializer.data)
+
         return Response({"status": "Orders Placed!"})
 
 
@@ -372,15 +383,21 @@ def OrderProductMobileAPI(request):
             return render(request, "payment_success.html")
 
 
-# Make Payment
+# Make Mobile Payment
 class PaymentLinkAPI(APIView):
     """
     Send post request for getting the gateway link
     """
 
     permission_classes = [AuthenticateOnlyConsumer]
+    serializer_class = PlaceOrderSerializer
 
     def post(self, request, method=None, format=None, *args, **kwargs):
+        serializer = PlaceOrderSerializer(data=request.data)
+
+        if not serializer.is_valid(raise_exception=True):
+            return Response({"error": "An Error Occured"})
+
         consumer_instance = Consumer.objects.get(consumer=request.user)
 
         # ------- Calculating Total Price ---------
@@ -388,7 +405,7 @@ class PaymentLinkAPI(APIView):
             consumer=request.user, status="cart"
         )
         if orders_instance.count() == 0:
-            return Response({"status": "No products in cart!"})
+            return Response({"error": "No products in cart!"})
 
         to_be_paid = get_price(orders_instance, request.user)["total_price"]
 
@@ -398,6 +415,9 @@ class PaymentLinkAPI(APIView):
             cus_phone=consumer_instance.phone_number,
             amount=to_be_paid,
         )
+
+        # Save User Global Info to Ordered Object
+        orders_instance.update(**serializer.data)
 
         return Response(response)
 
@@ -412,7 +432,7 @@ class UseCouponAPI(APIView):
 
     def get(self, request, coupon_code=None, format=None, *args, **kwargs):
         if coupon_code is None:
-            return Response({"status": "Coupon Code Missing!"})
+            return Response({"error": "Coupon Code Missing!"})
 
         # Verify Coupon
         coupon_instance = (
