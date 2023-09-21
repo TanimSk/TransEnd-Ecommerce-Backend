@@ -330,31 +330,6 @@ class OrderProductAPI(APIView):
 
         return Response(serialized_products.data)
 
-    # Set ordered products
-    def post(self, request, method=None, format=None, *args, **kwargs):
-        orders_instance = OrderedProduct.objects.filter(
-            consumer=request.user, status="cart"
-        )
-        consumer_instance = Consumer.objects.get(consumer=request.user)
-
-        if orders_instance.count() == 0:
-            return Response({"status": "No products in cart!"})
-
-        if method == "cod":
-            # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
-            context = update_order(method, orders_instance, consumer_instance)
-            send_invoice(consumer_instance.consumer.email, context)
-            return Response({"status": "Orders Placed!"})
-
-        elif method == "mobile":
-            if verify_payment(request.GET.get("uuid")):
-                update_order(method, orders_instance, consumer_instance)
-                send_invoice(consumer_instance.consumer.email, context)
-                return render(request, "payment_success.html")
-
-        else:
-            return Response({"status": "Invalid Payment Method!"})
-
 
 # COD Order
 class OrderProductCODAPI(APIView):
