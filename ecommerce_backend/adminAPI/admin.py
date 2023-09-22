@@ -32,8 +32,8 @@ class RewardAdmin(admin.ModelAdmin):
 class CouponCodeAdmin(admin.ModelAdmin):
     list_display = (
         "code",
-        "discount",
-        "max_discount",
+        "discount_bdt",
+        "min_price",
         "validity",
         "coupon_added",
     )

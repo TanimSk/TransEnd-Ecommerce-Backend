@@ -498,14 +498,12 @@ class UseCouponAPI(APIView):
             if not total_price:
                 return Response({"error": "No Products in Cart!"})
 
-            total_price = total_price["total_price"]
+            total_price = total_price["raw_price"]
 
-            discount = total_price * coupon_instance.discount / 100
+            if total_price < coupon_instance.min_price:
+                return Response({"error": "You Are Not Eligible For Using This Coupon"})
 
-            if discount > coupon_instance.max_discount:
-                discount = coupon_instance.max_discount
-
-            ordered_product_instance.update(coupon_bdt=discount)
+            ordered_product_instance.update(coupon_bdt=coupon_instance.discount_bdt)
 
             return Response({"status": "Coupon Code Used"})
 
