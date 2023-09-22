@@ -116,6 +116,7 @@ class OrderedProductsSerializer(serializers.ModelSerializer):
             "special_instructions",
             "payment_method",
             "inside_dhaka",
+            "order_total_price",
         )
         model = OrderedProduct
 
@@ -179,6 +180,7 @@ class ManageAdminSerializer(serializers.ModelSerializer):
 
 class BookedCallSerializer(serializers.ModelSerializer):
     book_on = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p")
+
     class Meta:
         fields = "__all__"
         model = BookedCalls

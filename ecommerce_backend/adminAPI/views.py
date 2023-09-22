@@ -38,7 +38,7 @@ from rest_framework.pagination import PageNumberPagination
 
 # Pagination Config
 class StandardResultsSetPagination(PageNumberPagination):
-    page_size = 1
+    page_size = 5
     page_size_query_param = "page_size"
     max_page_size = 10
     page_query_param = "p"
@@ -310,8 +310,6 @@ class ManageOrdersAPI(APIView):
             #     consumer__consumer=customer_instance
             # ).aggregate(total_payment=Sum("total_price"))
 
-            print(serialized_products.data[0])
-
             response_array.append(
                 {
                     "customer_details": {
@@ -324,7 +322,7 @@ class ManageOrdersAPI(APIView):
                     "tracking_id": serialized_products.data[0]["tracking_id"],
                     "status": serialized_products.data[0]["status"],
                     "products": serialized_products.data,
-                    "total_payment": serialized_products.data[0]["inside_dhaka"],
+                    "total_payment": serialized_products.data[0]["order_total_price"],
                     "instructions": serialized_products.data[0]["special_instructions"],
                 }
             )
