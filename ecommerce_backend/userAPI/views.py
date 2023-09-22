@@ -525,9 +525,8 @@ class UseRewardsAPI(APIView):
         # Calculation
         reward_instance = Reward.objects.first()
         discount_amount = (
-            int(consumer_instance.rewards / reward_instance.points)
-            * reward_instance.points
-        )
+            consumer_instance.rewards / reward_instance.points
+        ) * reward_instance.points
         if discount_amount > reward_instance.max_amount:
             discount_amount = reward_instance.max_amount
 
