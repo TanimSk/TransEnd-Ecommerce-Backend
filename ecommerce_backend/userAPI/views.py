@@ -39,7 +39,7 @@ def update_order(method, orders_instance, consumer_instance):
         "orders_info": [],
     }
 
-    if orders_instance.filter(reward_discount__gt=0).exits():
+    if orders_instance.filter(reward_discount__gt=0).exists():
         consumer_instance.update(rewards=0)
 
     with transaction.atomic():
