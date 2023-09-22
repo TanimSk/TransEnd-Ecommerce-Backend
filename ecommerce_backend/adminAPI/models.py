@@ -41,6 +41,7 @@ class CouponCode(models.Model):
 class Reward(models.Model):
     points = models.IntegerField(default=0)
     amount = models.IntegerField(default=0)
+    max_amount = models.IntegerField(default=0)
 
 
 class ExtraPayment(models.Model):

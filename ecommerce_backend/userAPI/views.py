@@ -7,7 +7,7 @@ from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer
-from adminAPI.models import ExtraPayment, CouponCode
+from adminAPI.models import ExtraPayment, CouponCode, Reward
 from django.utils import timezone
 from rest_framework.permissions import BasePermission
 from .serializers import (
@@ -27,6 +27,8 @@ import uuid
 def update_order(method, orders_instance, consumer_instance):
     order_total_price = 0
     courier_fee = 0
+    coupon_discount = 0
+    reward_discount = 0
 
     context = {
         "customer_name": orders_instance[0].consumer_name,
@@ -36,13 +38,22 @@ def update_order(method, orders_instance, consumer_instance):
         "orders_info": [],
     }
 
+    if orders_instance.filter(reward_discount__gt=0).exits():
+        consumer_instance.update(rewards=0)
+
     with transaction.atomic():
         for order_instance in orders_instance:
             product_instance = Product.objects.get(ordered_product=order_instance)
             product_instance.quantity -= order_instance.ordered_quantity
             product_instance.quantity_sold += order_instance.ordered_quantity
 
-            # Updating Rewards (Increment)
+            # coupon_discount & reward_discount
+            if order_instance.coupon_bdt > 0:
+                coupon_discount = order_instance.coupon_bdt
+            if order_instance.reward_discount > 0:
+                reward_discount = order_instance.reward_discount
+
+            # Updating Rewards (Increment & Decrement)
             consumer_instance.rewards += (
                 product_instance.rewards * order_instance.ordered_quantity
             )
@@ -87,13 +98,14 @@ def update_order(method, orders_instance, consumer_instance):
     # Adding Courier Charges
     extra_payment_instance = ExtraPayment.objects.first()
     if orders_instance[0].inside_dhaka:
-        order_instance.courier_fee = extra_payment_instance.inside_dhaka
         courier_fee = extra_payment_instance.inside_dhaka
     else:
-        order_instance.courier_fee = extra_payment_instance.outside_dhaka
         courier_fee = extra_payment_instance.outside_dhaka
 
+    # Total Price
     order_total_price += courier_fee
+    order_total_price -= coupon_discount
+    order_total_price -= reward_discount
     order_id = uuid.uuid4()
 
     # Adding order Info
@@ -102,6 +114,7 @@ def update_order(method, orders_instance, consumer_instance):
     context["total_price"] = order_total_price
 
     orders_instance.update(
+        courier_fee=courier_fee,
         status=method,
         ordered_date=timezone.now(),
         tracking_id=order_id,
@@ -111,9 +124,9 @@ def update_order(method, orders_instance, consumer_instance):
     return context
 
 
-# ----------------
+# -----------------
 # GET TOTAL PRICE
-# ----------------
+# -----------------
 def get_price(orders_instance, inside_dhaka):
     if orders_instance.count() == 0:
         return False
@@ -124,13 +137,19 @@ def get_price(orders_instance, inside_dhaka):
     total_grant = 0
     courier_fee = 0
     coupon_discount = 0
+    reward_discount = 0
 
     for order_instance in orders_instance:
         product_instance = Product.objects.get(ordered_product=order_instance)
 
         # get bought_price, total_grant & total_price in orders
         discount = product_instance.discount_percent * product_instance.price_bdt / 100
-        coupon_discount = order_instance.coupon_bdt
+
+        # Do not overwrite with 0 value
+        if order_instance.coupon_bdt > 0:
+            coupon_discount = order_instance.coupon_bdt
+        if order_instance.reward_discount > 0:
+            reward_discount = order_instance.reward_discount
 
         if (
             product_instance.discount_max_bdt != 0
@@ -157,8 +176,10 @@ def get_price(orders_instance, inside_dhaka):
 
     # Reduce Price
     to_be_paid -= coupon_discount
+    to_be_paid -= reward_discount
 
     return {
+        "reward_discount": reward_discount,
         "coupon_discount": coupon_discount,
         "total_price": to_be_paid,
         "total_grant": total_grant,
@@ -358,14 +379,12 @@ class OrderProductCODAPI(APIView):
         if orders_instance.count() == 0:
             return Response({"error": "No products in cart!"})
 
-        # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
-        context = update_order("cod", orders_instance, consumer_instance)
-        send_invoice(consumer_instance.consumer.email, context)
-
         # Save User Global Info to Ordered Object
         orders_instance.update(**serializer.data)
 
-        print(serializer.data)
+        # Update Product Quantity & Quantity Sold, increase Rewards, Total Price, Total Grant
+        context = update_order("cod", orders_instance, consumer_instance)
+        send_invoice(consumer_instance.consumer.email, context)
 
         return Response({"status": "Orders Placed!"})
 
@@ -459,14 +478,6 @@ class UseCouponAPI(APIView):
         ) < timezone.now().date():
             return Response({"error": "Invalid Coupon!"})
 
-        # Check if coupon is used for this order
-        if OrderedProduct.objects.filter(
-            consumer=request.user, status="cart", coupon_bdt__gt=0
-        ).exists():
-            return Response(
-                {"error": "A Coupon Code Has Already Been Used For This Order"}
-            )
-
         # Calculation
         ordered_product_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
@@ -487,3 +498,32 @@ class UseCouponAPI(APIView):
         ordered_product_instance.update(coupon_bdt=discount)
 
         return Response({"status": "Coupon Code Used"})
+
+
+class UseRewardsAPI(APIView):
+
+    """
+    POST for using rewards
+    """
+
+    permission_classes = [AuthenticateOnlyConsumer]
+
+    def post(self, request, coupon_code=None, format=None, *args, **kwargs):
+        consumer_instance = Consumer.objects.get(consumer=request.user)
+
+        # Calculation
+        reward_instance = Reward.objects.first()
+        discount_amount = (
+            int(consumer_instance.rewards / reward_instance.points)
+            * reward_instance.points
+        )
+        if discount_amount > reward_instance.max_amount:
+            discount_amount = reward_instance.max_amount
+
+        # Setting reward discount
+        ordered_product_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+        ordered_product_instance.update(reward_discount=discount_amount)
+
+        return Response({"status": "Used Rewards"})

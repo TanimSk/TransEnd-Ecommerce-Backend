@@ -55,6 +55,7 @@ class OrderedProduct(models.Model):
     courier_fee = models.IntegerField(blank=True, null=True)
     order_total_price = models.IntegerField(blank=True, null=True)
     coupon_bdt = models.IntegerField(default=0)
+    reward_discount = models.IntegerField(default=0)
 
     # Global Consumer Info
     consumer_name = models.CharField(max_length=200, blank=True, null=True)
