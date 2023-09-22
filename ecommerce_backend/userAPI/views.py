@@ -113,6 +113,8 @@ def update_order(method, orders_instance, consumer_instance):
     context["order_id"] = order_id
     context["courier_fee"] = courier_fee
     context["total_price"] = order_total_price
+    context["reward_discount"] = reward_discount
+    context["coupon_discount"] = coupon_discount
 
     orders_instance.update(
         courier_fee=courier_fee,
