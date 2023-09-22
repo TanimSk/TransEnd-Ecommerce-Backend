@@ -101,3 +101,8 @@ class PlaceOrderSerializer(serializers.ModelSerializer):
             "inside_dhaka",
         )
         model = OrderedProduct
+
+
+class CouponSerializer(serializers.Serializer):
+    inside_dhaka = serializers.BooleanField(required=True)
+    coupon_code = serializers.CharField(required=True)

@@ -66,7 +66,7 @@ urlpatterns = [
     ),
     # Use Coupon
     path(
-        "use_coupon/<str:coupon_code>",
+        "use_coupon/",
         UseCouponAPI.as_view(),
         name="use_coupon",
     ),

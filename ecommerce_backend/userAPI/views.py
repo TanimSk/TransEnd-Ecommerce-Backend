@@ -16,6 +16,7 @@ from .serializers import (
     PlaceOrderSerializer,
     ProfileSerializer,
     OrderedProductSerializer,
+    CouponSerializer,
 )
 from .utils import make_payment, verify_payment, send_invoice
 import uuid
@@ -174,6 +175,8 @@ def get_price(orders_instance, inside_dhaka):
         to_be_paid += extra_payment_instance.outside_dhaka
         courier_fee = extra_payment_instance.outside_dhaka
 
+    raw_price = to_be_paid
+
     # Reduce Price
     to_be_paid -= coupon_discount
     to_be_paid -= reward_discount
@@ -181,6 +184,7 @@ def get_price(orders_instance, inside_dhaka):
     return {
         "reward_discount": reward_discount,
         "coupon_discount": coupon_discount,
+        "raw_price": raw_price,
         "total_price": to_be_paid,
         "total_grant": total_grant,
         "courier_fee": courier_fee,
@@ -457,47 +461,54 @@ class UseCouponAPI(APIView):
     """
 
     permission_classes = [AuthenticateOnlyConsumer]
+    serializer_class = CouponSerializer
 
-    def post(self, request, coupon_code=None, format=None, *args, **kwargs):
-        if coupon_code is None:
-            return Response({"error": "Coupon Code Missing!"})
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = CouponSerializer(data=request.data)
 
-        # Verify Coupon
-        coupon_instance = (
-            CouponCode.objects.filter(code=coupon_code)
-            .order_by("-coupon_added")
-            .first()
-        )
+        if serializer.is_valid(raise_exception=True):
+            coupon_code = serializer.data.get("coupon_code")
+            inside_dhaka = serializer.data.get("inside_dhaka")
 
-        if coupon_instance is None:
-            return Response({"error": "Invalid Coupon!"})
+            if coupon_code is None:
+                return Response({"error": "Coupon Code Missing!"})
 
-        if (
-            coupon_instance.coupon_added
-            + timezone.timedelta(days=coupon_instance.validity)
-        ) < timezone.now().date():
-            return Response({"error": "Invalid Coupon!"})
+            # Verify Coupon
+            coupon_instance = (
+                CouponCode.objects.filter(code=coupon_code)
+                .order_by("-coupon_added")
+                .first()
+            )
 
-        # Calculation
-        ordered_product_instance = OrderedProduct.objects.filter(
-            consumer=request.user, status="cart"
-        )
+            if coupon_instance is None:
+                return Response({"error": "Invalid Coupon!"})
 
-        total_price = get_price(ordered_product_instance, request.user)
+            if (
+                coupon_instance.coupon_added
+                + timezone.timedelta(days=coupon_instance.validity)
+            ) < timezone.now().date():
+                return Response({"error": "Invalid Coupon!"})
 
-        if not total_price:
-            return Response({"error": "No Products in Cart!"})
+            # Calculation
+            ordered_product_instance = OrderedProduct.objects.filter(
+                consumer=request.user, status="cart"
+            )
 
-        total_price = total_price["total_price"]
+            total_price = get_price(ordered_product_instance, inside_dhaka)
 
-        discount = int(total_price * coupon_instance.discount / 100)
+            if not total_price:
+                return Response({"error": "No Products in Cart!"})
 
-        if discount > coupon_instance.max_discount:
-            discount = coupon_instance.max_discount
+            total_price = total_price["raw_price"]
 
-        ordered_product_instance.update(coupon_bdt=discount)
+            discount = int(total_price * coupon_instance.discount / 100)
 
-        return Response({"status": "Coupon Code Used"})
+            if discount > coupon_instance.max_discount:
+                discount = coupon_instance.max_discount
+
+            ordered_product_instance.update(coupon_bdt=discount)
+
+            return Response({"status": "Coupon Code Used"})
 
 
 class UseRewardsAPI(APIView):
