@@ -104,5 +104,4 @@ class PlaceOrderSerializer(serializers.ModelSerializer):
 
 
 class CouponSerializer(serializers.Serializer):
-    inside_dhaka = serializers.BooleanField(required=True)
     coupon_code = serializers.CharField(required=True)
