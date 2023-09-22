@@ -175,6 +175,8 @@ def get_price(orders_instance, inside_dhaka):
         to_be_paid += extra_payment_instance.outside_dhaka
         courier_fee = extra_payment_instance.outside_dhaka
 
+    raw_price = to_be_paid
+
     # Reduce Price
     to_be_paid -= coupon_discount
     to_be_paid -= reward_discount
@@ -182,6 +184,7 @@ def get_price(orders_instance, inside_dhaka):
     return {
         "reward_discount": reward_discount,
         "coupon_discount": coupon_discount,
+        "raw_price": raw_price,
         "total_price": to_be_paid,
         "total_grant": total_grant,
         "courier_fee": courier_fee,
