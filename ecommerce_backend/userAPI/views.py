@@ -121,7 +121,7 @@ def update_order(method, orders_instance, consumer_instance):
 
     orders_instance.update(
         courier_fee=courier_fee,
-        status=method,
+        status=method if method == "cod" else "paid",
         ordered_date=timezone.now(),
         tracking_id=order_id,
         order_total_price=order_total_price,
