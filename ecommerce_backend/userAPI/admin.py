@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Consumer, Wishlist, OrderedProduct
+from .models import Consumer, Wishlist, OrderedProduct, OrderPackageTrack
 
 
 @admin.register(Consumer)
@@ -27,3 +27,8 @@ class OrderedProductAdmin(admin.ModelAdmin):
         "product",
         "total_price",
     )
+
+
+@admin.register(OrderPackageTrack)
+class OrderPackageTrackAdmin(admin.ModelAdmin):
+    list_display = ("tracking_id",)
