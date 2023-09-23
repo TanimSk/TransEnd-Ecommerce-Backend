@@ -1,10 +1,18 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
-from .models import Consumer, OrderedProduct
+from .models import Consumer, OrderedProduct, Wishlist
 
 
 class WishlistSerializer(serializers.Serializer):
-    product_id = serializers.IntegerField(required=True)
+    category = serializers.IntegerField(source="product.category.id")
+    id = serializers.IntegerField(source="product.id")
+    images = serializers.ListField(source="product.images")
+    name = serializers.ListField(source="product.name")
+    price_bdt = serializers.IntegerField(source="product.price_bdt")
+
+    class Meta:
+        fields = ("category", "id", "images", "wishlisted_date", "name", "price_bdt")
+        model = Wishlist
 
 
 class ProfileSerializer(serializers.ModelSerializer):
@@ -42,6 +50,7 @@ class OrderedProductSerializer(serializers.ModelSerializer):
             "price_bdt",
             "discount_percent",
             "discount_max_bdt",
+            "ordered_date",
         )
         model = OrderedProduct
 

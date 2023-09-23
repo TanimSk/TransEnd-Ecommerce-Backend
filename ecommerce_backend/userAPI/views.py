@@ -12,7 +12,7 @@ from django.utils import timezone
 from rest_framework.permissions import BasePermission
 from .serializers import (
     ConsumerCustomRegistrationSerializer,
-    # WishlistSerializer,
+    WishlistSerializer,
     PlaceOrderSerializer,
     ProfileSerializer,
     OrderedProductSerializer,
@@ -236,10 +236,8 @@ class WishlistSerializerAPI(APIView):
         return Response({"status": "Product Already Exits in Wishlist!"})
 
     def get(self, request, format=None, *args, **kwargs):
-        wishlist_products_instance = Product.objects.filter(
-            wishlist_product__consumer=request.user
-        )
-        serialized_products = ProductSerializer(wishlist_products_instance, many=True)
+        wishlist_products_instance = Wishlist.objects.filter(consumer=request.user)
+        serialized_products = WishlistSerializer(wishlist_products_instance, many=True)
         return Response(serialized_products.data)
 
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
@@ -544,5 +542,5 @@ class UseRewardsAPI(APIView):
 # Login With Google
 class GoogleLoginView(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
-    callback_url = "http://transend-store.ongshak.com/"
+    callback_url = "http://transend.ongshak.com/accounts/google/login/callback/"
     client_class = OAuth2Client

@@ -200,6 +200,16 @@ AUTHENTICATION_BACKENDS = (
 )
 
 
+SOCIALACCOUNT_PROVIDERS = {
+    "google": {
+        "APP": {
+            "client_id": "926345728996-0r6mdoee8cjmtdis0gdff3crt0627355.apps.googleusercontent.com",
+            "secret": "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",
+        },
+    },
+}
+
+
 ACCOUNT_ADAPTER = "all_auth_extended.all_auth_extended.AccountAdapter"
 AUTH_USER_MODEL = "userAPI.User"
 
