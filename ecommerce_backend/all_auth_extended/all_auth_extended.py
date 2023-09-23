@@ -38,6 +38,8 @@ class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
 
             path = f"reset_password/{user_pk_to_url_str(user)}/{temp_key}/"
             url = build_absolute_uri(request, path)
+
+            print(url)
             # Values which are passed to password_reset_key_message.txt
             context = {
                 "current_site": current_site,
