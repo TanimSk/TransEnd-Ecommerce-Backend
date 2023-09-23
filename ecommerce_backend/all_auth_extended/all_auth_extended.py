@@ -14,7 +14,7 @@ class CustomAllAuthPasswordResetForm(PasswordResetSerializer):
         # Set some values to trigger the send_email method.
         opts = {
             # 'use_https': request.is_secure(),
-            # 'from_email': 'example@yourdomain.com',
+            'from_email': 'noreply.service.tanimsk@gmail.com',
             'request': request,
             "password_reset_url": "http://transend-store.ongshak.com/",
             # here I have set my desired template to be used
