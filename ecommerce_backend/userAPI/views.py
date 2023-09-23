@@ -18,6 +18,9 @@ from .serializers import (
     OrderedProductSerializer,
     CouponSerializer,
 )
+from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
+from allauth.socialaccount.providers.oauth2.client import OAuth2Client
+from dj_rest_auth.registration.views import SocialLoginView
 from .utils import make_payment, verify_payment, send_invoice
 import uuid
 
@@ -536,3 +539,10 @@ class UseRewardsAPI(APIView):
         ordered_product_instance.update(reward_discount=discount_amount)
 
         return Response({"status": "Used Rewards"})
+
+
+# Login With Google
+class GoogleLoginView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "http://transend-store.ongshak.com/"
+    client_class = OAuth2Client
