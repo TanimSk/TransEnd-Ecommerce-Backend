@@ -6,7 +6,7 @@ from django.db import transaction
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from productsAPI.models import Product
-from .models import Wishlist, OrderedProduct, Consumer
+from .models import Wishlist, OrderedProduct, Consumer, OrderPackageTrack
 from adminAPI.models import ExtraPayment, CouponCode, Reward
 from django.utils import timezone
 from rest_framework.permissions import BasePermission
@@ -33,6 +33,7 @@ def update_order(method, orders_instance, consumer_instance):
     courier_fee = 0
     coupon_discount = 0
     reward_discount = 0
+    order_id = uuid.uuid4()
 
     context = {
         "customer_name": orders_instance[0].consumer_name,
@@ -110,7 +111,6 @@ def update_order(method, orders_instance, consumer_instance):
     order_total_price += courier_fee
     order_total_price -= coupon_discount
     order_total_price -= reward_discount
-    order_id = uuid.uuid4()
 
     # Adding order Info
     context["order_id"] = order_id
@@ -126,6 +126,8 @@ def update_order(method, orders_instance, consumer_instance):
         tracking_id=order_id,
         order_total_price=order_total_price,
     )
+
+    OrderPackageTrack.objects.create(tracking_id=order_id)
 
     return context
 

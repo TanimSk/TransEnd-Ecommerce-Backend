@@ -96,6 +96,10 @@ class Wishlist(models.Model):
         return self.product.name
 
 
+class OrderPackageTrack(models.Model):
+    tracking_id = models.UUIDField(editable=False)
+
+
 @receiver(post_delete, sender=Consumer)
 def delete_consumer_user(sender, instance, **kwargs):
     user = instance.consumer

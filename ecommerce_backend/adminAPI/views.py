@@ -32,7 +32,7 @@ from django.db.models import Sum, F
 from .models import Notice, CouponCode, Moderator, BookedCalls
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category, FeaturedProduct
-from userAPI.models import OrderedProduct, Consumer
+from userAPI.models import OrderedProduct, Consumer, OrderPackageTrack
 from rest_framework.pagination import PageNumberPagination
 
 
@@ -229,7 +229,7 @@ class ManageProductsAPI(APIView):
         serializer = AddProductsSerializer(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            print(serializer.data)
+            # print(serializer.data)
 
             product_instance.name = serializer.data.get("name")
             product_instance.details = serializer.data.get("details", "")
@@ -285,23 +285,19 @@ class ManageOrdersAPI(APIView):
 
     def get(self, request, format=None, *args, **kwargs):
         # Getting Individual Customers with ordered product
-        customers_instance = (
-            Consumer.objects.filter(consumer__order_consumer__isnull=False)
-            .exclude(consumer__order_consumer__status="cart")
-            .distinct()
-        )
+        tracker_instance = OrderPackageTrack.objects.all()
 
         # Paginating Result
         paginator = StandardResultsSetPagination()
-        customers_instance_paginated = paginator.paginate_queryset(
-            customers_instance, request
+        tracker_instance_paginated = paginator.paginate_queryset(
+            tracker_instance, request
         )
 
         response_array = []
-        for customer_instance in customers_instance_paginated:
+        for tracker_instance in tracker_instance_paginated:
             # Product Details
             products_instance = OrderedProduct.objects.filter(
-                consumer__consumer=customer_instance
+                tracking_id=tracker_instance.tracking_id
             )
             serialized_products = OrderedProductsSerializer(
                 products_instance, many=True
@@ -332,7 +328,7 @@ class ManageOrdersAPI(APIView):
     # Set Order To Delivered
     def post(self, request, consumer_id=None, format=None, *args, **kwargs):
         if consumer_id is None:
-            return Response({"status": "Customer id param is missing"})
+            return Response({"error": "Customer id param is missing"})
 
         consumer_instance = Consumer.objects.get(id=consumer_id)
         ordered_product_instance = (
@@ -409,7 +405,7 @@ class SpecificVendorAnalyticsAPI(APIView):
 
     def get(self, request, phone_number=None, format=None, *args, **kwargs):
         if phone_number is None:
-            return Response({"status": "phone_number param is missing!"})
+            return Response({"error": "phone_number param is missing!"})
 
         vendor_instance = Vendor.objects.filter(phone_number=phone_number).first()
         if vendor_instance is None:
@@ -478,7 +474,7 @@ class FeaturedProductAPI(APIView):
             )
             return Response(serialized_products.data)
 
-        return Response({"status": "Wrong Params!"})
+        return Response({"error": "Wrong Params!"})
 
     def post(self, request, section=None, format=None, *args, **kwargs):
         if section == "home" or section == "category":
@@ -493,7 +489,7 @@ class FeaturedProductAPI(APIView):
                 )
                 return Response({"status": "Added To Featured Products Successfully!"})
 
-        return Response({"status": "Wrong Params!"})
+        return Response({"error": "Wrong Params!"})
 
     def delete(
         self, request, section=None, product_id=None, format=None, *args, **kwargs
@@ -506,7 +502,7 @@ class FeaturedProductAPI(APIView):
 
             return Response({"status": "Removed From Featured Products Successfully!"})
 
-        return Response({"status": "Wrong Params!"})
+        return Response({"error": "Wrong Params!"})
 
 
 class FeaturedProductQueryAPI(APIView):
@@ -568,7 +564,7 @@ class CallBookingAPI(APIView):
             serialized_calls = BookedCallSerializer(calls_instance, many=True)
             return Response(serialized_calls.data)
 
-        return Response({"status": "You Do Not Have The Permission!"})
+        return Response({"error": "You Do Not Have The Permission!"})
 
     def post(self, request, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
