@@ -306,6 +306,8 @@ class ManageOrdersAPI(APIView):
             #     consumer__consumer=customer_instance
             # ).aggregate(total_payment=Sum("total_price"))
 
+            print(serialized_products.data)
+
             response_array.append(
                 {
                     "customer_details": {
