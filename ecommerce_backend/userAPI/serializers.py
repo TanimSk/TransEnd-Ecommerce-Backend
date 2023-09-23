@@ -9,6 +9,7 @@ class WishlistSerializer(serializers.Serializer):
     images = serializers.ListField(source="product.images")
     name = serializers.ListField(source="product.name")
     price_bdt = serializers.IntegerField(source="product.price_bdt")
+    wishlisted_date = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p")
 
     class Meta:
         fields = ("category", "id", "images", "wishlisted_date", "name", "price_bdt")
@@ -38,6 +39,7 @@ class OrderedProductSerializer(serializers.ModelSerializer):
     discount_max_bdt = serializers.IntegerField(
         source="product.discount_max_bdt", read_only=True
     )
+    ordered_date = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p")
 
     class Meta:
         fields = (
