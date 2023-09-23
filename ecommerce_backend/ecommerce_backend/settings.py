@@ -182,10 +182,6 @@ REST_USE_JWT = True
 
 ############################ All Auth Config ############################
 
-REST_AUTH_SERIALIZERS = {
-    'PASSWORD_RESET_SERIALIZER': 'all_auth_extended.all_auth_extended.CustomAllAuthPasswordResetForm'
-}
-
 EMAIL_USE_TLS = True
 EMAIL_HOST = "smtp.gmail.com"
 EMAIL_PORT = 587
@@ -217,7 +213,7 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_ADAPTER = "all_auth_extended.all_auth_extended.AccountAdapter"
 AUTH_USER_MODEL = "userAPI.User"
 
-SITE_ID = 2
+SITE_ID = 1
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
