@@ -299,33 +299,38 @@ class ManageOrdersAPI(APIView):
             products_instance = OrderedProduct.objects.filter(
                 tracking_id=tracker_instance.tracking_id
             )
-            serialized_products = OrderedProductsSerializer(
-                products_instance, many=True
-            )
 
-            print(tracker_instance.tracking_id)
-            # total_payment = OrderedProduct.objects.filter(
-            #     consumer__consumer=customer_instance
-            # ).aggregate(total_payment=Sum("total_price"))
+            if products_instance.exists():
+                serialized_products = OrderedProductsSerializer(
+                    products_instance, many=True
+                )
 
-            print(serialized_products.data)
-
-            response_array.append(
-                {
-                    "customer_details": {
-                        "name": serialized_products.data[0]["consumer_name"],
-                        "phone_number": serialized_products.data[0]["consumer_phone"],
-                        "address": serialized_products.data[0]["consumer_address"],
-                        "payment_method": serialized_products.data[0]["payment_method"],
-                        "inside_dhaka": serialized_products.data[0]["consumer_name"],
-                    },
-                    "tracking_id": serialized_products.data[0]["tracking_id"],
-                    "status": serialized_products.data[0]["status"],
-                    "products": serialized_products.data,
-                    "total_payment": serialized_products.data[0]["order_total_price"],
-                    "instructions": serialized_products.data[0]["special_instructions"],
-                }
-            )
+                response_array.append(
+                    {
+                        "customer_details": {
+                            "name": serialized_products.data[0]["consumer_name"],
+                            "phone_number": serialized_products.data[0][
+                                "consumer_phone"
+                            ],
+                            "address": serialized_products.data[0]["consumer_address"],
+                            "payment_method": serialized_products.data[0][
+                                "payment_method"
+                            ],
+                            "inside_dhaka": serialized_products.data[0][
+                                "consumer_name"
+                            ],
+                        },
+                        "tracking_id": serialized_products.data[0]["tracking_id"],
+                        "status": serialized_products.data[0]["status"],
+                        "products": serialized_products.data,
+                        "total_payment": serialized_products.data[0][
+                            "order_total_price"
+                        ],
+                        "instructions": serialized_products.data[0][
+                            "special_instructions"
+                        ],
+                    }
+                )
 
         return paginator.get_paginated_response(response_array)
 
