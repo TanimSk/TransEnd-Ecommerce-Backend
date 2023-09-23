@@ -199,6 +199,10 @@ AUTHENTICATION_BACKENDS = (
     "allauth.account.auth_backends.AuthenticationBackend",
 )
 
+REST_AUTH_SERIALIZERS = {
+    'PASSWORD_RESET_SERIALIZER': 'all_auth_extended.all_auth_extended.CustomAllAuthPasswordResetForm'
+}
+
 
 SOCIALACCOUNT_PROVIDERS = {
     "google": {
