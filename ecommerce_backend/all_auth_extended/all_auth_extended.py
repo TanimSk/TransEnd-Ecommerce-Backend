@@ -8,7 +8,7 @@ from allauth.utils import build_absolute_uri
 from allauth.account.adapter import get_adapter
 from allauth.account.forms import default_token_generator
 from allauth.account import app_settings
-from dj_rest_auth.serializers import AllAuthPasswordResetForm
+from dj_rest_auth.serializers import PasswordResetSerializer
 
 
 class AccountAdapter(DefaultAccountAdapter):
@@ -17,7 +17,7 @@ class AccountAdapter(DefaultAccountAdapter):
 
 
 # Reset Password Endpoint
-class CustomAllAuthPasswordResetForm(AllAuthPasswordResetForm):
+class CustomAllAuthPasswordResetForm(PasswordResetSerializer):
     def clean_email(self):
         """
         Invalid email should not raise error, as this would leak users
