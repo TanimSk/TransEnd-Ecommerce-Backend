@@ -28,7 +28,7 @@ class CustomAllAuthPasswordResetForm(PasswordResetSerializer):
             "password_reset_url": "http://transend-store.ongshak.com/",
             # here I have set my desired template to be used
             # don't forget to add your templates directory in settings to be found
-            'email_template_name': 'password_reset_email.html'
+            'email_template_name': 'account/email/password_reset_key_message.txt'
         }
 
         opts.update(self.get_email_options())
