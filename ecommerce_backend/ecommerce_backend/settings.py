@@ -213,7 +213,7 @@ SOCIALACCOUNT_PROVIDERS = {
 ACCOUNT_ADAPTER = "all_auth_extended.all_auth_extended.AccountAdapter"
 AUTH_USER_MODEL = "userAPI.User"
 
-SITE_ID = 1
+SITE_ID = 2
 
 SOCIALACCOUNT_QUERY_EMAIL = True
 ACCOUNT_AUTHENTICATION_METHOD = "email"
