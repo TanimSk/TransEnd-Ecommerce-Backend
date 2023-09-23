@@ -7,7 +7,7 @@ class WishlistSerializer(serializers.Serializer):
     category = serializers.IntegerField(source="product.category.id")
     id = serializers.IntegerField(source="product.id")
     images = serializers.ListField(source="product.images")
-    name = serializers.ListField(source="product.name")
+    name = serializers.CharField(source="product.name")
     price_bdt = serializers.IntegerField(source="product.price_bdt")
     wishlisted_date = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p")
 
