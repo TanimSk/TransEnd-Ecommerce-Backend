@@ -36,6 +36,7 @@ urlpatterns = [
     ),
     path('rest-auth/password/reset/confirm/<str:uidb64>/<str:token>', PasswordResetConfirmView.as_view(),
             name='password_reset_confirm'),
+    
 
 
     path("rest-auth/google/login/", GoogleLoginView.as_view(), name="google_login"),
