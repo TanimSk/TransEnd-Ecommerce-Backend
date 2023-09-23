@@ -5,6 +5,7 @@ from dj_rest_auth.registration.views import VerifyEmailView
 from rest_framework.documentation import include_docs_urls
 from rest_framework_simplejwt.views import TokenVerifyView
 from userAPI.views import GoogleLoginView
+from dj_rest_auth.views import PasswordResetConfirmView
 
 # --------------- Google Login ---------------
 from django.contrib.auth.mixins import LoginRequiredMixin
@@ -33,6 +34,10 @@ urlpatterns = [
         VerifyEmailView.as_view(),
         name="account_email_verification_sent",
     ),
+    path('rest-auth/password/reset/confirm/<str:uidb64>/<str:token>', PasswordResetConfirmView.as_view(),
+            name='password_reset_confirm'),
+
+
     path("rest-auth/google/login/", GoogleLoginView.as_view(), name="google_login"),
     path("~redirect/", UserRedirectView.as_view(), name="redirect"),
     path("get-access-token/", TokenRefreshView.as_view(), name="get-access-token"),
