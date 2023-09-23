@@ -18,44 +18,63 @@ class AccountAdapter(DefaultAccountAdapter):
 
 # Reset Password Endpoint
 class CustomAllAuthPasswordResetForm(PasswordResetSerializer):
-    def clean_email(self):
-        """
-        Invalid email should not raise error, as this would leak users
-        for unit test: test_password_reset_with_invalid_email
-        """
-        email = self.cleaned_data["email"]
-        email = get_adapter().clean_email(email)
-        self.users = filter_users_by_email(email, is_active=True)
-        return self.cleaned_data["email"]
+    def save(self):
+        request = self.context.get('request')
+        # Set some values to trigger the send_email method.
+        opts = {
+            # 'use_https': request.is_secure(),
+            # 'from_email': 'example@yourdomain.com',
+            'request': request,
+            "password_reset_url": "http://transend-store.ongshak.com/",
+            # here I have set my desired template to be used
+            # don't forget to add your templates directory in settings to be found
+            'email_template_name': 'password_reset_email.html'
+        }
 
-    def save(self, request, **kwargs):
-        current_site = "http://transend-store.ongshak.com/"
-        email = self.cleaned_data["email"]
-        token_generator = kwargs.get("token_generator", default_token_generator)
+        opts.update(self.get_email_options())
+        self.reset_form.save(**opts)
 
-        for user in self.users:
-            temp_key = token_generator.make_token(user)
 
-            path = f"reset_password/{user_pk_to_url_str(user)}/{temp_key}/"
-            url = build_absolute_uri(request, path)
 
-            print(url)
-            # Values which are passed to password_reset_key_message.txt
-            context = {
-                "current_site": current_site,
-                "user": user,
-                "password_reset_url": url,
-                "request": request,
-                "path": path,
-            }
+# class CustomAllAuthPasswordResetForm(PasswordResetSerializer):
+#     def clean_email(self):
+#         """
+#         Invalid email should not raise error, as this would leak users
+#         for unit test: test_password_reset_with_invalid_email
+#         """
+#         email = self.cleaned_data["email"]
+#         email = get_adapter().clean_email(email)
+#         self.users = filter_users_by_email(email, is_active=True)
+#         return self.cleaned_data["email"]
 
-            if (
-                app_settings.AUTHENTICATION_METHOD
-                != app_settings.AuthenticationMethod.EMAIL
-            ):
-                context["username"] = user_username(user)
-            get_adapter(request).send_mail(
-                "account/email/password_reset_key", email, context
-            )
+#     def save(self, request, **kwargs):
+#         current_site = "http://transend-store.ongshak.com/"
+#         email = self.cleaned_data["email"]
+#         token_generator = kwargs.get("token_generator", default_token_generator)
 
-        return self.cleaned_data["email"]
+#         for user in self.users:
+#             temp_key = token_generator.make_token(user)
+
+#             path = f"reset_password/{user_pk_to_url_str(user)}/{temp_key}/"
+#             url = build_absolute_uri(request, path)
+
+#             print(url)
+#             # Values which are passed to password_reset_key_message.txt
+#             context = {
+#                 "current_site": current_site,
+#                 "user": user,
+#                 "password_reset_url": url,
+#                 "request": request,
+#                 "path": path,
+#             }
+
+#             if (
+#                 app_settings.AUTHENTICATION_METHOD
+#                 != app_settings.AuthenticationMethod.EMAIL
+#             ):
+#                 context["username"] = user_username(user)
+#             get_adapter(request).send_mail(
+#                 "account/email/password_reset_key", email, context
+#             )
+
+#         return self.cleaned_data["email"]
