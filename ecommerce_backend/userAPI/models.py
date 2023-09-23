@@ -97,7 +97,7 @@ class Wishlist(models.Model):
 
 
 class OrderPackageTrack(models.Model):
-    tracking_id = models.UUIDField(editable=False)
+    tracking_id = models.UUIDField(editable=False, unique=True)
 
 
 @receiver(post_delete, sender=Consumer)

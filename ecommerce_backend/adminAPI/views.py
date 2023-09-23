@@ -302,6 +302,8 @@ class ManageOrdersAPI(APIView):
             serialized_products = OrderedProductsSerializer(
                 products_instance, many=True
             )
+
+            print(tracker_instance.tracking_id)
             # total_payment = OrderedProduct.objects.filter(
             #     consumer__consumer=customer_instance
             # ).aggregate(total_payment=Sum("total_price"))
