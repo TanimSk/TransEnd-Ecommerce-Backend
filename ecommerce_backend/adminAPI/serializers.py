@@ -62,7 +62,7 @@ class AddProductsSerializer(serializers.ModelSerializer):
 
 
 class ManageProductViewSerializer(serializers.ModelSerializer):
-    product_added_date = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p")
+    product_added_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p")
 
     class Meta:
         fields = (
@@ -181,7 +181,7 @@ class ManageAdminSerializer(serializers.ModelSerializer):
 
 
 class BookedCallSerializer(serializers.ModelSerializer):
-    book_on = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p")
+    book_on = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p")
 
     class Meta:
         fields = "__all__"

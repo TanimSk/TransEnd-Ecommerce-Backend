@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Moderator, Notice, Reward, CouponCode, ExtraPayment
+from .models import Moderator, Notice, Reward, CouponCode, ExtraPayment, BookedCalls
 
 
 @admin.register(Moderator)
@@ -44,4 +44,15 @@ class ExtraPaymentAdmin(admin.ModelAdmin):
     list_display = (
         "inside_dhaka",
         "outside_dhaka",
+    )
+
+
+@admin.register(BookedCalls)
+class BookedCallsAdmin(admin.ModelAdmin):
+    list_display = (
+        "first_name",
+        "last_name",
+        "phone_number",
+        "details",
+        "book_on",
     )
