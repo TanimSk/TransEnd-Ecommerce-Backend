@@ -347,6 +347,17 @@ class CartAPI(APIView):
         return Response({"status": "Removed Product From Cart"})
 
 
+class CartCountAPI(APIView):
+    serializer_class = OrderedProductSerializer
+    permission_classes = [AuthenticateOnlyConsumer]
+
+    def get(self, request, method=None, format=None, *args, **kwargs):
+        ordered_instance = OrderedProduct.objects.filter(
+            consumer=request.user, status="cart"
+        )
+        return Response({"cart_count": ordered_instance.count()})
+
+
 # add / show Ordered Products, status != "cart"
 class OrderProductAPI(APIView):
 

@@ -10,6 +10,7 @@ from .views import (
     PaymentLinkAPI,
     UseCouponAPI,
     UseRewardsAPI,
+    CartCountAPI,
 )
 
 urlpatterns = [
@@ -42,6 +43,11 @@ urlpatterns = [
         "cart/<int:product_id>",
         CartAPI.as_view(),
         name="cart_products",
+    ),
+    path(
+        "cart/count",
+        CartCountAPI.as_view(),
+        name="cart_products_count",
     ),
     # Order Products
     path(
