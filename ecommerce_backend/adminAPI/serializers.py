@@ -4,7 +4,7 @@ from .models import Moderator, Notice, CouponCode
 from productsAPI.models import Product, Category
 from vendorAPI.models import Vendor
 from userAPI.models import OrderedProduct
-from .models import BookedCalls
+from .models import BookedCall
 
 
 class AdminCustomRegistrationSerializer(RegisterSerializer):
@@ -185,4 +185,4 @@ class BookedCallSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = "__all__"
-        model = BookedCalls
+        model = BookedCall

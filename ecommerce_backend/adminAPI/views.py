@@ -581,3 +581,4 @@ class CallBookingAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             BookedCall.objects.create(**serializer.data)
             return Response({"status": "Booked For A Call"})
+
