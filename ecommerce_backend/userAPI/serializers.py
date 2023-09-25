@@ -40,6 +40,7 @@ class OrderedProductSerializer(serializers.ModelSerializer):
         source="product.discount_max_bdt", read_only=True
     )
     ordered_date = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p", read_only=True)
+    status = serializers.CharField(read_only=True)
 
     class Meta:
         fields = (
@@ -53,6 +54,7 @@ class OrderedProductSerializer(serializers.ModelSerializer):
             "discount_percent",
             "discount_max_bdt",
             "ordered_date",
+            "status",
         )
         model = OrderedProduct
 

@@ -168,6 +168,7 @@ class AddProductsAPI(APIView):
                 # Foreign Keys
                 category=Category.objects.get(id=serializer.data.get("category")),
                 vendor=Vendor.objects.get(id=serializer.data.get("vendor")),
+                added_by=request.user,
             )
             return Response({"status": "Successfully Added Product"})
 

@@ -1,6 +1,7 @@
 from django.db import models
 from django.contrib.postgres.fields import ArrayField
 from vendorAPI.models import Vendor
+from django.conf import settings
 
 # Signals
 # from django.db.models.signals import post_delete
@@ -46,6 +47,9 @@ class Product(models.Model):
         Category, on_delete=models.CASCADE, related_name="category"
     )
     vendor = models.ForeignKey(Vendor, on_delete=models.CASCADE, related_name="vendor")
+    added_by = models.ForeignKey(
+        settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="added_by"
+    )
 
     def __str__(self) -> str:
         return self.name

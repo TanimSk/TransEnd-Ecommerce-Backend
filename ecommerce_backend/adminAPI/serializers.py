@@ -57,12 +57,14 @@ class AddProductsSerializer(serializers.ModelSerializer):
         exclude = (
             "product_added_date",
             "quantity_sold",
+            "added_by",
         )
         model = Product
 
 
 class ManageProductViewSerializer(serializers.ModelSerializer):
     product_added_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p")
+    admin_name = serializers.CharField(source="added_by.email")
 
     class Meta:
         fields = (
@@ -71,6 +73,7 @@ class ManageProductViewSerializer(serializers.ModelSerializer):
             "price_bdt",
             "quantity",
             "product_added_date",
+            "admin_name",
         )
         model = Product
 
