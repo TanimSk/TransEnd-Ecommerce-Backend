@@ -62,6 +62,8 @@ class AddProductsSerializer(serializers.ModelSerializer):
 
 
 class ManageProductViewSerializer(serializers.ModelSerializer):
+    product_added_date = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p")
+
     class Meta:
         fields = (
             "id",

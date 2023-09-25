@@ -17,7 +17,10 @@ class Moderator(models.Model):
 
 
 class BookedCalls(models.Model):
+    first_name = models.CharField(max_length=50, blank=True, null=True)
+    last_name = models.CharField(max_length=50, blank=True, null=True)
     phone_number = models.CharField(max_length=100)
+    details = models.TextField(blank=True, null=True)
     book_on = models.DateTimeField(auto_now=True)
 
     def __str__(self) -> str:
