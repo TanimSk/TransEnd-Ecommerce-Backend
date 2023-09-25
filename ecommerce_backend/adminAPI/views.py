@@ -29,7 +29,7 @@ from rest_framework.permissions import (
 )
 from django.utils import timezone
 from django.db.models import Sum, F
-from .models import Notice, CouponCode, Moderator, BookedCalls
+from .models import Notice, CouponCode, Moderator, BookedCall
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category, FeaturedProduct
 from userAPI.models import OrderedProduct, Consumer, OrderPackageTrack
@@ -569,7 +569,7 @@ class CallBookingAPI(APIView):
 
     def get(self, request, format=None, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_admin:
-            calls_instance = BookedCalls.objects.all()
+            calls_instance = BookedCall.objects.all()
             serialized_calls = BookedCallSerializer(calls_instance, many=True)
             return Response(serialized_calls.data)
 
@@ -579,5 +579,5 @@ class CallBookingAPI(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            BookedCalls.objects.create(**serializer.data)
+            BookedCall.objects.create(**serializer.data)
             return Response({"status": "Booked For A Call"})

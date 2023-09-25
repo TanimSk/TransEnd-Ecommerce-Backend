@@ -16,7 +16,7 @@ class Moderator(models.Model):
         return self.admin.email
 
 
-class BookedCalls(models.Model):
+class BookedCall(models.Model):
     first_name = models.CharField(max_length=50, blank=True, null=True)
     last_name = models.CharField(max_length=50, blank=True, null=True)
     phone_number = models.CharField(max_length=100)

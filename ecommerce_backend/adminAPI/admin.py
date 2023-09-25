@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Moderator, Notice, Reward, CouponCode, ExtraPayment, BookedCalls
+from .models import Moderator, Notice, Reward, CouponCode, ExtraPayment, BookedCall
 
 
 @admin.register(Moderator)
@@ -47,8 +47,8 @@ class ExtraPaymentAdmin(admin.ModelAdmin):
     )
 
 
-@admin.register(BookedCalls)
-class BookedCallsAdmin(admin.ModelAdmin):
+@admin.register(BookedCall)
+class BookedCallAdmin(admin.ModelAdmin):
     list_display = (
         "first_name",
         "last_name",
