@@ -70,7 +70,7 @@ class NoticeAPI(APIView):
 
     def post(self, request, format=None, *args, **kwargs):
         if not request.user.is_admin:
-            return Response({"status": "Logged in user is not admin!"})
+            return Response({"error": "Logged in user is not admin!"})
 
         serializer = self.serializer_class(data=request.data)
 
@@ -223,7 +223,7 @@ class ManageProductsAPI(APIView):
     # Update a Product
     def post(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
-            return Response({"status": "product_id missing"})
+            return Response({"error": "product_id missing"})
 
         product_instance = Product.objects.get(id=product_id)
         serializer = AddProductsSerializer(data=request.data)
@@ -267,7 +267,7 @@ class ManageProductsAPI(APIView):
     # Delete a Product
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
-            return Response({"status": "product_id missing"})
+            return Response({"error": "product_id missing"})
 
         product_instance = Product.objects.get(id=product_id)
         product_instance.delete()
@@ -418,7 +418,7 @@ class SpecificVendorAnalyticsAPI(APIView):
 
         vendor_instance = Vendor.objects.filter(phone_number=phone_number).first()
         if vendor_instance is None:
-            return Response({"status": "No Vendors Found!"})
+            return Response({"error": "No Vendors Found!"})
 
         serialized_vendor = SpecificVendorAnalyticsSerializer(vendor_instance)
 

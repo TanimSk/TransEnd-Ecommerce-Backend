@@ -225,7 +225,7 @@ class WishlistSerializerAPI(APIView):
 
     def post(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
-            return Response({"status": "param missing"})
+            return Response({"error": "param missing"})
 
         product_instance = Product.objects.get(id=product_id)
 
@@ -235,7 +235,7 @@ class WishlistSerializerAPI(APIView):
             Wishlist.objects.create(consumer=request.user, product=product_instance)
             return Response({"status": "Added To Wishlist"})
 
-        return Response({"status": "Product Already Exits in Wishlist!"})
+        return Response({"error": "Product Already Exits in Wishlist!"})
 
     def get(self, request, format=None, *args, **kwargs):
         wishlist_products_instance = Wishlist.objects.filter(consumer=request.user)
@@ -244,7 +244,7 @@ class WishlistSerializerAPI(APIView):
 
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
-            return Response({"status": "param missing"})
+            return Response({"error": "param missing"})
 
         product_instance = Product.objects.get(id=product_id)
         Wishlist.objects.filter(
@@ -319,13 +319,13 @@ class CartAPI(APIView):
                 status="cart",
                 product_id=serializer.data.get("product_id"),
             ).exists():
-                return Response({"error": "This Product Already exists in your cart!"})
+                return Response({"error": "This Product Already Exists In Your Cart!"})
 
             # Add to Cart
             product_instance = Product.objects.get(id=serializer.data.get("product_id"))
             if product_instance.quantity < serializer.data.get("ordered_quantity"):
                 return Response(
-                    {"error": "Quantity cannot be greater than Stock!"}, status=200
+                    {"error": "Quantity Cannot Be Greater Than Stock!"}, status=200
                 )
 
             OrderedProduct(
@@ -335,7 +335,7 @@ class CartAPI(APIView):
                 status="cart",
             ).save()
 
-            return Response({"status": "Added to Cart"}, status=200)
+            return Response({"status": "Added To Cart"}, status=200)
 
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
@@ -386,7 +386,7 @@ class OrderProductCODAPI(APIView):
         consumer_instance = Consumer.objects.get(consumer=request.user)
 
         if orders_instance.count() == 0:
-            return Response({"error": "No products in cart!"})
+            return Response({"error": "No Products In Cart!"})
 
         # Save User Global Info to Ordered Object
         orders_instance.update(**serializer.data)
@@ -411,7 +411,7 @@ def OrderProductMobileAPI(request):
         )
 
         if orders_instance.count() == 0:
-            return Response({"status": "No products in cart!"})
+            return Response({"status": "No Products In Cart!"})
 
         if verify_payment(request.GET.get("uuid")):
             context = update_order("mobile", orders_instance, consumer_instance)
@@ -441,7 +441,7 @@ class PaymentLinkAPI(APIView):
             consumer=request.user, status="cart"
         )
         if orders_instance.count() == 0:
-            return Response({"error": "No products in cart!"})
+            return Response({"error": "No Products In Cart!"})
 
         to_be_paid = get_price(orders_instance, serializer.data.get("inside_dhaka"))[
             "total_price"

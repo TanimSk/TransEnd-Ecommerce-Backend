@@ -12,5 +12,5 @@ class VendorAPI(APIView):
         serialized_vendors = self.serializer_class(vendors_instance, many=True)
         return Response(serialized_vendors.data)
 
-    def post(self, request, format=None, *args, **kwargs):
-        ...
+    # def post(self, request, format=None, *args, **kwargs):
+    #     ...

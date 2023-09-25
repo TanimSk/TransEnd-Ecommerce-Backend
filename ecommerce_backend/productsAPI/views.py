@@ -59,7 +59,7 @@ class CategoryAPI(APIView):
                 return Response(serialized_product.data)
             
             except Product.DoesNotExist:
-                return Response({"status": "No Products Found!"})
+                return Response({"error": "No Products Found!"})
 
             
 
@@ -101,7 +101,7 @@ class FilterAPI(APIView):
             serializer = ProductSerializer(result_page, many=True)
             return paginator.get_paginated_response(serializer.data)
 
-        return Response({"status": "Invalid Filtering Parameters!"})
+        return Response({"error": "Invalid Filtering Parameters!"})
 
 
 # Search API
@@ -128,4 +128,4 @@ class FeaturedProductAPI(APIView):
             serialized_products = self.serializer_class(products_instance, many=True)
             return Response(serialized_products.data)
 
-        return Response({"status": "wrong routing!"}, status=404)
+        return Response({"error": "wrong routing!"}, status=404)
