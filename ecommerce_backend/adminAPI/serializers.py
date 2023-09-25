@@ -181,7 +181,7 @@ class ManageAdminSerializer(serializers.ModelSerializer):
 
 
 class BookedCallSerializer(serializers.ModelSerializer):
-    book_on = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p")
+    book_on = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p", read_only=True)
 
     class Meta:
         fields = "__all__"
