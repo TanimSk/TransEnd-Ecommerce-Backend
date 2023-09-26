@@ -13,7 +13,7 @@ class Moderator(models.Model):
     admin_roles = ArrayField(models.CharField(max_length=100), default=list)
 
     def __str__(self) -> str:
-        return self.admin.email
+        return self.moderator.email
 
 
 class BookedCall(models.Model):
