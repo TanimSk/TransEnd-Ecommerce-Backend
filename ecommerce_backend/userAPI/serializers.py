@@ -39,7 +39,7 @@ class OrderedProductSerializer(serializers.ModelSerializer):
     discount_max_bdt = serializers.IntegerField(
         source="product.discount_max_bdt", read_only=True
     )
-    ordered_date = serializers.DateTimeField(format="%d/%m/%Y %H:%M %p", read_only=True)
+    ordered_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p", read_only=True)
     status = serializers.CharField(read_only=True)
 
     class Meta:
