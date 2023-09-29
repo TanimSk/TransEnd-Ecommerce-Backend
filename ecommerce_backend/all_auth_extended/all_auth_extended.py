@@ -21,6 +21,8 @@ def create_consumer_profile(request, user, **kwargs):
         first_name = sociallogin.account.extra_data.get('first_name', '')
         last_name = sociallogin.account.extra_data.get('last_name', '')
 
+        print(sociallogin.account.extra_data)
+
         Consumer(
             consumer=user,
             name= f"{first_name} {last_name}",
