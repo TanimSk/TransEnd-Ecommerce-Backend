@@ -1,5 +1,5 @@
 from django.contrib import admin
-from django.urls import path, include
+from django.urls import path, include, re_path
 from rest_framework_simplejwt.views import TokenRefreshView
 from dj_rest_auth.registration.views import VerifyEmailView
 from rest_framework.documentation import include_docs_urls
@@ -49,8 +49,11 @@ urlpatterns = [
         TemplateView.as_view(),
         name="password_reset_confirm",
     ),
+    # ----- Social Login ------
+    re_path(r"^accounts/", include("allauth.urls"), name="socialaccount_signup"),
     path("accounts/google/login/", GoogleLoginView.as_view(), name="google_login"),
     path("~redirect/", UserRedirectView.as_view(), name="redirect"),
+    # -------------------------
     path("get-access-token/", TokenRefreshView.as_view(), name="get-access-token"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
     path("administrator/", include("adminAPI.urls")),
