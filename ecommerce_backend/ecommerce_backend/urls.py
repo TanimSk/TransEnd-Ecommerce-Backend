@@ -50,8 +50,8 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     # ----- Social Login ------
-    re_path(r"^accounts/", include("allauth.urls"), name="socialaccount_signup"),
     path("accounts/google/login/", GoogleLoginView.as_view(), name="google_login"),
+    re_path(r"^accounts/", include("allauth.urls"), name="socialaccount_signup"),
     path("~redirect/", UserRedirectView.as_view(), name="redirect"),
     # -------------------------
     path("get-access-token/", TokenRefreshView.as_view(), name="get-access-token"),
