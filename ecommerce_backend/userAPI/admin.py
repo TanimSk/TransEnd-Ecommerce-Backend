@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Consumer, Wishlist, OrderedProduct, OrderPackageTrack
+from .models import Consumer, Wishlist, OrderedProduct, OrderPackageTrack, User
 
 
 @admin.register(Consumer)
@@ -8,6 +8,14 @@ class ConsumerAdmin(admin.ModelAdmin):
         "consumer",
         "name",
         "phone_number",
+    )
+
+
+@admin.register(User)
+class UserAdmin(admin.ModelAdmin):
+    list_display = (
+        "is_admin",
+        "is_consumer",
     )
 
 

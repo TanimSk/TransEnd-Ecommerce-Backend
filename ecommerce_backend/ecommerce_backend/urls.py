@@ -52,7 +52,6 @@ urlpatterns = [
     # ----- Social Login ------
     path("accounts/google/login/", GoogleLoginView.as_view(), name="google_login"),
     re_path(r"^accounts/", include("allauth.urls"), name="socialaccount_signup"),
-    # path("~redirect/", UserRedirectView.as_view(), name="redirect"),
     # -------------------------
     path("get-access-token/", TokenRefreshView.as_view(), name="get-access-token"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
