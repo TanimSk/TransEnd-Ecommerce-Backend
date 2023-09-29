@@ -28,6 +28,10 @@ SECRET_KEY = "django-insecure-1fmjmurscjeqtl&7p*man&ggy8i)2p2&wjcs+bd=xn9pu)khx5
 DEBUG = True
 
 ALLOWED_HOSTS = ["*"]
+# CORS Settings
+CORS_ALLOW_ALL_ORIGINS = True
+# CSRF ORIGINS
+CSRF_TRUSTED_ORIGINS = ["*"]
 
 
 # Application definition
@@ -126,9 +130,6 @@ AUTH_PASSWORD_VALIDATORS = [
     #     "NAME": "django.contrib.auth.password_validation.NumericPasswordValidator",
     # },
 ]
-
-# CORS Settings
-CORS_ALLOW_ALL_ORIGINS = True
 
 ########################## JWT Config ##########################
 
