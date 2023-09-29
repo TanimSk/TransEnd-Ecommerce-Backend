@@ -10,7 +10,7 @@ dj-rest-auth==4.0.1
 Django==4.2.4
 django-allauth==0.54.0
 django-cors-headers==4.2.0
-djangorestframework==3.10.3
+djangorestframework==3.14.0
 djangorestframework-simplejwt==5.3.0
 idna==3.4
 itypes==1.2.0
