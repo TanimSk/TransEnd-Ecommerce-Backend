@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ["*"]
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True
 # CSRF ORIGINS
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://transend-store.ongshak.com"]
+# CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "http://transend-store.ongshak.com"]
 
 
 # Application definition
@@ -69,7 +69,7 @@ MIDDLEWARE = [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",  # cors
     "django.middleware.common.CommonMiddleware",
-    "django.middleware.csrf.CsrfViewMiddleware",
+    # "django.middleware.csrf.CsrfViewMiddleware",
     "django.contrib.auth.middleware.AuthenticationMiddleware",
     "django.contrib.messages.middleware.MessageMiddleware",
     "django.middleware.clickjacking.XFrameOptionsMiddleware",
