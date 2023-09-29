@@ -555,5 +555,5 @@ class UseRewardsAPI(APIView):
 # Login With Google
 class GoogleLoginView(SocialLoginView):
     adapter_class = GoogleOAuth2Adapter
-    callback_url = "http://transend.ongshak.com/accounts/google/login/callback/"
+    callback_url = "postmessage"
     client_class = OAuth2Client
