@@ -18,6 +18,7 @@ from .serializers import (
     OrderedProductSerializer,
     CouponSerializer,
 )
+from dj_rest_auth.registration.views import SocialConnectView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
@@ -554,6 +555,11 @@ class UseRewardsAPI(APIView):
 
 # Login With Google
 class GoogleLoginView(SocialLoginView):
+    adapter_class = GoogleOAuth2Adapter
+    callback_url = "postmessage"
+    client_class = OAuth2Client
+
+class GoogleConnect(SocialConnectView):
     adapter_class = GoogleOAuth2Adapter
     callback_url = "postmessage"
     client_class = OAuth2Client

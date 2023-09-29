@@ -4,24 +4,24 @@ from rest_framework_simplejwt.views import TokenRefreshView
 from dj_rest_auth.registration.views import VerifyEmailView
 from rest_framework.documentation import include_docs_urls
 from rest_framework_simplejwt.views import TokenVerifyView
-from userAPI.views import GoogleLoginView
+from userAPI.views import GoogleLoginView, GoogleConnect
 from dj_rest_auth.views import PasswordResetConfirmView, PasswordResetView
 from django.views.generic import TemplateView
 
-# --------------- Google Login ---------------
-from django.contrib.auth.mixins import LoginRequiredMixin
-from django.views.generic import RedirectView
+# # --------------- Google Login ---------------
+# from django.contrib.auth.mixins import LoginRequiredMixin
+# from django.views.generic import RedirectView
 
 
-class UserRedirectView(LoginRequiredMixin, RedirectView):
-    """
-    This view is needed by the dj-rest-auth-library in order to work the google login. It's a bug.
-    """
+# class UserRedirectView(LoginRequiredMixin, RedirectView):
+#     """
+#     This view is needed by the dj-rest-auth-library in order to work the google login. It's a bug.
+#     """
 
-    permanent = False
+#     permanent = False
 
-    def get_redirect_url(self):
-        return "redirect-url"
+#     def get_redirect_url(self):
+#         return "redirect-url"
 
 
 urlpatterns = [
@@ -50,9 +50,11 @@ urlpatterns = [
         name="password_reset_confirm",
     ),
     # ----- Social Login ------
+    path("rest-auth/google/connect/", GoogleConnect.as_view(), name="google_connect"),
     path("accounts/google/login/", GoogleLoginView.as_view(), name="google_login"),
     re_path(r"^accounts/", include("allauth.urls"), name="socialaccount_signup"),
-    path("~redirect/", UserRedirectView.as_view(), name="redirect"),
+
+    # path("~redirect/", UserRedirectView.as_view(), name="redirect"),
     # -------------------------
     path("get-access-token/", TokenRefreshView.as_view(), name="get-access-token"),
     path("api/token/verify/", TokenVerifyView.as_view(), name="token_verify"),
