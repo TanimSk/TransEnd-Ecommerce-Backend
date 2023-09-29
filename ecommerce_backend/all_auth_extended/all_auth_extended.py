@@ -15,14 +15,21 @@ from userAPI.models import Consumer
 @receiver(user_signed_up)
 def create_consumer_profile(request, user, **kwargs):
     # Check if the user signed up through social authentication
-    if kwargs.get("sociallogin"):
-        print(kwargs.get("sociallogin"))
+    sociallogin = kwargs.get('sociallogin')
+    if sociallogin and sociallogin.account.provider == 'google':
+        # Extract the first_name from user data
+        first_name = sociallogin.account.extra_data.get('first_name', '')
+        last_name = sociallogin.account.extra_data.get('last_name', '')
+
         Consumer(
             consumer=user,
-            name="dce",
-            phone_number="sac",
-            address="kjds",
+            name= f"{first_name} {last_name}",
+            phone_number="",
+            address="",
             payment_method="mobile",
             inside_dhaka=False,
             rewards=0,
         ).save()
+
+        user.is_consumer = True
+        user.save()
