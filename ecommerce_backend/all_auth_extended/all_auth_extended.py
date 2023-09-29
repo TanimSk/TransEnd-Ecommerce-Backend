@@ -16,8 +16,7 @@ from userAPI.models import Consumer
 def create_consumer_profile(request, user, **kwargs):
     # Check if the user signed up through social authentication
     if kwargs.get("sociallogin"):
-        # Create a Consumer instance linked to the user
-        print(kwargs)
+        print(kwargs.get("sociallogin"))
         Consumer(
             consumer=user,
             name="dce",
