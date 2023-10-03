@@ -33,7 +33,7 @@ urlpatterns = [
     ),
     path("manage_order/", ManageOrdersAPI.as_view(), name="manage_order"),
     path(
-        "manage_order/<int:consumer_id>", ManageOrdersAPI.as_view(), name="manage_order"
+        "manage_order/<uuid:order_tracking_id>", ManageOrdersAPI.as_view(), name="manage_order"
     ),
     path("manage_vendor/", ManageVendorsAPI.as_view(), name="manage_vendor"),
     # Vendor Analytics

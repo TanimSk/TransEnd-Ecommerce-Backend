@@ -201,9 +201,11 @@ class ManageCategoriesAPI(APIView):
 class ManageProductsAPI(APIView):
 
     """
-    get request with no params, returns all products
-    get request with params (product_id), returns that products details
-    use post request to update that product
+    get request with no params, returns all products.
+    get request with params (product_id), returns that products details.
+    use post request to update that product.
+    delete with product_id param.
+    For filtering pass category name in params. ?category=<category_name>
     """
 
     permission_classes = [AuthenticateOnlyAdmin]
@@ -211,7 +213,13 @@ class ManageProductsAPI(APIView):
 
     def get(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
-            products_instance = Product.objects.all()
+            if not request.GET.get("category", "") == "":
+                products_instance = Product.objects.filter(
+                    category=request.GET.get("category", "")
+                )
+            else:
+                products_instance = Product.objects.all()
+
             serialized_products = ManageProductViewSerializer(
                 products_instance, many=True
             )
@@ -278,7 +286,8 @@ class ManageProductsAPI(APIView):
 class ManageOrdersAPI(APIView):
 
     """
-    To set status to Delivered, post with customer_id
+    To set status to Delivered, post with order_tracking_id.
+    For getting filtered GET response, pass ?method=cod | ?method=paid | ?method=delivered
     """
 
     permission_classes = [AuthenticateOnlyAdmin]
@@ -296,10 +305,17 @@ class ManageOrdersAPI(APIView):
 
         response_array = []
         for tracker_instance in tracker_instance_paginated:
-            # Product Details
-            products_instance = OrderedProduct.objects.filter(
-                tracking_id=tracker_instance.tracking_id
-            )
+            if not request.GET.get("method", "") == "":
+                # Filtering
+                products_instance = OrderedProduct.objects.filter(
+                    tracking_id=tracker_instance.tracking_id,
+                    status=request.GET.get("method", ""),
+                )
+            else:
+                # Product Details
+                products_instance = OrderedProduct.objects.filter(
+                    tracking_id=tracker_instance.tracking_id
+                )
 
             if products_instance.exists():
                 serialized_products = OrderedProductsSerializer(
@@ -336,13 +352,12 @@ class ManageOrdersAPI(APIView):
         return paginator.get_paginated_response(response_array)
 
     # Set Order To Delivered
-    def post(self, request, consumer_id=None, format=None, *args, **kwargs):
-        if consumer_id is None:
-            return Response({"error": "Customer id param is missing"})
+    def post(self, request, order_tracking_id=None, format=None, *args, **kwargs):
+        if order_tracking_id is None:
+            return Response({"error": "Order Tracking ID param is missing"})
 
-        consumer_instance = Consumer.objects.get(id=consumer_id)
         ordered_product_instance = (
-            OrderedProduct.objects.filter(consumer__consumer=consumer_instance)
+            OrderedProduct.objects.filter(tracking_id=order_tracking_id)
             .exclude(status="cart")
             .exclude(status="delivered")
         )
