@@ -69,6 +69,7 @@ class ManageProductViewSerializer(serializers.ModelSerializer):
     class Meta:
         fields = (
             "id",
+            "images",
             "name",
             "price_bdt",
             "quantity",
