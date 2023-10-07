@@ -12,7 +12,7 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
         read_only=True,
     )  # by default allow_null = False
     phone_number = serializers.IntegerField(required=True)
-    admin_roles = serializers.ListField(child=serializers.CharField(), required=False)
+    admin_roles = serializers.JSONField(required=True)
 
     def get_cleaned_data(self):
         data = super(AdminCustomRegistrationSerializer, self).get_cleaned_data()
