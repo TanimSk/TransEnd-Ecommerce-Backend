@@ -9,7 +9,7 @@ class Moderator(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="moderator"
     )
     phone_number = models.CharField(max_length=100, blank=True)
-    admin_roles = models.JSONField(default=dict)
+    admin_roles = models.CharField(default="[]", max_length=500)
 
     def __str__(self) -> str:
         return self.moderator.email
