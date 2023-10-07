@@ -7,7 +7,7 @@ class ModeratorAdmin(admin.ModelAdmin):
     list_display = (
         "moderator",
         "phone_number",
-        "admin_roles",
+        # "admin_roles",
     )
 
 
