@@ -1,7 +1,6 @@
 from django.db import models
 
 # from django.contrib.auth.models import User
-from django.contrib.postgres.fields import JSONField
 from django.conf import settings
 
 
@@ -10,7 +9,7 @@ class Moderator(models.Model):
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="moderator"
     )
     phone_number = models.CharField(max_length=100, blank=True)
-    admin_roles = JSONField(default=dict)
+    admin_roles = models.JSONField(default=dict)
 
     def __str__(self) -> str:
         return self.moderator.email
