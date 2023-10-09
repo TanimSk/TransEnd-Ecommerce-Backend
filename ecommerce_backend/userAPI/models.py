@@ -98,6 +98,7 @@ class Wishlist(models.Model):
 
 class OrderPackageTrack(models.Model):
     tracking_id = models.UUIDField(editable=False, unique=True)
+    added_on = models.DateTimeField(editable=False, auto_now=True)
 
 
 @receiver(post_delete, sender=Consumer)

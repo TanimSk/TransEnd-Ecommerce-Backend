@@ -28,7 +28,7 @@ from rest_framework.permissions import (
     BasePermission,
 )
 from django.utils import timezone
-from django.db.models import Sum, F
+from django.db.models import Sum, F, Count
 from .models import Notice, CouponCode, Moderator, BookedCall
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category, FeaturedProduct
@@ -108,12 +108,14 @@ class AdminAnalyticsAPI(APIView):
             orders_placed = (
                 orders_instance.exclude(status="cart")
                 .exclude(status="delivered")
-                .aggregate(orders_placed=Sum("ordered_quantity"))
-            )["orders_placed"]
+                .values("tracking_id")
+                .annotate(count=Count("tracking_id"))
+            )["count"]
 
-            orders_delivered = orders_instance.filter(status="delivered").aggregate(
-                orders_delivered=Sum("ordered_quantity")
-            )["orders_delivered"]
+            orders_delivered = orders_instance.filter(status="delivered").annotate(
+                count=Count("tracking_id")
+            )["count"]
+
             total_revenue = orders_instance.aggregate(
                 total_revenue=Sum("product__price_bdt")
             )["total_revenue"]
