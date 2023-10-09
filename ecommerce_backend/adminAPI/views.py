@@ -115,6 +115,8 @@ class AdminAnalyticsAPI(APIView):
 
             print(orders_placed)
 
+            orders_placed = orders_placed.count()
+
             # orders_placed = orders_instance.filter(tracking_id=F('tracking_id')).count()
 
             orders_delivered = (
