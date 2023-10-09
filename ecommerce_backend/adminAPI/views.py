@@ -105,14 +105,17 @@ class AdminAnalyticsAPI(APIView):
                     + timezone.timedelta(days=1),
                 ]
             )
-            # orders_placed = (
-            #     orders_instance.exclude(status="cart")
-            #     .exclude(status="delivered")
-            #     .values("tracking_id")
-            #     .annotate(Count("tracking_id"))
-            # )
+            
+            orders_placed = (
+                orders_instance.exclude(status="cart")
+                .exclude(status="delivered")
+                # .values("tracking_id")
+                .annotate(Count("tracking_id"))
+            )
 
-            orders_placed = orders_instance.filter(tracking_id=F('tracking_id')).count()
+            print(orders_placed)
+
+            # orders_placed = orders_instance.filter(tracking_id=F('tracking_id')).count()
 
             orders_delivered = (
                 orders_instance.filter(status="delivered")
@@ -131,6 +134,7 @@ class AdminAnalyticsAPI(APIView):
                 {
                     "available_products": available_products,
                     "sold_products": sold_products,
+
                     "orders_placed": orders_placed,
                     "orders_delivered": orders_delivered,
                     "total_revenue": total_revenue,
