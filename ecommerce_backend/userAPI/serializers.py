@@ -58,6 +58,8 @@ class OrderedProductSerializer(serializers.ModelSerializer):
             "order_total_price",
             "consumer_address",
             "inside_dhaka",
+            "coupon_bdt",
+            "reward_discount"
         )
         model = OrderedProduct
 
