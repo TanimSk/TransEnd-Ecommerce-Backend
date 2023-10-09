@@ -376,7 +376,7 @@ class OrderProductAPI(APIView):
         order_traces = (
             OrderedProduct.objects.filter(consumer=request.user)
             .exclude(status="cart")
-            .ordered_product_instances.values("tracking_id")
+            .values("tracking_id")
             .annotate(Count("tracking_id"))
         )
 
