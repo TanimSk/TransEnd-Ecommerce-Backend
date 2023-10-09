@@ -395,7 +395,7 @@ class OrderProductAPI(APIView):
                         "coupon": serialized_products.data[0]["coupon_bdt"],
                         "reward": serialized_products.data[0]["reward_discount"],
                         "total_price": serialized_products.data[0]["order_total_price"],
-                        "address": serialized_products.data[0]["address"],
+                        "address": serialized_products.data[0]["consumer_address"],
                         "inside_dhaka": serialized_products.data[0]["inside_dhaka"],
                     },
                     "products": serialized_products.data,
