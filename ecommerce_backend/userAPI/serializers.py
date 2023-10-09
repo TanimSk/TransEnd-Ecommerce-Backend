@@ -55,6 +55,9 @@ class OrderedProductSerializer(serializers.ModelSerializer):
             "discount_max_bdt",
             "ordered_date",
             "status",
+            "order_total_price",
+            "consumer_address",
+            "inside_dhaka",
         )
         model = OrderedProduct
 

@@ -389,21 +389,16 @@ class OrderProductAPI(APIView):
             )
             response_arr.append(
                 {
-                    "customer_details": {
-                        "name": serialized_products.data[0]["consumer_name"],
-                        "phone_number": serialized_products.data[0]["consumer_phone"],
-                        "address": serialized_products.data[0]["consumer_address"],
-                        "payment_method": serialized_products.data[0]["payment_method"],
-                        "inside_dhaka": serialized_products.data[0]["consumer_name"],
+                    "info": {
+                        "ordered_date": serialized_products.data[0]["ordered_date"],
+                        "status": serialized_products.data[0]["status"],
+                        "coupon": serialized_products.data[0]["coupon_bdt"],
+                        "reward": serialized_products.data[0]["reward_discount"],
+                        "total_price": serialized_products.data[0]["order_total_price"],
+                        "address": serialized_products.data[0]["address"],
+                        "inside_dhaka": serialized_products.data[0]["inside_dhaka"],
                     },
-                    "tracking_id": serialized_products.data[0]["tracking_id"],
-                    "status": serialized_products.data[0]["status"],
                     "products": serialized_products.data,
-                    "delivery_charge": serialized_products.data[0]["courier_fee"],
-                    "coupon": serialized_products.data[0]["coupon_bdt"],
-                    "reward_discount": serialized_products.data[0]["reward_discount"],
-                    "total_payment": serialized_products.data[0]["order_total_price"],
-                    "instructions": serialized_products.data[0]["special_instructions"],
                 }
             )
 
