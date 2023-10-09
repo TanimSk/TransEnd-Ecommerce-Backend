@@ -17,4 +17,5 @@ urlpatterns = [
     
     path("search/", SearchAPI.as_view(), name="search"),
     path("featured_products/<str:section>", FeaturedProductAPI.as_view(), name="featured_products"),
+    path("featured_products/<str:section>/<int:category_id>", FeaturedProductAPI.as_view(), name="featured_products"),
 ]

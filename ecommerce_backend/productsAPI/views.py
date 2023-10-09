@@ -5,7 +5,7 @@ from .serializers import (
     ProductSerializer,
     CategorySerializer,
     FeaturedProductSerializer,
-    ProductQuerySerializer
+    ProductQuerySerializer,
 )
 from .models import Category, Product, FeaturedProduct
 from userAPI.models import Wishlist
@@ -53,15 +53,17 @@ class CategoryAPI(APIView):
                 print(request.user.is_authenticated)
 
                 if request.user.is_authenticated:
-                    wishlisted = Wishlist.objects.filter(consumer=request.user, product=product).exists()
-                    return Response({**serialized_product.data, "wishlisted": wishlisted})
+                    wishlisted = Wishlist.objects.filter(
+                        consumer=request.user, product=product
+                    ).exists()
+                    return Response(
+                        {**serialized_product.data, "wishlisted": wishlisted}
+                    )
 
                 return Response(serialized_product.data)
-            
+
             except Product.DoesNotExist:
                 return Response({"error": "No Products Found!"})
-
-            
 
 
 class FilterAPI(APIView):
@@ -122,9 +124,18 @@ class SearchAPI(generics.ListCreateAPIView):
 class FeaturedProductAPI(APIView):
     serializer_class = FeaturedProductSerializer
 
-    def get(self, request, section, format=None, *args, **kwargs):
+    def get(self, request, section, category_id=None, format=None, *args, **kwargs):
         if section == "home" or section == "category":
-            products_instance = FeaturedProduct.objects.filter(section=section)
+            if category_id is None:
+                products_instance = FeaturedProduct.objects.filter(section=section)
+                serialized_products = self.serializer_class(
+                    products_instance, many=True
+                )
+                return Response(serialized_products.data)
+
+            products_instance = FeaturedProduct.objects.filter(
+                section=section, product__category_id=category_id
+            )
             serialized_products = self.serializer_class(products_instance, many=True)
             return Response(serialized_products.data)
 
