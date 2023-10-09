@@ -109,12 +109,14 @@ class AdminAnalyticsAPI(APIView):
                 orders_instance.exclude(status="cart")
                 .exclude(status="delivered")
                 .values("tracking_id")
-                .annotate(count=Count("tracking_id"))
-            )["count"]
+                .annotate(Count("tracking_id"))
+            )
 
-            orders_delivered = orders_instance.filter(status="delivered").annotate(
-                count=Count("tracking_id")
-            )["count"]
+            orders_delivered = (
+                orders_instance.filter(status="delivered")
+                .values("tracking_id")
+                .annotate(Count("tracking_id"))
+            )
 
             total_revenue = orders_instance.aggregate(
                 total_revenue=Sum("product__price_bdt")
