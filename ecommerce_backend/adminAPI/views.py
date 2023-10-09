@@ -111,7 +111,7 @@ class AdminAnalyticsAPI(APIView):
                 .exclude(status="delivered")
                 .values("tracking_id")
                 .annotate(Count("tracking_id"))
-            ).count()
+            )
 
             print(orders_placed)
 
@@ -121,7 +121,7 @@ class AdminAnalyticsAPI(APIView):
                 orders_instance.filter(status="delivered")
                 .values("tracking_id")
                 .annotate(Count("tracking_id"))
-            )
+            ).count()
 
             total_revenue = orders_instance.aggregate(
                 total_revenue=Sum("product__price_bdt")
