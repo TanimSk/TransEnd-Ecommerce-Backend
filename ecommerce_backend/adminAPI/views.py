@@ -105,7 +105,7 @@ class AdminAnalyticsAPI(APIView):
                     + timezone.timedelta(days=1),
                 ]
             )
-            
+
             orders_placed = (
                 orders_instance.exclude(status="cart")
                 .exclude(status="delivered")
@@ -113,11 +113,7 @@ class AdminAnalyticsAPI(APIView):
                 .annotate(Count("tracking_id"))
             )
 
-            print(orders_placed)
-
             orders_placed = orders_placed.count()
-
-            # orders_placed = orders_instance.filter(tracking_id=F('tracking_id')).count()
 
             orders_delivered = (
                 orders_instance.filter(status="delivered")
@@ -136,7 +132,6 @@ class AdminAnalyticsAPI(APIView):
                 {
                     "available_products": available_products,
                     "sold_products": sold_products,
-
                     "orders_placed": orders_placed,
                     "orders_delivered": orders_delivered,
                     "total_revenue": total_revenue,
@@ -323,6 +318,7 @@ class ManageOrdersAPI(APIView):
                     tracking_id=tracker_instance.tracking_id,
                     status=request.GET.get("method", ""),
                 )
+
             else:
                 # Product Details
                 products_instance = OrderedProduct.objects.filter(
@@ -352,6 +348,11 @@ class ManageOrdersAPI(APIView):
                         "tracking_id": serialized_products.data[0]["tracking_id"],
                         "status": serialized_products.data[0]["status"],
                         "products": serialized_products.data,
+                        "delivery_charge": serialized_products.data[0]["courier_fee"],
+                        "coupon": serialized_products.data[0]["coupon_bdt"],
+                        "reward_discount": serialized_products.data[0][
+                            "reward_discount"
+                        ],
                         "total_payment": serialized_products.data[0][
                             "order_total_price"
                         ],

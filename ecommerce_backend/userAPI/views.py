@@ -18,6 +18,7 @@ from .serializers import (
     OrderedProductSerializer,
     CouponSerializer,
 )
+from django.db.models import Count
 from dj_rest_auth.registration.views import SocialConnectView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
@@ -370,14 +371,43 @@ class OrderProductAPI(APIView):
     permission_classes = [AuthenticateOnlyConsumer]
 
     def get(self, request, method=None, format=None, *args, **kwargs):
-        ordered_product_instance = OrderedProduct.objects.filter(
-            consumer=request.user
-        ).exclude(status="cart")
-        serialized_products = OrderedProductSerializer(
-            ordered_product_instance, many=True
+        response_arr = []
+
+        order_traces = (
+            OrderedProduct.objects.filter(consumer=request.user)
+            .exclude(status="cart")
+            .ordered_product_instances.values("tracking_id")
+            .annotate(Count("tracking_id"))
         )
 
-        return Response(serialized_products.data)
+        for order_trace in order_traces:
+            ordered_product_instances = OrderedProduct.objects.filter(
+                tracking_id=order_trace["tracking_id"]
+            )
+            serialized_products = OrderedProductSerializer(
+                ordered_product_instances, many=True
+            )
+            response_arr.append(
+                {
+                    "customer_details": {
+                        "name": serialized_products.data[0]["consumer_name"],
+                        "phone_number": serialized_products.data[0]["consumer_phone"],
+                        "address": serialized_products.data[0]["consumer_address"],
+                        "payment_method": serialized_products.data[0]["payment_method"],
+                        "inside_dhaka": serialized_products.data[0]["consumer_name"],
+                    },
+                    "tracking_id": serialized_products.data[0]["tracking_id"],
+                    "status": serialized_products.data[0]["status"],
+                    "products": serialized_products.data,
+                    "delivery_charge": serialized_products.data[0]["courier_fee"],
+                    "coupon": serialized_products.data[0]["coupon_bdt"],
+                    "reward_discount": serialized_products.data[0]["reward_discount"],
+                    "total_payment": serialized_products.data[0]["order_total_price"],
+                    "instructions": serialized_products.data[0]["special_instructions"],
+                }
+            )
+
+        return Response(response_arr)
 
 
 # COD Order
