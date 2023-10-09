@@ -111,7 +111,7 @@ class AdminAnalyticsAPI(APIView):
                 .exclude(status="delivered")
                 .values("tracking_id")
                 .annotate(Count("tracking_id"))
-            )
+            ).count()
 
             print(orders_placed)
 
