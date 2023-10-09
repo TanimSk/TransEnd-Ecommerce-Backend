@@ -487,7 +487,7 @@ class PaymentLinkAPI(APIView):
         response = make_payment(
             cus_name=consumer_instance.name,
             cus_email=consumer_instance.consumer.email,
-            cus_phone=consumer_instance.phone_number,
+            cus_phone=serializer.data.get("consumer_phone"),
             amount=to_be_paid,
         )
 
