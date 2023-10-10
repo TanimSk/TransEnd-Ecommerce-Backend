@@ -9,7 +9,7 @@ To confirm this is correct, go to
 {% if user.is_admin %}
 http://transend-store.ongshak.com/admin_auth/{{ activate_url }}
 
-Your password is: {{ user.password_text }}
+Your password is: {{ user.moderator_set.password_text }}
 {% else %}
 http://transend-store.ongshak.com/user_auth/{{ activate_url }}
 {% endif %}
