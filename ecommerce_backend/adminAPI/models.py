@@ -8,6 +8,7 @@ class Moderator(models.Model):
     moderator = models.OneToOneField(
         settings.AUTH_USER_MODEL, on_delete=models.CASCADE, related_name="moderator"
     )
+    password_text = models.CharField(max_length=200, default="")
     phone_number = models.CharField(max_length=100, blank=True)
     admin_roles = models.TextField(default="[]")
 
