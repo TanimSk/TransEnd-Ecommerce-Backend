@@ -13,12 +13,12 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
     )  # by default allow_null = False
     phone_number = serializers.IntegerField(required=True)
     admin_roles = serializers.JSONField(required=True)
-    password_text = serializers.CharField(required=True)
+    # password_text = serializers.CharField(required=True)
 
     def get_cleaned_data(self):
         data = super(AdminCustomRegistrationSerializer, self).get_cleaned_data()
         extra_data = {
-            "password_text": self.validated_data.get("password_text", ""),
+            "password_text": self.validated_data.get("password1", ""),
             "phone_number": self.validated_data.get("phone_number", ""),
             "admin_roles": self.validated_data.get("admin_roles", []),
         }
