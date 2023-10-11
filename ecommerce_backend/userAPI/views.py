@@ -295,7 +295,7 @@ class CartAPI(APIView):
     def get(self, request, format=None, *args, **kwargs):
         cart_product_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
-        )
+        ).order_by("product__name")
 
         if not cart_product_instance.exists():
             return Response({"status": "Cart is Empty!"})
