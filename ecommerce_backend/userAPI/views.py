@@ -339,6 +339,31 @@ class CartAPI(APIView):
 
             return Response({"status": "Added To Cart"}, status=200)
 
+    def put(self, request, format=None, *args, **kwargs):
+        serializer = OrderedProductSerializer(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            # Get Product
+            order_product_instance = OrderedProduct.objects.get(
+                consumer=request.user,
+                product_id=serializer.data.get("product_id"),
+                status="cart",
+            )
+
+            # Quantity Check
+            product_instance = Product.objects.get(id=serializer.data.get("product_id"))
+            if product_instance.quantity < serializer.data.get("ordered_quantity"):
+                return Response(
+                    {"error": "Quantity Cannot Be Greater Than Stock!"}, status=200
+                )
+
+            order_product_instance.ordered_quantity = serializer.data.get(
+                "ordered_quantity"
+            )
+            order_product_instance.save()
+
+            return Response({"status": "Quantity Updated"}, status=200)
+
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
             return Response({"error": "Params Required!"})
