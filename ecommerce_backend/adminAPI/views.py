@@ -302,7 +302,7 @@ class ManageOrdersAPI(APIView):
 
     def get(self, request, format=None, *args, **kwargs):
         # Getting Individual Customers with ordered product
-        tracker_instance = OrderPackageTrack.objects.all()
+        tracker_instance = OrderPackageTrack.objects.all().order_by("-id")
 
         # Paginating Result
         paginator = StandardResultsSetPagination()
