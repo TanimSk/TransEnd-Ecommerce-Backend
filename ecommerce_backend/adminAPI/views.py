@@ -121,9 +121,9 @@ class AdminAnalyticsAPI(APIView):
                 .annotate(Count("tracking_id"))
             ).count()
 
-            total_revenue = orders_instance.aggregate(
-                total_revenue=Sum("revenue")
-            )["total_revenue"]
+            total_revenue = orders_instance.aggregate(total_revenue=Sum("revenue"))[
+                "total_revenue"
+            ]
             total_grant = orders_instance.aggregate(total_grant=Sum("total_grant"))[
                 "total_grant"
             ]
@@ -223,9 +223,11 @@ class ManageProductsAPI(APIView):
             if not request.GET.get("category", "") == "":
                 products_instance = Product.objects.filter(
                     category=request.GET.get("category", "")
-                )
+                ).order_by("-product_added_date")
             else:
-                products_instance = Product.objects.all()
+                products_instance = Product.objects.all().order_by(
+                    "-product_added_date"
+                )
 
             serialized_products = ManageProductViewSerializer(
                 products_instance, many=True
