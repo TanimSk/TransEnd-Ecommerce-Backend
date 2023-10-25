@@ -570,7 +570,7 @@ class UseCouponAPI(APIView):
             if total_price < coupon_instance.min_price:
                 return Response({"error": "Buy More Products To Use This Coupon"})
             
-            if total_price < coupon_code.discount_bdt:
+            if total_price < coupon_instance.discount_bdt:
                 return Response({"error": "Buy More Products To Use This Coupon"})
 
             ordered_product_instance.update(coupon_bdt=coupon_instance.discount_bdt)
