@@ -11,7 +11,7 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
     moderator = serializers.PrimaryKeyRelatedField(
         read_only=True,
     )  # by default allow_null = False
-    phone_number = serializers.IntegerField(required=True)
+    phone_number = serializers.CharField(required=True)
     admin_roles = serializers.JSONField(required=True)
     # password_text = serializers.CharField(required=True)
 
