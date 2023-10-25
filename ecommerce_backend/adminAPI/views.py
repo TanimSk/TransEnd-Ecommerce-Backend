@@ -75,7 +75,9 @@ class NoticeAPI(APIView):
             return Response({**serialized_notice.data, "valid": valid})
 
         else:
-            return Response({"notice": "", "expiry_date": timezone.now(), "valid": False})
+            return Response(
+                {"notice": "", "expiry_date": timezone.now(), "valid": False}
+            )
 
     def post(self, request, format=None, *args, **kwargs):
         if not request.user.is_admin:
@@ -89,9 +91,10 @@ class NoticeAPI(APIView):
                 notice_instance.notice = serializer.data.get("notice")
                 notice_instance.expiry_date = serializer.data.get("expiry_date")
                 notice_instance.save()
+                return Response({"status": "Successfully Updated Notice"})
             else:
                 Notice.objects.create(**serializer.data)
-            return Response({"status": "Successfully Updated Notice"})
+                return Response({"status": "Successfully Created Notice"})
 
 
 class AdminAnalyticsAPI(APIView):
