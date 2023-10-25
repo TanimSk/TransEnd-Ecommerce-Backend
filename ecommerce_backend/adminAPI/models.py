@@ -28,7 +28,7 @@ class BookedCall(models.Model):
 
 
 class Notice(models.Model):
-    notice = models.TextField()
+    notice = models.CharField(default="", max_length=500)
     notice_date = models.DateTimeField(auto_now=True)
     expiry_date = models.DateTimeField()
 

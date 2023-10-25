@@ -40,6 +40,7 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
 
 
 class NoticeSerializer(serializers.ModelSerializer):
+    notice = serializers.CharField(allow_blank=True)
     class Meta:
         fields = "__all__"
         model = Notice

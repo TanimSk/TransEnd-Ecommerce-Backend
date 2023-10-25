@@ -75,7 +75,11 @@ class NoticeAPI(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            Notice.objects.create(**serializer.data)
+            notice_instance = Notice.objects.all().first()
+            if notice_instance is not None:
+                notice_instance.save(**serializer.data)
+            else:
+                Notice.objects.create(**serializer.data)
             return Response({"status": "Successfully Updated Notice"})
 
 
