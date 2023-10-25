@@ -72,18 +72,18 @@ class ConsumerCustomRegistrationSerializer(RegisterSerializer):
     name = serializers.CharField(required=True)
     phone_number = serializers.IntegerField(required=True)
     address = serializers.CharField(required=True)
-    METHODS = (
-        ("cod", "cod"),
-        ("mobile", "mobile"),
-    )
-    payment_method = serializers.ChoiceField(choices=METHODS, required=False)
+    # METHODS = (
+    #     ("cod", "cod"),
+    #     ("mobile", "mobile"),
+    # )
+    # payment_method = serializers.ChoiceField(choices=METHODS, required=False)
     inside_dhaka = serializers.BooleanField(required=True)
 
     def get_cleaned_data(self):
         data = super(ConsumerCustomRegistrationSerializer, self).get_cleaned_data()
         extra_data = {
             "name": self.validated_data.get("name", ""),
-            "phone_number": self.validated_data.get("phone_number", ""),
+            "phone_number": "mobile",
             "address": self.validated_data.get("address", ""),
             "payment_method": self.validated_data.get("payment_method", ""),
             "inside_dhaka": self.validated_data.get("inside_dhaka", ""),
