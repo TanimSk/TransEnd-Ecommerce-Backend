@@ -68,7 +68,10 @@ class NoticeAPI(APIView):
         serialized_notice = self.serializer_class(notice_instance, many=False)
 
         if notice_instance is not None:
-            if notice_instance.expiry_date < timezone.now() or notice_instance.notice == "":
+            if (
+                notice_instance.expiry_date < timezone.now()
+                or notice_instance.notice == ""
+            ):
                 valid = False
             else:
                 valid = True
@@ -424,6 +427,16 @@ class CouponAPI(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
+            coupon_instance = CouponCode.objects.filter(
+                code=serializer.data.get("code")
+            ).first()
+            if coupon_instance is not None:
+                coupon_instance.discount_bdt = serializer.data.get("discount_bdt")
+                coupon_instance.validity = serializer.data.get("validity")
+                coupon_instance.min_price = serializer.data.get("min_price")
+                coupon_instance.save()
+                return Response({"status": "Successfully Updated Coupon"})
+
             CouponCode.objects.create(**serializer.data)
             return Response({"status": "Successfully Added Coupon Code"})
 
