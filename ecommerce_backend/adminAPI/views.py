@@ -64,9 +64,18 @@ class NoticeAPI(APIView):
     permission_classes = [IsAuthenticatedOrReadOnly]
 
     def get(self, request, format=None, *args, **kwargs):
-        notice_instance = Notice.objects.filter(expiry_date__gt=timezone.now()).first()
+        notice_instance = Notice.objects.first()
         serialized_notice = self.serializer_class(notice_instance, many=False)
-        return Response(serialized_notice.data)
+
+        if notice_instance is not None:
+            if notice_instance.expiry_date < timezone.now():
+                valid = False
+            else:
+                valid = True
+            return Response({**serialized_notice.data, "valid": valid})
+
+        else:
+            return Response({"notice": "", "expiry_date": timezone.now()})
 
     def post(self, request, format=None, *args, **kwargs):
         if not request.user.is_admin:
@@ -75,7 +84,7 @@ class NoticeAPI(APIView):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            notice_instance = Notice.objects.all().first()
+            notice_instance = Notice.objects.first()
             if notice_instance is not None:
                 notice_instance.notice = serializer.data.get("notice")
                 notice_instance.expiry_date = serializer.data.get("expiry_date")
