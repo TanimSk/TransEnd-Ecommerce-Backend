@@ -594,7 +594,7 @@ class ManageAdminAPI(APIView):
     permission_classes = [AuthenticateOnlyAdmin]
 
     def get(self, request, format=None, *args, **kwargs):
-        moderator_instance = Moderator.objects.all()
+        moderator_instance = Moderator.objects.all().order_by("-id")
         serialized_moderators = ManageAdminSerializer(moderator_instance, many=True)
         return Response(serialized_moderators.data)
 
