@@ -423,6 +423,11 @@ class CouponAPI(APIView):
     permission_classes = [AuthenticateOnlyAdmin]
     serializer_class = CouponSerializer
 
+    def get(self, request, format=None, *args, **kwargs):
+        coupons_instance = CouponCode.objects.all().order_by("-coupon_added")
+        serialized_coupons = CouponSerializer(coupons_instance, many=True)
+        return Response({serialized_coupons.data})
+
     def post(self, request, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
 
