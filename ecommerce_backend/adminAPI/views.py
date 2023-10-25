@@ -68,7 +68,7 @@ class NoticeAPI(APIView):
         serialized_notice = self.serializer_class(notice_instance, many=False)
 
         if notice_instance is not None:
-            if notice_instance.expiry_date < timezone.now():
+            if notice_instance.expiry_date < timezone.now() and notice_instance.notice == "":
                 valid = False
             else:
                 valid = True
