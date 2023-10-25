@@ -571,7 +571,7 @@ class UseCouponAPI(APIView):
                 return Response({"error": "Buy More Products To Use This Coupon"})
             
             if total_price < coupon_instance.discount_bdt:
-                return Response({"error": "Buy More Products To Use This Coupon"})
+                return Response({"error": "You Cannot Use This Coupon"})
 
             ordered_product_instance.update(coupon_bdt=coupon_instance.discount_bdt)
 
