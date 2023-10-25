@@ -522,6 +522,11 @@ class FeaturedProductAPI(APIView):
                 product_instance = Product.objects.get(
                     id=serializer.data.get("product_id")
                 )
+                if FeaturedProduct.objects.filter(
+                    product=product_instance, section=section
+                ).exists():
+                    return Response({"error": "Already exists in featured products"})
+
                 FeaturedProduct.objects.create(
                     product=product_instance, section=section
                 )
