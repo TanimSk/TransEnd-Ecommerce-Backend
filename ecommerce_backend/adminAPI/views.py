@@ -122,7 +122,7 @@ class AdminAnalyticsAPI(APIView):
             ).count()
 
             total_revenue = orders_instance.aggregate(
-                total_revenue=Sum("product__price_bdt")
+                total_revenue=Sum("revenue")
             )["total_revenue"]
             total_grant = orders_instance.aggregate(total_grant=Sum("total_grant"))[
                 "total_grant"
