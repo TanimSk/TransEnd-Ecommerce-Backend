@@ -77,7 +77,9 @@ class NoticeAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             notice_instance = Notice.objects.all().first()
             if notice_instance is not None:
-                notice_instance.save(**serializer.data)
+                notice_instance.notice = serializer.data.get("notice")
+                notice_instance.expiry_date = serializer.data.get("expiry_date")
+                notice_instance.save()
             else:
                 Notice.objects.create(**serializer.data)
             return Response({"status": "Successfully Updated Notice"})
