@@ -428,6 +428,13 @@ class CouponAPI(APIView):
         serialized_coupons = CouponSerializer(coupons_instance, many=True)
         return Response(serialized_coupons.data)
 
+    def delete(self, request, coupon_id=None, format=None, *args, **kwargs):
+        if coupon_id is None:
+            return Response({"error": "Coupon id missing"})
+
+        CouponCode.objects.get(id=coupon_id).delete()
+        return Response({"status": "Successfully Removed Coupon"})
+
     def post(self, request, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
 

@@ -62,6 +62,7 @@ urlpatterns = [
     ),
     path("add_coupon/", CouponAPI.as_view(), name="add_coupon"),
     path("coupons/", CouponAPI.as_view(), name="coupons"),
+    path("coupons/<int:coupon_id>", CouponAPI.as_view(), name="coupons"),
 
     path("permissions/", PermissionsAPI.as_view(), name="permissions"),
     # Manage Admin
