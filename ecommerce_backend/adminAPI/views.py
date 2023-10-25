@@ -75,7 +75,7 @@ class NoticeAPI(APIView):
             return Response({**serialized_notice.data, "valid": valid})
 
         else:
-            return Response({"notice": "", "expiry_date": timezone.now()})
+            return Response({"notice": "", "expiry_date": timezone.now(), "valid": False})
 
     def post(self, request, format=None, *args, **kwargs):
         if not request.user.is_admin:
