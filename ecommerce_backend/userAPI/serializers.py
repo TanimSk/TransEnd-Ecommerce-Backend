@@ -76,7 +76,7 @@ class ConsumerCustomRegistrationSerializer(RegisterSerializer):
         ("cod", "cod"),
         ("mobile", "mobile"),
     )
-    payment_method = serializers.ChoiceField(choices=METHODS)
+    payment_method = serializers.ChoiceField(choices=METHODS, required=False)
     inside_dhaka = serializers.BooleanField(required=True)
 
     def get_cleaned_data(self):

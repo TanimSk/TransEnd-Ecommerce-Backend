@@ -25,7 +25,7 @@ class Consumer(models.Model):
         ("cod", "cod"),
         ("mobile", "mobile"),
     )
-    payment_method = models.CharField(max_length=50, choices=METHODS)
+    payment_method = models.CharField(max_length=50, choices=METHODS, default="mobile")
     inside_dhaka = models.BooleanField(default=False)
     rewards = models.IntegerField(default=0)
 
