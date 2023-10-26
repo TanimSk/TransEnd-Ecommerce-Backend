@@ -184,6 +184,7 @@ class ManageAdminSerializer(serializers.ModelSerializer):
     email = serializers.EmailField(source="moderator.email", read_only=True)
     id = serializers.IntegerField(read_only=True)
     phone_number = serializers.CharField(read_only=True)
+    admin_roles = serializers.JSONField(required=True)
 
     class Meta:
         fields = (
