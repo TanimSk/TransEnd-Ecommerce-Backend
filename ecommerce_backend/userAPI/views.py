@@ -569,7 +569,7 @@ class UseCouponAPI(APIView):
 
             if total_price < coupon_instance.min_price:
                 return Response({"error": "Buy More Products To Use This Coupon"})
-            
+
             if total_price < coupon_instance.discount_bdt:
                 return Response({"error": "You Cannot Use This Coupon"})
 
@@ -601,6 +601,12 @@ class UseRewardsAPI(APIView):
         ordered_product_instance = OrderedProduct.objects.filter(
             consumer=request.user, status="cart"
         )
+
+        total_price = get_price(ordered_product_instance, None)
+
+        if total_price < discount_amount:
+            return Response({"error": "You Cannot Use Rewards At This Moment"})
+
         ordered_product_instance.update(reward_discount=discount_amount)
 
         return Response({"status": "Used Rewards"})

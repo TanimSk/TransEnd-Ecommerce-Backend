@@ -184,6 +184,7 @@ class ManageAdminSerializer(serializers.ModelSerializer):
 
     class Meta:
         fields = (
+            "id",
             "email",
             "phone_number",
             "admin_roles",

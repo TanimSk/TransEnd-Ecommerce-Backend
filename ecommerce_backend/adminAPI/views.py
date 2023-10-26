@@ -432,8 +432,11 @@ class CouponAPI(APIView):
         if coupon_id is None:
             return Response({"error": "Coupon id missing"})
 
-        CouponCode.objects.get(id=coupon_id).delete()
-        return Response({"status": "Successfully Removed Coupon"})
+        if CouponCode.objects.filter(id=coupon_id).exists():
+            CouponCode.objects.get(id=coupon_id).delete()
+            return Response({"status": "Successfully Removed Coupon"})
+
+        return Response({"error": "Invalid Coupon Id"})
 
     def post(self, request, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
