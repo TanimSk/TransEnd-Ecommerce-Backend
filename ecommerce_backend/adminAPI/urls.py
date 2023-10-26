@@ -37,6 +37,7 @@ urlpatterns = [
         "manage_order/<uuid:order_tracking_id>", ManageOrdersAPI.as_view(), name="manage_order"
     ),
     path("manage_vendor/", ManageVendorsAPI.as_view(), name="manage_vendor"),
+    path("manage_vendor/<int:vendor_id>", ManageVendorsAPI.as_view(), name="manage_vendor"),
     # Vendor Analytics
     path("vendor_analytics/", VendorAnalyticsAPI.as_view(), name="vendor_analytics"),
     path(

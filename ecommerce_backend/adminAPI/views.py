@@ -429,12 +429,28 @@ class ManageVendorsAPI(APIView):
         serialized_category = ManageVendorsSerializer(vendor_instance, many=True)
         return Response(serialized_category.data)
 
-    def post(self, request, format=None, *args, **kwargs):
+    def post(self, request, vendor_id=None, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
 
         if serializer.is_valid(raise_exception=True):
-            Vendor.objects.create(**serializer.data)
-            return Response({"status": "Successfully Added Vendor"})
+            if vendor_id is None:
+                Vendor.objects.create(**serializer.data)
+                return Response({"status": "Successfully Added Vendor"})
+
+            else:
+                vendor_instance = Vendor.objects.get(id=vendor_id)
+                vendor_instance.name = serializer.data.get("name")
+                vendor_instance.phone_number = serializer.data.get("phone_number")
+                vendor_instance.address = serializer.data.get("address")
+                vendor_instance.save()
+                return Response({"status": "Successfully Updated"})
+
+    def delete(self, request, vendor_id=None, format=None, *args, **kwargs):
+        if vendor_id is None:
+            return Response({"error": "Vendor Id Missing"})
+
+        Vendor.objects.get(id=vendor_id).delete()
+        return Response({"status": "Successfully Removed Vendor"})
 
 
 class CouponAPI(APIView):
