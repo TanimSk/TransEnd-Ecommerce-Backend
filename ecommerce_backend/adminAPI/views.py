@@ -425,7 +425,7 @@ class ManageVendorsAPI(APIView):
     serializer_class = ManageVendorsSerializer
 
     def get(self, request, format=None, *args, **kwargs):
-        vendor_instance = Vendor.objects.all()
+        vendor_instance = Vendor.objects.all().order_by("-id")
         serialized_category = ManageVendorsSerializer(vendor_instance, many=True)
         return Response(serialized_category.data)
 

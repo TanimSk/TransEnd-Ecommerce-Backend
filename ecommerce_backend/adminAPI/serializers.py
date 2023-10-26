@@ -91,6 +91,7 @@ class ManageCategoriesSerializer(serializers.ModelSerializer):
 
 
 class ManageVendorsSerializer(serializers.ModelSerializer):
+    
     class Meta:
         fields = "__all__"
         model = Vendor
