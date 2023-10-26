@@ -214,7 +214,7 @@ class ManageCategoriesAPI(APIView):
     serializer_class = ManageCategoriesSerializer
 
     def get(self, request, format=None, *args, **kwargs):
-        category_instance = Category.objects.all()
+        category_instance = Category.objects.all().order_by("-id")
         serialized_category = ManageCategoriesSerializer(category_instance, many=True)
         return Response(serialized_category.data)
 
