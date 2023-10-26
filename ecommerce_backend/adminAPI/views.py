@@ -235,7 +235,7 @@ class ManageCategoriesAPI(APIView):
         if category_id is None:
             return Response({"error": "Category Id missing"})
 
-        count = Product.objects.filter(category_id=category_id).count()
+        count = Product.objects.filter(category__id=category_id).count()
         Category.objects.get(id=category_id)
         if count > 0:
             return Response({"status": f"Successfully Removed Category"})
