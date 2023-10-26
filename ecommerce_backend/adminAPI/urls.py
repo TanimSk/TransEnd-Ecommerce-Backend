@@ -67,6 +67,7 @@ urlpatterns = [
     path("permissions/", PermissionsAPI.as_view(), name="permissions"),
     # Manage Admin
     path("manage_admin/", ManageAdminAPI.as_view(), name="manage_admin"),
+    path("manage_admin/<int:admin_id>", ManageAdminAPI.as_view(), name="manage_admin"),
     
     # Booked Call
     path("book_call/", CallBookingAPI.as_view(), name="book_call"),

@@ -638,11 +638,23 @@ class PermissionsAPI(APIView):
 
 class ManageAdminAPI(APIView):
     permission_classes = [AuthenticateOnlyAdmin]
+    serializer_class = ManageAdminSerializer
 
     def get(self, request, format=None, *args, **kwargs):
         moderator_instance = Moderator.objects.all().order_by("-id")
         serialized_moderators = ManageAdminSerializer(moderator_instance, many=True)
         return Response(serialized_moderators.data)
+
+    def post(self, request, admin_id=None, format=None, *args, **kwargs):
+        if admin_id is None:
+            return Response({"error": "Admin Id Missing"})
+
+        serializer = self.serializer_class(data=request.data)
+        if serializer.is_valid(raise_exception=True):
+            moderator_instance = Moderator.objects.get(id=admin_id)
+            moderator_instance.admin_roles = serializer.data.get("admin_roles")
+            moderator_instance.save()
+            return Response({"status": "Successfully Updated"})
 
 
 # Booking Call

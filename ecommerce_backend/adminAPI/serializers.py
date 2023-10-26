@@ -41,6 +41,7 @@ class AdminCustomRegistrationSerializer(RegisterSerializer):
 
 class NoticeSerializer(serializers.ModelSerializer):
     notice = serializers.CharField(allow_blank=True)
+
     class Meta:
         fields = "__all__"
         model = Notice
@@ -180,7 +181,9 @@ class PermissionSerializer(serializers.ModelSerializer):
 
 
 class ManageAdminSerializer(serializers.ModelSerializer):
-    email = serializers.EmailField(source="moderator.email")
+    email = serializers.EmailField(source="moderator.email", read_only=True)
+    id = serializers.IntegerField(read_only=True)
+    phone_number = serializers.CharField(read_only=True)
 
     class Meta:
         fields = (
