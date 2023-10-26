@@ -218,12 +218,18 @@ class ManageCategoriesAPI(APIView):
         serialized_category = ManageCategoriesSerializer(category_instance, many=True)
         return Response(serialized_category.data)
 
-    def post(self, request, format=None, *args, **kwargs):
+    def post(self, request, category_id=None, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
-
         if serializer.is_valid(raise_exception=True):
-            Category.objects.create(**serializer.data)
-            return Response({"status": "Successfully Created A Category"})
+            if category_id is None:
+                Category.objects.create(**serializer.data)
+                return Response({"status": "Successfully Created A Category"})
+            else:
+                category_instance = Category.objects.get(id=category_id)
+                category_instance.name = serializer.data.get("name")
+                category_instance.images = serializer.data.get("images")
+                category_instance.save()
+                return Response({"status": "Successfully Updated"})
 
 
 class ManageProductsAPI(APIView):

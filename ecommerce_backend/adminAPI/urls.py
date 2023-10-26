@@ -24,6 +24,7 @@ urlpatterns = [
     path("analytics/", AdminAnalyticsAPI.as_view(), name="analytics"),
     path("add_product/", AddProductsAPI.as_view(), name="add_product"),
     path("manage_category/", ManageCategoriesAPI.as_view(), name="manage_category"),
+    path("manage_category/<int:category_id>", ManageCategoriesAPI.as_view(), name="manage_category"),
     # Manage Products
     path("manage_product/", ManageProductsAPI.as_view(), name="manage_product"),
     path(
