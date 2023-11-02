@@ -75,6 +75,7 @@ class OrderedProduct(models.Model):
         ("paid", "paid"),
         ("cod", "cod"),
         ("delivered", "delivered"),
+        ("dispatched", "dispatched"),
     )
     status = models.CharField(max_length=30, choices=STATUS, default="cart")
     dispatched = models.BooleanField(default=False)

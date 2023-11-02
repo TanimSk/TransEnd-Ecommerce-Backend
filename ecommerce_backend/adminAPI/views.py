@@ -697,7 +697,7 @@ class CallBookingAPI(APIView):
 
     def get(self, request, format=None, *args, **kwargs):
         if request.user.is_authenticated and request.user.is_admin:
-            calls_instance = BookedCall.objects.all()
+            calls_instance = BookedCall.objects.all().order_by("-book_on")
             serialized_calls = BookedCallSerializer(calls_instance, many=True)
             return Response(serialized_calls.data)
 

@@ -70,10 +70,11 @@ class AddProductsSerializer(serializers.ModelSerializer):
 class ManageProductViewSerializer(serializers.ModelSerializer):
     product_added_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p")
     admin_email = serializers.CharField(source="added_by.email")
+    product_id = serializers.SerializerMethodField()
 
     class Meta:
         fields = (
-            "id",
+            "product_id",
             "images",
             "name",
             "price_bdt",
@@ -83,6 +84,9 @@ class ManageProductViewSerializer(serializers.ModelSerializer):
         )
         model = Product
 
+    def get_product_id(self, instance):
+        return 1000 + instance.id
+
 
 class ManageCategoriesSerializer(serializers.ModelSerializer):
     class Meta:
@@ -91,7 +95,6 @@ class ManageCategoriesSerializer(serializers.ModelSerializer):
 
 
 class ManageVendorsSerializer(serializers.ModelSerializer):
-    
     class Meta:
         fields = "__all__"
         model = Vendor
