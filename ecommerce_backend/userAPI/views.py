@@ -604,7 +604,7 @@ class UseRewardsAPI(APIView):
 
         total_price = get_price(ordered_product_instance, None)
 
-        if total_price < discount_amount:
+        if total_price["total_price"] < discount_amount:
             return Response({"error": "You Cannot Use Rewards At This Moment"})
 
         ordered_product_instance.update(reward_discount=discount_amount)
