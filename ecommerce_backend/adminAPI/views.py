@@ -406,7 +406,7 @@ class ManageOrdersAPI(APIView):
 
         return paginator.get_paginated_response(response_array)
 
-    # Set Order To Delivered
+    # Set Order To Delivered & Dispatched
     def post(self, request, order_tracking_id=None, format=None, *args, **kwargs):
         if order_tracking_id is None:
             return Response({"error": "Order Tracking ID param is missing"})
