@@ -20,6 +20,7 @@ from .serializers import (
     PermissionSerializer,
     ManageAdminSerializer,
     BookedCallSerializer,
+    ChangeStatusSerializer,
 )
 
 # from productsAPI.serializers import ProductSerializer
@@ -410,14 +411,23 @@ class ManageOrdersAPI(APIView):
         if order_tracking_id is None:
             return Response({"error": "Order Tracking ID param is missing"})
 
-        ordered_product_instance = (
-            OrderedProduct.objects.filter(tracking_id=order_tracking_id)
-            .exclude(status="cart")
-            .exclude(status="delivered")
-        )
-        ordered_product_instance.update(status="delivered")
+        serialized_data = ChangeStatusSerializer(data=request.data)
 
-        return Response({"status": "Successfully Delivered"})
+        if serialized_data.is_valid(raise_exception=True):
+            ordered_product_instance = (
+                OrderedProduct.objects.filter(tracking_id=order_tracking_id)
+                .exclude(status="cart")
+                .exclude(status="delivered")
+                .exclude(status="dispatched")
+            )
+
+            if serialized_data.data.get("status") == "delivered":
+                ordered_product_instance.update(status="delivered")
+                return Response({"status": "Successfully Delivered"})
+
+            elif serialized_data.data.get("status") == "dispatched":
+                ordered_product_instance.update(status="dispatched")
+                return Response({"status": "Successfully Dispatched"})
 
 
 class ManageVendorsAPI(APIView):

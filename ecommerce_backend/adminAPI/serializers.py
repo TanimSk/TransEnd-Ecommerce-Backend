@@ -206,3 +206,7 @@ class BookedCallSerializer(serializers.ModelSerializer):
     class Meta:
         fields = "__all__"
         model = BookedCall
+
+
+class ChangeStatusSerializer(serializers.Serializer):
+    status = serializers.CharField()
