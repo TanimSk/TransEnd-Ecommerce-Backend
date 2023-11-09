@@ -414,20 +414,22 @@ class ManageOrdersAPI(APIView):
         serialized_data = ChangeStatusSerializer(data=request.data)
 
         if serialized_data.is_valid(raise_exception=True):
-            ordered_product_instance = (
-                OrderedProduct.objects.filter(tracking_id=order_tracking_id)
-                .exclude(status="cart")
-                .exclude(status="delivered")
-                .exclude(status="dispatched")
-            )
+            ordered_product_instance = OrderedProduct.objects.filter(
+                tracking_id=order_tracking_id
+            ).exclude(status="cart")
 
             if serialized_data.data.get("status") == "delivered":
+                ordered_product_instance = ordered_product_instance.exclude(
+                    status="delivered"
+                )
                 ordered_product_instance.update(status="delivered")
                 return Response({"status": "Successfully Delivered"})
 
             elif serialized_data.data.get("status") == "dispatched":
+                ordered_product_instance = ordered_product_instance.exclude(
+                    status="dispatched"
+                )
                 ordered_product_instance.update(status="dispatched")
-                print("ejnferninrgpi-----------")
                 return Response({"status": "Successfully Dispatched"})
 
 
