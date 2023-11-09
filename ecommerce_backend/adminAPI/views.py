@@ -427,6 +427,7 @@ class ManageOrdersAPI(APIView):
 
             elif serialized_data.data.get("status") == "dispatched":
                 ordered_product_instance.update(status="dispatched")
+                print("ejnferninrgpi-----------")
                 return Response({"status": "Successfully Dispatched"})
 
 
