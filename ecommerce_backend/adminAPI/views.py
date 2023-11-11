@@ -31,6 +31,7 @@ from rest_framework.permissions import (
 from django.utils import timezone
 from django.db.models import Sum, F, Count
 from .models import Notice, CouponCode, Moderator, BookedCall
+from userAPI.models import VisitCount
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category, FeaturedProduct
 from userAPI.models import OrderedProduct, Consumer, OrderPackageTrack
@@ -722,3 +723,14 @@ class CallBookingAPI(APIView):
         if serializer.is_valid(raise_exception=True):
             BookedCall.objects.create(**serializer.data)
             return Response({"status": "Booked For A Call"})
+
+
+# Realtime Visit
+class GetVisitAPI(APIView):
+    permission_classes = [AuthenticateOnlyAdmin]
+
+    def get(self, request, format=None, *args, **kwargs):
+        users_instance = VisitCount.objects.filter(
+            last_visit__gte=timezone.now() - timezone.timedelta(minutes=5)
+        )
+        return Response({"current_user": users_instance.count()})

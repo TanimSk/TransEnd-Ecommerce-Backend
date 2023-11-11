@@ -15,7 +15,8 @@ from .views import (
     FeaturedProductQueryAPI,
     PermissionsAPI,
     ManageAdminAPI,
-    CallBookingAPI
+    CallBookingAPI,
+    GetVisitAPI,
 )
 
 urlpatterns = [
@@ -24,7 +25,11 @@ urlpatterns = [
     path("analytics/", AdminAnalyticsAPI.as_view(), name="analytics"),
     path("add_product/", AddProductsAPI.as_view(), name="add_product"),
     path("manage_category/", ManageCategoriesAPI.as_view(), name="manage_category"),
-    path("manage_category/<int:category_id>", ManageCategoriesAPI.as_view(), name="manage_category"),
+    path(
+        "manage_category/<int:category_id>",
+        ManageCategoriesAPI.as_view(),
+        name="manage_category",
+    ),
     # Manage Products
     path("manage_product/", ManageProductsAPI.as_view(), name="manage_product"),
     path(
@@ -34,10 +39,16 @@ urlpatterns = [
     ),
     path("manage_order/", ManageOrdersAPI.as_view(), name="manage_order"),
     path(
-        "manage_order/<uuid:order_tracking_id>", ManageOrdersAPI.as_view(), name="manage_order"
+        "manage_order/<uuid:order_tracking_id>",
+        ManageOrdersAPI.as_view(),
+        name="manage_order",
     ),
     path("manage_vendor/", ManageVendorsAPI.as_view(), name="manage_vendor"),
-    path("manage_vendor/<int:vendor_id>", ManageVendorsAPI.as_view(), name="manage_vendor"),
+    path(
+        "manage_vendor/<int:vendor_id>",
+        ManageVendorsAPI.as_view(),
+        name="manage_vendor",
+    ),
     # Vendor Analytics
     path("vendor_analytics/", VendorAnalyticsAPI.as_view(), name="vendor_analytics"),
     path(
@@ -56,7 +67,6 @@ urlpatterns = [
         FeaturedProductAPI.as_view(),
         name="featured_products_delete",
     ),
-
     path(
         "featured_products_query/",
         FeaturedProductQueryAPI.as_view(),
@@ -65,12 +75,12 @@ urlpatterns = [
     path("add_coupon/", CouponAPI.as_view(), name="add_coupon"),
     path("coupons/", CouponAPI.as_view(), name="coupons"),
     path("coupons/<int:coupon_id>", CouponAPI.as_view(), name="coupons"),
-
     path("permissions/", PermissionsAPI.as_view(), name="permissions"),
     # Manage Admin
     path("manage_admin/", ManageAdminAPI.as_view(), name="manage_admin"),
     path("manage_admin/<int:admin_id>", ManageAdminAPI.as_view(), name="manage_admin"),
-    
     # Booked Call
     path("book_call/", CallBookingAPI.as_view(), name="book_call"),
+    # Get Realtime visit count
+    path("get_visit_count/", GetVisitAPI.as_view(), name="get_visit_count"),
 ]

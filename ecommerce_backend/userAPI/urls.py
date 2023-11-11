@@ -11,6 +11,7 @@ from .views import (
     UseCouponAPI,
     UseRewardsAPI,
     CartCountAPI,
+    VisitCountAPI
 )
 
 urlpatterns = [
@@ -80,5 +81,11 @@ urlpatterns = [
         "use_rewards/",
         UseRewardsAPI.as_view(),
         name="use_rewards",
+    ),
+    # Update realtime visit
+    path(
+        "set_visit_count/",
+        VisitCountAPI.as_view(),
+        name="set_visit_count",
     ),
 ]

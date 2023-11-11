@@ -1,6 +1,7 @@
 from rest_framework import serializers
 from dj_rest_auth.registration.serializers import RegisterSerializer
 from .models import Consumer, OrderedProduct, Wishlist
+from userAPI.models import VisitCount
 
 
 class WishlistSerializer(serializers.Serializer):
@@ -123,3 +124,9 @@ class PlaceOrderSerializer(serializers.ModelSerializer):
 
 class CouponSerializer(serializers.Serializer):
     coupon_code = serializers.CharField(required=True)
+
+
+class VisitCountSerializer(serializers.ModelSerializer):
+    class Meta:
+        fields = ("user_ref",)
+        model = VisitCount

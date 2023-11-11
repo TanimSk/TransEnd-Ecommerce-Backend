@@ -2,6 +2,7 @@ from django.db import models
 from django.contrib.auth.models import AbstractUser
 from django.conf import settings
 from productsAPI.models import Product
+from django.utils import timezone
 
 # Signals
 from django.db.models.signals import post_delete
@@ -99,6 +100,17 @@ class Wishlist(models.Model):
 
 class OrderPackageTrack(models.Model):
     tracking_id = models.UUIDField(editable=False, unique=True)
+
+
+# Realtime Count
+class AutoDateTimeField(models.DateTimeField):
+    def pre_save(self, model_instance, add):
+        return timezone.now()
+
+
+class VisitCount(models.Model):
+    user_ref = models.UUIDField()
+    last_visit = AutoDateTimeField(default=timezone.now)
 
 
 @receiver(post_delete, sender=Consumer)

@@ -6,7 +6,7 @@ from django.db import transaction
 from django.shortcuts import render
 from django.views.decorators.csrf import csrf_exempt
 from productsAPI.models import Product
-from .models import Wishlist, OrderedProduct, Consumer, OrderPackageTrack
+from .models import Wishlist, OrderedProduct, Consumer, OrderPackageTrack, VisitCount
 from adminAPI.models import ExtraPayment, CouponCode, Reward
 from django.utils import timezone
 from rest_framework.permissions import BasePermission
@@ -17,6 +17,7 @@ from .serializers import (
     ProfileSerializer,
     OrderedProductSerializer,
     CouponSerializer,
+    VisitCountSerializer,
 )
 from django.db.models import Count
 from dj_rest_auth.registration.views import SocialConnectView
@@ -610,6 +611,28 @@ class UseRewardsAPI(APIView):
         ordered_product_instance.update(reward_discount=discount_amount)
 
         return Response({"status": "Used Rewards"})
+
+
+# Update Realtime Visit
+class VisitCountAPI(APIView):
+    serializer_class = VisitCountSerializer
+
+    def post(self, request, format=None, *args, **kwargs):
+        serializer = self.serializer_class(data=request.data)
+
+        if serializer.is_valid(raise_exception=True):
+            try:
+                instance = VisitCount.objects.get(
+                    user_ref=serializer.data.get("user_ref")
+                )
+                instance.save()
+                return Response({"status": "Updated"})
+
+            except VisitCount.DoesNotExist:
+                VisitCount.objects.create(
+                    user_ref=serializer.data.get("user_ref"),
+                )
+                return Response({"status": "Created"})
 
 
 # Login With Google
