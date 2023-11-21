@@ -31,7 +31,7 @@ ALLOWED_HOSTS = ["*"]
 # CORS Settings
 CORS_ALLOW_ALL_ORIGINS = True
 # CSRF ORIGINS
-CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "https://api.transendcrafts.com"]
+CSRF_TRUSTED_ORIGINS = ["http://localhost:3000", "https://api.transendcrafts.com", "https://transendcrafts.com"]
 
 
 # Application definition
