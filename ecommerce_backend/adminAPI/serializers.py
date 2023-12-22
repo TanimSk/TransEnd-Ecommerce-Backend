@@ -4,7 +4,7 @@ from .models import Moderator, Notice, CouponCode
 from productsAPI.models import Product, Category
 from vendorAPI.models import Vendor
 from userAPI.models import OrderedProduct
-from .models import BookedCall
+from .models import BookedCall, HeroContent
 
 
 class AdminCustomRegistrationSerializer(RegisterSerializer):
@@ -210,3 +210,9 @@ class BookedCallSerializer(serializers.ModelSerializer):
 
 class ChangeStatusSerializer(serializers.Serializer):
     status = serializers.CharField()
+
+
+class HeroContentSerializer(serializers.Serializer):
+    class Meta:
+        model = HeroContent
+        fields = "__all__"

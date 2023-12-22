@@ -1,4 +1,5 @@
 from django.db import models
+from django.contrib.postgres.fields import ArrayField
 
 # from django.contrib.auth.models import User
 from django.conf import settings
@@ -50,3 +51,10 @@ class Reward(models.Model):
 class ExtraPayment(models.Model):
     inside_dhaka = models.IntegerField(default=0)
     outside_dhaka = models.IntegerField(default=0)
+
+
+class HeroContent(models.Model):
+    images = ArrayField(models.URLField(), default=list, blank=True)
+    main_heading = models.CharField(max_length=100)
+    primary_heading = models.CharField(max_length=200)
+    secondary_heading = models.CharField(max_length=200)

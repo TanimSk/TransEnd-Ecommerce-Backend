@@ -17,6 +17,7 @@ from .views import (
     ManageAdminAPI,
     CallBookingAPI,
     GetVisitAPI,
+    HeroContentAPI,
 )
 
 urlpatterns = [
@@ -83,4 +84,6 @@ urlpatterns = [
     path("book_call/", CallBookingAPI.as_view(), name="book_call"),
     # Get Realtime visit count
     path("get_visit_count/", GetVisitAPI.as_view(), name="get_visit_count"),
+    # Hero Content
+    path("hero_content/", HeroContentAPI.as_view(), name="hero_content"),
 ]

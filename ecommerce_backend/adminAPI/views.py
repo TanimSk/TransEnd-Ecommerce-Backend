@@ -21,6 +21,7 @@ from .serializers import (
     ManageAdminSerializer,
     BookedCallSerializer,
     ChangeStatusSerializer,
+    HeroContentSerializer,
 )
 
 # from productsAPI.serializers import ProductSerializer
@@ -30,7 +31,7 @@ from rest_framework.permissions import (
 )
 from django.utils import timezone
 from django.db.models import Sum, F, Count
-from .models import Notice, CouponCode, Moderator, BookedCall
+from .models import Notice, CouponCode, Moderator, BookedCall, HeroContent
 from userAPI.models import VisitCount
 from vendorAPI.models import Vendor
 from productsAPI.models import Product, Category, FeaturedProduct
@@ -734,3 +735,28 @@ class GetVisitAPI(APIView):
             last_visit__gte=timezone.now() - timezone.timedelta(minutes=5)
         )
         return Response({"current_user": users_instance.count()})
+
+
+class HeroContentAPI(APIView):
+    def get(self, request, format=None, *args, **kwargs):
+        return Response(HeroContentSerializer(HeroContent.objects.first()).data)
+
+    def post(self, request, format=None, *args, **kwargs):
+        if not request.user.is_authenticated:
+            return Response({"error": "Not authenticated"})
+
+        serialized_data = HeroContentSerializer(data=request.data)
+        if serialized_data.is_valid(raise_exception=True):
+            hero_instance = HeroContent.objects.first()
+
+            if hero_instance is None:
+                HeroContent.objects.create(**serialized_data.data)
+                return Response({"status": "Successfully Created Hero Content!"})
+
+            hero_instance.images = serialized_data.data.get("images")
+            hero_instance.main_heading = serialized_data.data.get("main_heading")
+            hero_instance.primary_heading = serialized_data.data.get("primary_heading")
+            hero_instance.secondary_heading = serialized_data.data.get("secondary_heading")
+
+            hero_instance.save()
+            return Response({"status": "Successfully Updated Hero Content!"})
