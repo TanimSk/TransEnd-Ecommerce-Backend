@@ -44,7 +44,7 @@ class OrderedProduct(models.Model):
     )
     ordered_quantity = models.IntegerField()
     ordered_date = models.DateTimeField(blank=True, null=True)
-    tracking_id = models.UUIDField(editable=False, blank=True, null=True)
+    tracking_id = models.CharField(editable=False, blank=True, null=True, max_length=100)
 
     # Product Specific
     per_price = models.IntegerField(blank=True, null=True)  # Per Product
@@ -99,7 +99,7 @@ class Wishlist(models.Model):
 
 
 class OrderPackageTrack(models.Model):
-    tracking_id = models.UUIDField(editable=False, unique=True)
+    tracking_id = models.CharField(editable=False, blank=True, null=True, max_length=100)
 
 
 # Realtime Count

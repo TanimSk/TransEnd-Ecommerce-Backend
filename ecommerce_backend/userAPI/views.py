@@ -24,7 +24,7 @@ from dj_rest_auth.registration.views import SocialConnectView
 from allauth.socialaccount.providers.google.views import GoogleOAuth2Adapter
 from allauth.socialaccount.providers.oauth2.client import OAuth2Client
 from dj_rest_auth.registration.views import SocialLoginView
-from .utils import make_payment, verify_payment, send_invoice
+from .utils import make_payment, verify_payment, send_invoice, get_unique_number
 import uuid
 
 
@@ -36,7 +36,7 @@ def update_order(method, orders_instance, consumer_instance):
     courier_fee = 0
     coupon_discount = 0
     reward_discount = 0
-    order_id = uuid.uuid4()
+    order_id = get_unique_number()
 
     context = {
         "customer_name": orders_instance[0].consumer_name,
