@@ -212,7 +212,7 @@ class ChangeStatusSerializer(serializers.Serializer):
     status = serializers.CharField()
 
 
-class HeroContentSerializer(serializers.Serializer):
+class HeroContentSerializer(serializers.ModelSerializer):
     class Meta:
         model = HeroContent
         fields = "__all__"

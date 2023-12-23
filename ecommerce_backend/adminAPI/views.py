@@ -447,19 +447,16 @@ class ManageVendorsAPI(APIView):
     def post(self, request, vendor_id=None, format=None, *args, **kwargs):
         serializer = self.serializer_class(data=request.data)
 
-        if serializer.is_valid(raise_exception=True):
-            if vendor_id is None:
-                Vendor.objects.create(**serializer.data)
-                return Response({"status": "Successfully Added Vendor"})
+        if vendor_id is None and serializer.is_valid(raise_exception=True):
+            Vendor.objects.create(**serializer.data)
+            return Response({"status": "Successfully Added Vendor"})
 
-            else:
-                vendor_instance = Vendor.objects.get(id=vendor_id)
-                serializer.update(vendor_instance, serializer.data)
-                # vendor_instance.name = serializer.data.get("name")
-                # vendor_instance.phone_number = serializer.data.get("phone_number")
-                # vendor_instance.address = serializer.data.get("address")
-                # vendor_instance.save()
-                return Response({"status": "Successfully Updated"})
+        else:
+            # Updating Vendor Data
+            serialized_data = ManageVendorsSerializer(request.data)
+            vendor_instance = Vendor.objects.get(id=vendor_id)
+            serializer.update(vendor_instance, serialized_data.data)
+            return Response({"status": "Successfully Updated"})
 
     def delete(self, request, vendor_id=None, format=None, *args, **kwargs):
         if vendor_id is None:
@@ -748,11 +745,12 @@ class HeroContentAPI(APIView):
             return Response({"error": "Not authenticated"})
 
         serialized_data = HeroContentSerializer(data=request.data)
+
         if serialized_data.is_valid(raise_exception=True):
             hero_instance = HeroContent.objects.first()
 
             if hero_instance is None:
-                HeroContent.objects.create(**serialized_data.data)
+                HeroContent.objects.create(**serialized_data.data)                
                 return Response({"status": "Successfully Created Hero Content!"})
 
             hero_instance.images = serialized_data.data.get("images")

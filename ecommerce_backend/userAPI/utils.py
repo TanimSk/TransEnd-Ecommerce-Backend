@@ -1,6 +1,7 @@
 from django.core.mail import EmailMultiAlternatives
 from django.template.loader import render_to_string
 from django.utils.html import strip_tags
+from django.utils import timezone
 import requests
 import json
 import uuid
@@ -56,3 +57,11 @@ def send_invoice(to_mail, context):
     msg = EmailMultiAlternatives(subject, text_content, from_email, [to_mail])
     msg.attach_alternative(html_content, "text/html")
     msg.send()
+
+
+def get_unique_number() -> str:
+    now_time = timezone.now()
+
+    # total_milliseconds = (now_time. * 3600 + minutes * 60 + seconds) * 1000
+
+    return f"{now_time}"

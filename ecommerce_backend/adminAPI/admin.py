@@ -1,5 +1,5 @@
 from django.contrib import admin
-from .models import Moderator, Notice, Reward, CouponCode, ExtraPayment, BookedCall
+from .models import Moderator, Notice, Reward, CouponCode, ExtraPayment, BookedCall, HeroContent
 
 
 @admin.register(Moderator)
@@ -55,4 +55,12 @@ class BookedCallAdmin(admin.ModelAdmin):
         "phone_number",
         "details",
         "book_on",
+    )
+
+
+@admin.register(HeroContent)
+class HeroContentAdmin(admin.ModelAdmin):
+    list_display = (
+        "images",
+        "main_heading",
     )
