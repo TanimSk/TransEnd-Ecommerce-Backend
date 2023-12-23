@@ -36,7 +36,7 @@ def update_order(method, orders_instance, consumer_instance):
     courier_fee = 0
     coupon_discount = 0
     reward_discount = 0
-    order_id = get_unique_number()
+    order_id = get_unique_number(orders_instance[0].consumer_name)
 
     context = {
         "customer_name": orders_instance[0].consumer_name,

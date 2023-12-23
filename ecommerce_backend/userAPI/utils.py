@@ -59,11 +59,11 @@ def send_invoice(to_mail, context):
     msg.send()
 
 
-def get_unique_number() -> str:
+def get_unique_number(name) -> str:
     now_time = timezone.now()
     total_milliseconds = (
         (now_time.hour * 3600) + (now_time.minute * 60) + now_time.second
     ) * 1000
     total_milliseconds = total_milliseconds + int(now_time.microsecond // 1000)
 
-    return f"TE{now_time.day}{now_time.month}{now_time.year}{now_time}"
+    return f"TE{now_time.day}{now_time.month}{str(now_time.year)[2:]}- {name[:3]}{total_milliseconds}"
