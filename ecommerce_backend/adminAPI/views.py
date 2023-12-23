@@ -454,10 +454,11 @@ class ManageVendorsAPI(APIView):
 
             else:
                 vendor_instance = Vendor.objects.get(id=vendor_id)
-                vendor_instance.name = serializer.data.get("name")
-                vendor_instance.phone_number = serializer.data.get("phone_number")
-                vendor_instance.address = serializer.data.get("address")
-                vendor_instance.save()
+                serializer.update(vendor_instance, serializer.data)
+                # vendor_instance.name = serializer.data.get("name")
+                # vendor_instance.phone_number = serializer.data.get("phone_number")
+                # vendor_instance.address = serializer.data.get("address")
+                # vendor_instance.save()
                 return Response({"status": "Successfully Updated"})
 
     def delete(self, request, vendor_id=None, format=None, *args, **kwargs):
@@ -737,6 +738,7 @@ class GetVisitAPI(APIView):
         return Response({"current_user": users_instance.count()})
 
 
+# Hero Content
 class HeroContentAPI(APIView):
     def get(self, request, format=None, *args, **kwargs):
         return Response(HeroContentSerializer(HeroContent.objects.first()).data)
@@ -756,7 +758,9 @@ class HeroContentAPI(APIView):
             hero_instance.images = serialized_data.data.get("images")
             hero_instance.main_heading = serialized_data.data.get("main_heading")
             hero_instance.primary_heading = serialized_data.data.get("primary_heading")
-            hero_instance.secondary_heading = serialized_data.data.get("secondary_heading")
+            hero_instance.secondary_heading = serialized_data.data.get(
+                "secondary_heading"
+            )
 
             hero_instance.save()
             return Response({"status": "Successfully Updated Hero Content!"})

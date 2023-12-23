@@ -20,6 +20,8 @@ class Product(models.Model):
     name = models.CharField(max_length=200)
     details = models.TextField(blank=True)
     tags = ArrayField(models.CharField(max_length=500), default=list, blank=True)
+    sizes = ArrayField(models.CharField(max_length=500), default=list, blank=True)
+    colors = ArrayField(models.CharField(max_length=500), default=list, blank=True)
 
     # Price
     price_bdt = models.IntegerField()
@@ -41,6 +43,7 @@ class Product(models.Model):
     # Product Trace
     product_added_date = models.DateTimeField(auto_now=True)
     quantity_sold = models.IntegerField(default=0)
+    product_sku = models.CharField(max_length=200, blank=True, null=True)
 
     # Foreign Keys
     category = models.ForeignKey(
