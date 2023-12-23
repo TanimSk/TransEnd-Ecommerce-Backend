@@ -43,8 +43,13 @@ class OrderedProduct(models.Model):
         Product, on_delete=models.CASCADE, related_name="ordered_product"
     )
     ordered_quantity = models.IntegerField()
+    color = models.CharField(max_length=200, blank=True, null=True)
+    size = models.CharField(max_length=200, blank=True, null=True)
+
     ordered_date = models.DateTimeField(blank=True, null=True)
-    tracking_id = models.CharField(editable=False, blank=True, null=True, max_length=100)
+    tracking_id = models.CharField(
+        editable=False, blank=True, null=True, max_length=100
+    )
 
     # Product Specific
     per_price = models.IntegerField(blank=True, null=True)  # Per Product
@@ -99,7 +104,9 @@ class Wishlist(models.Model):
 
 
 class OrderPackageTrack(models.Model):
-    tracking_id = models.CharField(editable=False, blank=True, null=True, max_length=100)
+    tracking_id = models.CharField(
+        editable=False, blank=True, null=True, max_length=100
+    )
 
 
 # Realtime Count

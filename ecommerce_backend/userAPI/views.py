@@ -335,6 +335,8 @@ class CartAPI(APIView):
                 consumer=request.user,
                 product=product_instance,
                 ordered_quantity=serializer.data.get("ordered_quantity"),
+                color=serializer.data.get("color"),
+                size=serializer.data.get("size"),
                 status="cart",
             ).save()
 
@@ -360,6 +362,12 @@ class CartAPI(APIView):
 
             order_product_instance.ordered_quantity = serializer.data.get(
                 "ordered_quantity"
+            )
+            order_product_instance.color = serializer.data.get(
+                "color", order_product_instance.color
+            )
+            order_product_instance.size = serializer.data.get(
+                "size", order_product_instance.size
             )
             order_product_instance.save()
 

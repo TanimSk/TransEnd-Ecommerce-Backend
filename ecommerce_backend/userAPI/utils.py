@@ -66,4 +66,4 @@ def get_unique_number(name) -> str:
     ) * 1000
     total_milliseconds = total_milliseconds + int(now_time.microsecond // 1000)
 
-    return f"TE{now_time.day}{now_time.month}{str(now_time.year)[2:]}- {name[:3]}{total_milliseconds}"
+    return f"TE{now_time.day}{now_time.month}{str(now_time.year)[2:]}-{name[:3]}{total_milliseconds}"
