@@ -371,7 +371,7 @@ class CartAPI(APIView):
             )
             order_product_instance.save()
 
-            return Response({"status": "Quantity Updated"}, status=200)
+            return Response({"status": "Order Updated"}, status=200)
 
     def delete(self, request, product_id=None, format=None, *args, **kwargs):
         if product_id is None:
