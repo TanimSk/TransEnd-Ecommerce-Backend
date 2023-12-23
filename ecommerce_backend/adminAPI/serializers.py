@@ -135,6 +135,8 @@ class OrderedProductsSerializer(serializers.ModelSerializer):
             "payment_method",
             "inside_dhaka",
             "order_total_price",
+            "color",
+            "size",
         )
         model = OrderedProduct
 
