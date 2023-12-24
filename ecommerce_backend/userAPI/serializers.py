@@ -66,6 +66,8 @@ class OrderedProductSerializer(serializers.ModelSerializer):
             "reward_discount",
             "color",
             "size",
+            "available_colors",
+            "available_sizes",
         )
         model = OrderedProduct
 
