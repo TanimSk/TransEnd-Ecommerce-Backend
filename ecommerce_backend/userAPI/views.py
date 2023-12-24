@@ -3,7 +3,7 @@ from productsAPI.serializers import ProductSerializer
 from rest_framework.views import APIView
 from rest_framework.response import Response
 from django.db import transaction
-from django.shortcuts import render
+from django.shortcuts import render, redirect
 from django.views.decorators.csrf import csrf_exempt
 from productsAPI.models import Product
 from .models import Wishlist, OrderedProduct, Consumer, OrderPackageTrack, VisitCount
@@ -87,7 +87,7 @@ def update_order(method, orders_instance, consumer_instance):
             # Setting the Values
             order_instance.per_price = per_price
             order_instance.total_price = total_price
-            order_instance.total_grant = total_grant            
+            order_instance.total_grant = total_grant
             order_instance.revenue = revenue
             order_total_price += total_price
             net_grant += total_grant
@@ -493,6 +493,8 @@ def OrderProductMobileAPI(request):
             return render(
                 request, "payment_success.html", {"amount": context["total_grant"]}
             )
+
+        return redirect("https://transendcrafts.com/")
 
 
 # Make Mobile Payment
