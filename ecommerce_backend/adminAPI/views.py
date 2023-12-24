@@ -183,6 +183,9 @@ class AddProductsAPI(APIView):
                 name=serializer.data.get("name"),
                 details=serializer.data.get("details", ""),
                 tags=serializer.data.get("tags", []),
+                sizes=serializer.data.get("sizes", []),
+                colors=serializer.data.get("colors", []),
+                product_sku=serializer.data.get("product_sku", []),
                 # Price
                 price_bdt=serializer.data.get("price_bdt"),
                 price_usd=serializer.data.get("price_usd", 0),
@@ -750,7 +753,7 @@ class HeroContentAPI(APIView):
             hero_instance = HeroContent.objects.first()
 
             if hero_instance is None:
-                HeroContent.objects.create(**serialized_data.data)                
+                HeroContent.objects.create(**serialized_data.data)
                 return Response({"status": "Successfully Created Hero Content!"})
 
             hero_instance.images = serialized_data.data.get("images")
