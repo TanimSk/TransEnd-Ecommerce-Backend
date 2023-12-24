@@ -297,6 +297,11 @@ class ManageProductsAPI(APIView):
             product_instance.name = serializer.data.get("name")
             product_instance.details = serializer.data.get("details", "")
             product_instance.tags = serializer.data.get("tags", [])
+
+            product_instance.colors = serializer.data.get("colors", [])
+            product_instance.sizes = serializer.data.get("sizes", [])
+            product_instance.product_sku = serializer.data.get("product_sku")
+
             # Price
             product_instance.price_bdt = serializer.data.get("price_bdt")
             product_instance.price_usd = serializer.data.get("price_usd", 0)
