@@ -43,6 +43,9 @@ class OrderedProductSerializer(serializers.ModelSerializer):
     ordered_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p", read_only=True)
     status = serializers.CharField(read_only=True)
 
+    available_colors = serializers.IntegerField(source="product.colors", read_only=True)
+    available_sizes = serializers.IntegerField(source="product.sizes", read_only=True)
+
     class Meta:
         fields = (
             "category_id",
