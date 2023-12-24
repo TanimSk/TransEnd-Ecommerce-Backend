@@ -36,6 +36,7 @@ def update_order(method, orders_instance, consumer_instance):
     courier_fee = 0
     coupon_discount = 0
     reward_discount = 0
+    total_grant = 0
     order_id = get_unique_number(orders_instance[0].consumer_name)
 
     context = {
@@ -54,6 +55,7 @@ def update_order(method, orders_instance, consumer_instance):
             product_instance = Product.objects.get(ordered_product=order_instance)
             product_instance.quantity -= order_instance.ordered_quantity
             product_instance.quantity_sold += order_instance.ordered_quantity
+            total_grant += order_instance.total_grant
 
             # coupon_discount & reward_discount
             if order_instance.coupon_bdt > 0:
@@ -121,6 +123,7 @@ def update_order(method, orders_instance, consumer_instance):
     context["total_price"] = order_total_price
     context["reward_discount"] = reward_discount
     context["coupon_discount"] = coupon_discount
+    context["total_grant"] = total_grant
 
     orders_instance.update(
         courier_fee=courier_fee,
@@ -487,7 +490,7 @@ def OrderProductMobileAPI(request):
         if verify_payment(request.GET.get("uuid")):
             context = update_order("mobile", orders_instance, consumer_instance)
             send_invoice(consumer_instance.consumer.email, context)
-            return render(request, "payment_success.html")
+            return render(request, "payment_success.html", {"amount": context["total_grant"]})
 
 
 # Make Mobile Payment
