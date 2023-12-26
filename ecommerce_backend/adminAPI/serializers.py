@@ -71,7 +71,7 @@ class ManageProductViewSerializer(serializers.ModelSerializer):
     product_added_date = serializers.DateTimeField(format="%d/%m/%Y %I:%M %p")
     admin_email = serializers.CharField(source="added_by.email")
     product_id = serializers.SerializerMethodField()
-    product_sku = serializers.CharField(source="product_sku", read_only=True)
+    product_sku = serializers.CharField(read_only=True)
 
     class Meta:
         fields = (
