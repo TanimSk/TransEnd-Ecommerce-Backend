@@ -9,20 +9,30 @@ import uuid
 
 # Generate Payment Link
 def make_payment(cus_name, cus_email, cus_phone, amount) -> dict:
-    url = "https://sandbox.aamarpay.com/jsonpost.php"
+    sandbox = False
+
+    if sandbox:
+        url = "https://sandbox.aamarpay.com/jsonpost.php"
+        store_id = "aamarpaytest"
+        signature_key = "dbb74894e82415a2f7ff0ec3a97e4183"
+    else:
+        url = "https://secure.aamarpay.com/jsonpost.php"
+        store_id = "transendcrafts"
+        signature_key = "624898df9f5121e30557689d567befa5"
+
     unique_id = str(uuid.uuid4())
 
     payload = json.dumps(
         {
-            "store_id": "aamarpaytest",
+            "store_id": store_id,
             "tran_id": unique_id,
             "success_url": f"https://api.transendcrafts.com/consumer/ordered_product/mobile?uuid={unique_id}&email={cus_email}",
-            "fail_url": "http://google.com/",
-            "cancel_url": "http://www.merchantdomain.com/can",
+            "fail_url": "https://transendcrafts.com/",
+            "cancel_url": "https://transendcrafts.com/",
             "amount": amount,
             "currency": "BDT",
-            "signature_key": "dbb74894e82415a2f7ff0ec3a97e4183",
-            "desc": "Customer Payment",
+            "signature_key": signature_key,
+            "desc": f"{cus_name} - {timezone.now()}",
             "cus_name": cus_name,
             "cus_email": cus_email,
             "cus_phone": cus_phone,
@@ -36,7 +46,18 @@ def make_payment(cus_name, cus_email, cus_phone, amount) -> dict:
 
 # Verify Payment
 def verify_payment(request_id):
-    url = f"https://sandbox.aamarpay.com/api/v1/trxcheck/request.php?request_id={request_id}&store_id=aamarpaytest&signature_key=dbb74894e82415a2f7ff0ec3a97e4183&type=json"
+    sandbox = False
+
+    if sandbox:
+        url = "https://sandbox.aamarpay.com/jsonpost.php"
+        store_id = "aamarpaytest"
+        signature_key = "dbb74894e82415a2f7ff0ec3a97e4183"
+    else:
+        url = "https://secure.aamarpay.com/jsonpost.php"
+        store_id = "transendcrafts"
+        signature_key = "624898df9f5121e30557689d567befa5"
+
+    url = f"{url}/api/v1/trxcheck/request.php?request_id={request_id}&store_id={store_id}&signature_key={signature_key}&type=json"
     payload = {}
     headers = {}
     response = requests.request("GET", url, headers=headers, data=payload).json()
