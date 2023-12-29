@@ -55,6 +55,7 @@ class ExtraPayment(models.Model):
 
 class HeroContent(models.Model):
     images = ArrayField(models.URLField(), default=list, blank=True)
+    images_mobile = ArrayField(models.URLField(), default=list, blank=True)
     main_heading = models.CharField(max_length=100)
     primary_heading = models.CharField(max_length=200)
     secondary_heading = models.CharField(max_length=200)

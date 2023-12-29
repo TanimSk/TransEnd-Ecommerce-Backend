@@ -762,6 +762,7 @@ class HeroContentAPI(APIView):
                 return Response({"status": "Successfully Created Hero Content!"})
 
             hero_instance.images = serialized_data.data.get("images")
+            hero_instance.images_mobile = serialized_data.data.get("images_mobile")
             hero_instance.main_heading = serialized_data.data.get("main_heading")
             hero_instance.primary_heading = serialized_data.data.get("primary_heading")
             hero_instance.secondary_heading = serialized_data.data.get(
